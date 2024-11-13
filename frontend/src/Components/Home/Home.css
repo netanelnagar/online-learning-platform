@@ -1,0 +1,13 @@
+.Home {
+}
+
+.notice{
+    height: 350px;
+    max-width: 500px;
+}
+
+
+
+.notice div{
+    width: 100%;
+}

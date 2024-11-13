@@ -1,0 +1,57 @@
+version: '3.1'
+
+services:
+  database-mongodb-service:
+    image: mongodb-image:0.0.1
+    build: ./database
+    container_name: database-mongodb-container
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: nati
+      MONGO_INITDB_ROOT_PASSWORD: 12345
+    restart: unless-stopped
+    volumes:
+      - volume_mongodb:/data/db
+    
+
+
+  # -----------------------------------#
+  backend-service:
+    image: backend-service:0.0.1
+    build: ./backend
+    container_name: backend-container
+    ports:
+      - 5000:3002
+    environment:
+      MONGO_ROOT_USERNAME: nati
+      MONGO_ROOT_PASSWORD: 12345
+      MONGO_ROOT_URL: mongodb://nati:12345@database-mongodb-service:27017/
+      MODE: dev
+    volumes:
+      # developer only!
+      - ./backend:/app
+    depends_on:
+      - database-mongodb-service
+    
+
+      # -----------------------------------#
+  frontend-service:
+    image: frontend-service:0.0.1
+    build: ./frontend
+    container_name: frontend-container
+    ports:
+      - 3000:5173
+    volumes:
+      # developer only!
+      - ./frontend:/app
+    depends_on:
+      - backend-service
+   
+
+volumes:
+  volume_mongodb:
+
+networks:
+  app-network:
+    driver: bridge

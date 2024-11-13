@@ -1,0 +1,13 @@
+/* .login-card {
+    width: 380px;
+    height: 400px;
+    max-height: 590px;
+} */
+
+.p-card-title {
+   text-align: center;
+}
+
+.p-message {
+    margin-bottom: 1rem;
+}
