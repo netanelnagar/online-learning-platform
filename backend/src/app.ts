@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import usersRouter from "./controllers/usersController";
 import filesRouter from "./controllers/filesControllers";
-import authRouter from "./controllers/authControllers";
+import authRouter from "./controllers/review-controller";
 import { catchAllErrors } from "./middlewares/catchAllErrors";
 import { connectToMongo } from "./utils/dal";
 import expressFile from "express-fileupload";
@@ -10,6 +10,7 @@ import { getLogger } from "./middlewares/winston-logger";
 import figlet from "figlet";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
+import reviewRouter from "./routes/review-route";
 
 const log = getLogger("app");
 
@@ -44,9 +45,8 @@ app.use(expressFile());
 
 app.use(cors());
 
-app.use('/api', usersRouter);
-app.use('/api', filesRouter);
-app.use('/api', authRouter);
+app.use('/api/reviews', reviewRouter);
+
 
 app.use('*', (req, res, next) => {
     res.status(404).send(`Page ${req.originalUrl} not found`)

@@ -1,5 +1,3 @@
-version: '3.1'
-
 services:
   database-mongodb-service:
     image: mongodb-image:0.0.1
@@ -13,8 +11,6 @@ services:
     restart: unless-stopped
     volumes:
       - volume_mongodb:/data/db
-    
-
 
   # -----------------------------------#
   backend-service:
@@ -33,8 +29,6 @@ services:
       - ./backend:/app
     depends_on:
       - database-mongodb-service
-    
-
       # -----------------------------------#
   frontend-service:
     image: frontend-service:0.0.1
@@ -47,10 +41,10 @@ services:
       - ./frontend:/app
     depends_on:
       - backend-service
-   
 
 volumes:
   volume_mongodb:
+
 
 networks:
   app-network:
