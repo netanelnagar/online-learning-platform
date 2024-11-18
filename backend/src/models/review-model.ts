@@ -12,4 +12,4 @@ const reviewSchema = new Schema<IReview>(
      { timestamps: true }
 );
 
-export const reviewModel = model<IReview>('reviewModel', reviewSchema, 'Reviews');
+export const Reviews = model<IReview>('Reviews', reviewSchema, 'Reviews');

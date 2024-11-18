@@ -1,15 +1,21 @@
+import { config } from "dotenv";
+config({ path: ".env" });
 import express from "express";
 import cors from "cors";
-import usersRouter from "./controllers/usersController";
-import filesRouter from "./controllers/filesControllers";
-import authRouter from "./controllers/authControllers";
+import usersRouter from "./controllers/student-controller";
+import filesRouter from "./controllers/course-controller";
+import authRouter from "./controllers/review-controller";
 import { catchAllErrors } from "./middlewares/catchAllErrors";
-import { connectToMongo } from "./utils/dal";
 import expressFile from "express-fileupload";
 import { getLogger } from "./middlewares/winston-logger";
 import figlet from "figlet";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
+import { connectToMongo } from "./utils/dal";
+import reviewRouter from "./routes/review-route";
+import courseRouter from "./routes/course-route";
+import studentRouter from "./routes/student-route";
+import teacherRouter from "./routes/teacher-route";
 
 const log = getLogger("app");
 
@@ -19,6 +25,7 @@ log.info(
         font: "Bulbhead"
     })
 )
+
 
 connectToMongo();
 
@@ -44,9 +51,11 @@ app.use(expressFile());
 
 app.use(cors());
 
-app.use('/api', usersRouter);
-app.use('/api', filesRouter);
-app.use('/api', authRouter);
+app.use('/api/reviews', reviewRouter);
+app.use('/api/courses', courseRouter);
+app.use('/api/students', studentRouter);
+app.use('/api/teachers', teacherRouter);
+
 
 app.use('*', (req, res, next) => {
     res.status(404).send(`Page ${req.originalUrl} not found`)
