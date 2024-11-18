@@ -18,8 +18,9 @@ services:
     build: ./backend
     container_name: backend-container
     ports:
-      - 5000:3002
+      - 3002:3002
     environment:
+      PORT: 3002
       MONGO_ROOT_USERNAME: nati
       MONGO_ROOT_PASSWORD: 12345
       MONGO_ROOT_URL: mongodb://nati:12345@database-mongodb-service:27017/

@@ -1,10 +1,10 @@
 import { Types } from "mongoose";
 
 export interface IStudent {
-     firstName: string;
-     lastName: string;
+     username: string;
      email: string;
      password: string;
+     passwordConfirm: string | undefined;
      role?: string; // Optional because it has a default value
      profilePicture?: string; // Optional
      enrolledCourses: {
@@ -18,6 +18,7 @@ export interface IStudent {
           certificateUrl?: string; // Optional
           completionDate?: Date; // Optional
      }[];
+     active: boolean;
      createdAt?: Date; // Optional because it's auto-managed by timestamps
      updatedAt?: Date; // Optional because it's auto-managed by timestamps
 }

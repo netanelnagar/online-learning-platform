@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
 import { getLogger } from "../middlewares/winston-logger";
 
-const url = process.env.MONGO_ROOT_URL || 'mongodb://127.0.0.1:27017/';
+
+const url = process.env.MONGO_ROOT_URL || "mongodb://nati:12345@localhost:27017/";
 
 const log = getLogger("dal");
 
@@ -11,5 +12,8 @@ export async function connectToMongo() {
 
     log.info(`connection to ${db.connections[0].name} on MongoDB. url: ${url}`)
 
+
 }
+
+
 

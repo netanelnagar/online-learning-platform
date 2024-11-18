@@ -1,11 +1,18 @@
 import { model, Schema } from "mongoose";
 import { IAdmin } from "../types/admin-types";
+import validator from "validator";
 
 const adminSchema = new Schema<IAdmin>(
      {
           name: { type: String, required: true },  // Admin's full name
-          email: { type: String, required: true, unique: true }, // Login identifier
+          email: {
+               type: String,
+               required: true,
+               unique: true,
+               validate: [validator.isEmail, '{VALUE} is not a valid email address!']
+          }, // Login identifier
           password: { type: String, required: true }, // Encrypted password
+          salt: { type: String, required: true },
           role: { type: String, default: 'admin' }, // Role in the system
           profilePicture: { type: String }, // Optional profile picture URL
           actions: [                         // Logs of admin actions

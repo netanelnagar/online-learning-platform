@@ -1,22 +1,24 @@
 import { model, Schema } from "mongoose";
+import { ICourse, ILesson } from "../types/course-types";
 
 
-const lessonSchema = new Schema({
-     title: { type: String, required: true },
+const lessonSchema = new Schema<ILesson>({
+     title: { type: String, required: true, unique: true },
      videoUrl: { type: String, required: true },
      content: { type: String },
      duration: { type: Number },
      resources: [
           {
+               _id: false,
                type: { type: String }, // e.g., "pdf", "link"
                url: { type: String }
-          }
-     ]
+          },
+     ],
 });
 
-const courseSchema = new Schema(
+const courseSchema = new Schema<ICourse>(
      {
-          title: { type: String, required: true },
+          title: { type: String, required: true, unique: true, lowercase: true },
           description: { type: String, required: true },
           thumbnail: { type: String },
           category: { type: String },
@@ -24,6 +26,7 @@ const courseSchema = new Schema(
           lessons: [lessonSchema],
           studentsEnrolled: [
                {
+                    _id: false,
                     studentId: { type: Schema.Types.ObjectId, ref: 'Students' },
                     enrollmentDate: { type: Date, default: Date.now }
                }
@@ -35,7 +38,17 @@ const courseSchema = new Schema(
           price: { type: Number, default: 0 },
           published: { type: Boolean, default: false }
      },
-     { timestamps: true }
+     {
+          timestamps: true,
+          autoIndex: true
+     }
 );
 
-export const courseModel = model('courseModel', courseSchema, 'Courses');
+
+courseSchema.virtual('reviews', {
+     ref: 'Reviews',
+     foreignField: 'courseId',
+     localField: '_id'
+});
+
+export const Courses = model('Courses', courseSchema, 'Courses');
