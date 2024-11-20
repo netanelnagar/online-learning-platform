@@ -2,12 +2,9 @@ import { config } from "dotenv";
 config({ path: ".env" });
 import express from "express";
 import cors from "cors";
-import usersRouter from "./controllers/student-controller";
-import filesRouter from "./controllers/course-controller";
-import authRouter from "./controllers/review-controller";
 import { catchAllErrors } from "./middlewares/catchAllErrors";
 import expressFile from "express-fileupload";
-import { getLogger } from "./middlewares/winston-logger";
+import { getLogger } from "./utils/winston-logger";
 import figlet from "figlet";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
@@ -16,6 +13,8 @@ import reviewRouter from "./routes/review-route";
 import courseRouter from "./routes/course-route";
 import studentRouter from "./routes/student-route";
 import teacherRouter from "./routes/teacher-route";
+import cookieParser from "cookie-parser";
+import adminRouter from "./routes/admin-route";
 
 const log = getLogger("app");
 
@@ -51,10 +50,13 @@ app.use(expressFile());
 
 app.use(cors());
 
+app.use(cookieParser());
+
 app.use('/api/reviews', reviewRouter);
 app.use('/api/courses', courseRouter);
 app.use('/api/students', studentRouter);
 app.use('/api/teachers', teacherRouter);
+app.use('/api/admin', adminRouter);
 
 
 app.use('*', (req, res, next) => {

@@ -1,5 +1,5 @@
 import { UploadedFile } from "express-fileupload";
-import { getLogger } from "../middlewares/winston-logger";
+import { getLogger } from "../utils/winston-logger";
 import { SourceNotFoundError } from "../types/errors-types";
 import { IUpdateUser, IUser, userModel } from "../models/student-model";
 import path from "path";

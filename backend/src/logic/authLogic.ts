@@ -1,6 +1,6 @@
 import path from "path";
 import auth from "../utils/auth";
-import { getLogger } from "../middlewares/winston-logger";
+import { getLogger } from "../utils/winston-logger";
 import { SourceNotFoundError, ValidationError } from "../types/errors-types";
 import { IUser, userModel } from "../models/student-model";
 import { v4 as uuidv4 } from "uuid";

@@ -2,9 +2,10 @@ import { Types } from "mongoose";
 
 // Interface for Teacher Schema
 export interface ITeacher {
+    _id?: string;
     username: string; // Teacher's full name (lowercase and unique)
     email: string; // Email (validated as a proper email address)
-    password: string; // Hashed password
+    password?: string; // Hashed password
     passwordConfirm: string | undefined;
     profilePicture?: string; // Optional profile picture URL
     bio?: string; // Optional short biography about the teacher
@@ -17,7 +18,7 @@ export interface ITeacher {
     courses: Types.ObjectId[]; // List of course ObjectIds created by the teacher
     reviews: Types.ObjectId[]; // List of review ObjectIds for the teacher
     role: "teacher"; // Enum role, restricted to "teacher"
-    active: boolean;
+    active?: boolean;
     createdAt?: Date; // Automatically managed by timestamps
     updatedAt?: Date; // Automatically managed by timestamps
 }

@@ -1,8 +1,8 @@
-import { model, Schema } from "mongoose";
+import { model, Query, Schema } from "mongoose";
 import validator from "validator";
 import { ITeacher } from "../types/teacher-types";
 import { hash } from "bcryptjs";
-import { chackSamePassword } from "../utils/general-functions";
+import { chackSamePassword, correctPassword } from "../utils/general-functions";
 
 const teacherSchema = new Schema<ITeacher>(
      {
@@ -28,13 +28,6 @@ const teacherSchema = new Schema<ITeacher>(
                github: { type: String },
                personalWebsite: { type: String }
           },
-          courses: [                 // List of courses created by the teacher
-               { type: Schema.Types.ObjectId, ref: 'Course' },
-
-          ],
-          reviews: [                 // Reviews given to the teacher
-               { type: Schema.Types.ObjectId, ref: 'Reviews' }
-          ],
           role: {
                type: String,
                enum: {
@@ -49,34 +42,41 @@ const teacherSchema = new Schema<ITeacher>(
      },
      {
           timestamps: true,
-          autoIndex: true
-
+          autoIndex: true,
+          toJSON: { virtuals: true },
+          toObject: { virtuals: true }
      }
 );
+
+teacherSchema.virtual('courses', {
+     ref: 'Courses',
+     foreignField: 'createdBy',
+     localField: '_id'
+});
 
 
 teacherSchema.pre(/^find/, function (next) {
      // @ts-ignore
      this.find({ active: true })
 
-     // @ts-ignore
-     this.populate({
-          path: 'courses',
-          select: 'title description -_id'
-     });
-
      next();
 })
 
 
 teacherSchema.pre("save", async function (next) {
+
      !this.isModified("password") && next();
 
-     this.password = await hash(this.password, 8);
+
+     this.password = await hash(this.password!, 8);
 
      this.passwordConfirm = undefined;
 
      next();
-})
+});
+
+
+teacherSchema.methods.correctPassword = correctPassword;
+
 
 export const Teachers = model('Teachers', teacherSchema, 'Teachers');

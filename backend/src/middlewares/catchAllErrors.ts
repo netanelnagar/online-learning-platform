@@ -1,21 +1,22 @@
 import { NextFunction, Request, Response } from "express";
-import { getLogger } from "./winston-logger";
+import { getLogger } from "../utils/winston-logger";
 
 interface IError {
-    code?: number;
+    statusCode?: number;
     message: string;
 };
 
 const log = getLogger("catchAllErrors");
 
 function catchAllErrors(err: IError, req: Request, res: Response, next: NextFunction) {
-    log.error(`error code: ${err.code || 500}, error message: ${err.message}`);
+    console.log(err)
+    log.error(`error code: ${err.statusCode || 500}, error message: ${err.message}`);
     if (process.env.MODE === "production") {
-        if (err.code) {
-            res.status(err.code).send(err.message);
+        if (err.statusCode) {
+            res.status(err.statusCode).send(err.message);
         }
     } else {
-        res.status(err.code || 500).send(err.message);
+        res.status(err.statusCode || 500).send(err.message);
     }
 }
 
