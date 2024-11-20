@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 import { IStudent } from "../types/student-types";
 import validator from "validator";
-import { chackSamePassword } from "../utils/general-functions";
+import { chackSamePassword, correctPassword } from "../utils/general-functions";
 import { hash } from "bcryptjs";
 
 
@@ -77,13 +77,15 @@ studentSchema.pre(/^find/, function (next) {
 studentSchema.pre("save", async function (next) {
     !this.isModified("password") && next();
 
-    this.password = await hash(this.password, 8);
+    this.password = await hash(this.password!, 8);
 
     this.passwordConfirm = undefined;
 
     next();
 });
 
+
+studentSchema.methods.correctPassword = correctPassword;
 
 export const Students = model<IStudent>('Students', studentSchema, 'Students');
 

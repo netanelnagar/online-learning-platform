@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { getLogger } from "../middlewares/winston-logger";
+import { getLogger } from "./winston-logger";
 
 
 const url = process.env.MONGO_ROOT_URL || "mongodb://nati:12345@localhost:27017/";

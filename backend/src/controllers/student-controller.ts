@@ -1,14 +1,24 @@
 import { Students } from "../models/student-model";
+import authController from "./auth-controller";
 import factory from "./factory";
 
-
-const createStudent = factory.createOne(Students);
-
+const signup = authController.signup(Students);
+const login = authController.login(Students);
 const getStudents = factory.getAll(Students);
-const updateStudents = factory.getAll(Students);
+const getStudent = factory.getOne(Students);
+const updateStudent = factory.updateOne(Students);
+const deleteStudent = factory.deleteOne(Students);
+const deleteMe = factory.deleteMe(Students);
+const updateMe = factory.updateMe(Students);
+
 
 export default {
-    createStudent,
+    signup,
+    login,
     getStudents,
-    updateStudents
+    getStudent,
+    updateStudent,
+    deleteStudent,
+    deleteMe,
+    updateMe
 }

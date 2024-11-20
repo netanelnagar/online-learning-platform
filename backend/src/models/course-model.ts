@@ -51,4 +51,12 @@ courseSchema.virtual('reviews', {
      localField: '_id'
 });
 
+courseSchema.pre(/^find/, function (next) {
+     // @ts-ignore
+     this.find({ published: true })
+
+     next();
+})
+
+
 export const Courses = model('Courses', courseSchema, 'Courses');
