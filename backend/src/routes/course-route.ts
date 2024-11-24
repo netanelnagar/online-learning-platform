@@ -2,6 +2,7 @@ import { Router } from "express";
 import courseController from "../controllers/course-controller";
 import authController from "../controllers/auth-controller";
 import { Teachers } from "../models/teacher-model";
+import multerController from "../controllers/multer-controller";
 
 const courseRouter = Router();
 
@@ -12,7 +13,11 @@ courseRouter.route("/")
 
 courseRouter.use(authController.protect(Teachers))
 
-courseRouter.route("/").post(courseController.createCourse);
+courseRouter.route("/").post(
+    multerController.uploadCourse,
+    multerController.uploadCourseVideo,
+    courseController.createCourse
+);
 
 courseRouter.route("/:id")
     .patch(courseController.updateCourse)

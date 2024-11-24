@@ -16,6 +16,7 @@ import teacherRouter from "./routes/teacher-route";
 import cookieParser from "cookie-parser";
 import adminRouter from "./routes/admin-route";
 
+
 const log = getLogger("app");
 
 log.info(
@@ -36,7 +37,7 @@ const limiter = rateLimit({
     // store: ... , // Redis, Memcached, etc. See below.
 })
 
-const port = process.env.PORT || 3002;
+
 
 const app = express();
 
@@ -45,8 +46,6 @@ app.use(limiter)
 app.use(helmet({ crossOriginResourcePolicy: false, }));
 
 app.use(express.json());
-
-app.use(expressFile());
 
 app.use(cors());
 
@@ -65,5 +64,7 @@ app.use('*', (req, res, next) => {
 
 app.use(catchAllErrors);
 
+
+const port = process.env.PORT || 3002;
 app.listen(port, () => { log.info(`app listening on port ${port}`) });
 

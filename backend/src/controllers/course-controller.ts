@@ -10,6 +10,7 @@ const getCourses = factory.getAll(Courses);
 const createCourse = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     // @ts-ignore
     req.body.createdBy = req.user?._id;
+    req.body.price = Number(req.body.price)
     factory.createOne(Courses)(req, res, next);
 });
 

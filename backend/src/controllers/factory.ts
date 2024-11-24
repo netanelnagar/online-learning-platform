@@ -7,7 +7,7 @@ import { AppError } from "../utils/app-error";
 const log = getLogger("factory")
 
 const getAll = (model: Model<any>) => catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    console.log("first model" + model.modelName)
+
     const data = await model.find();
 
     res.status(200).json({
@@ -88,7 +88,7 @@ const updateMe = (Model: Model<any>) => catchAsync(async (req, res, next) => {
         throw new AppError('This route is not for password updates. Please use /updateMyPassword.', 400)
     }
 
-    // add some code when can add images, videos, etc.
+    if (req.file) req.body.profilePicture = req.file.filename;
 
     //@ts-ignore
     const doc = await Model.findByIdAndUpdate(req.user?.id, req.body, { new: true, runValidators: true });

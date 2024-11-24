@@ -2,6 +2,7 @@ import { Router } from "express";
 import studentController from "../controllers/student-controller";
 import authController from "../controllers/auth-controller";
 import { Students } from "../models/student-model";
+import multerController from "../controllers/multer-controller";
 
 const studentRouter = Router();
 
@@ -11,7 +12,11 @@ studentRouter.route("/login").post(studentController.login);
 
 studentRouter.use(authController.protect(Students));
 
-studentRouter.route("/updateMe").patch(studentController.updateMe);
+studentRouter.route("/updateMe").patch(
+    multerController.uploadUserPhoto,
+    multerController.resizeUserPhoto,
+    studentController.updateMe
+);
 studentRouter.route("/deleteMe").delete(studentController.deleteMe);
 
 

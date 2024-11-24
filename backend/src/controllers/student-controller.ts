@@ -2,6 +2,9 @@ import { Students } from "../models/student-model";
 import authController from "./auth-controller";
 import factory from "./factory";
 
+
+
+
 const signup = authController.signup(Students);
 const login = authController.login(Students);
 const getStudents = factory.getAll(Students);
@@ -20,5 +23,5 @@ export default {
     updateStudent,
     deleteStudent,
     deleteMe,
-    updateMe
+    updateMe,
 }

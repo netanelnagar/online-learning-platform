@@ -3,6 +3,8 @@ import { ICourse, ILesson } from "../types/course-types";
 
 
 const lessonSchema = new Schema<ILesson>({
+     // @ts-ignore
+     _id: false, // To enable embedding lessons in courses
      title: { type: String, required: true, unique: true },
      videoUrl: { type: String, required: true },
      content: { type: String },
