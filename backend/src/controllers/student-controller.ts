@@ -13,6 +13,7 @@ const updateStudent = factory.updateOne(Students);
 const deleteStudent = factory.deleteOne(Students);
 const deleteMe = factory.deleteMe(Students);
 const updateMe = factory.updateMe(Students);
+const validate = factory.validate;
 
 
 export default {
@@ -24,4 +25,5 @@ export default {
     deleteStudent,
     deleteMe,
     updateMe,
+    validate
 }

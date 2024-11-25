@@ -1,12 +1,13 @@
 import mongoose from "mongoose";
 import { getLogger } from "./winston-logger";
+import config from "../config/config";
 
-
-const url = process.env.MONGO_ROOT_URL || "mongodb://nati:12345@localhost:27017/";
 
 const log = getLogger("dal");
 
 export async function connectToMongo() {
+
+    const url = config.mongoRootUrl!;
 
     const db = await mongoose.connect(url);
 

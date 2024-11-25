@@ -15,7 +15,8 @@ teacherRouter.route("/login").post(teacherController.login);
 teacherRouter.use(authController.protect(Teachers));
 
 teacherRouter.route("/updateMe").patch(
-    multerController.uploadUserPhoto,
+    teacherController.validate,
+    multerController.userPhoto,
     multerController.resizeUserPhoto,
     teacherController.updateMe
 );

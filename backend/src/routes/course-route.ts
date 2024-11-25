@@ -14,11 +14,12 @@ courseRouter.route("/")
 courseRouter.use(authController.protect(Teachers))
 
 courseRouter.route("/").post(
-    multerController.uploadCourse,
-    multerController.uploadCourseVideo,
-    courseController.createCourse
+    courseController.createCourse,
+    multerController.coursePhoto,
+    multerController.courseVideos,
 );
 
+// Create a new route for uploaded course videos
 courseRouter.route("/:id")
     .patch(courseController.updateCourse)
     .delete(courseController.deleteCourse)

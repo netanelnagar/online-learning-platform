@@ -12,10 +12,9 @@ const deleteTeacher = factory.deleteOne(Teachers);
 
 //need to verify if he want to update password
 const updateTeacher = factory.updateOne(Teachers);
-
 const deleteMe = factory.deleteMe(Teachers);
-
 const updateMe = factory.updateMe(Teachers);
+const validate = factory.validate;
 
 
 
@@ -27,5 +26,6 @@ export default {
     updateTeacher,
     deleteTeacher,
     deleteMe,
-    updateMe
+    updateMe,
+    validate
 }

@@ -12,4 +12,9 @@ const reviewSchema = new Schema<IReview>(
      { timestamps: true }
 );
 
+
+reviewSchema.pre('save', async function (next) {
+
+})
+
 export const Reviews = model<IReview>('Reviews', reviewSchema, 'Reviews');

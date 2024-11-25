@@ -10,11 +10,14 @@ const getCourses = factory.getAll(Courses);
 const createCourse = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     // @ts-ignore
     req.body.createdBy = req.user?._id;
-    req.body.price = Number(req.body.price)
-    factory.createOne(Courses)(req, res, next);
+    req.body.price = Number(req.body.price);
+    factory.createOne(Courses, false)(req, res, next);
 });
 
-const updateCourse = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const updateCourse = factory.updateOne(Courses);
+
+
+const validate = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
     const doc = await Courses.findById(req.params.id);
 
@@ -22,9 +25,8 @@ const updateCourse = catchAsync(async (req: Request, res: Response, next: NextFu
     // @ts-ignore
     if (!doc.createdBy.equals(req.user?._id)) throw new AppError('You do not have permission to delete this resource.', 403);
 
-    factory.updateOne(Courses)(req, res, next);
+    next();
 });
-
 
 const deleteCourse = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const doc = await Courses.findById(req.params.id);
@@ -36,11 +38,13 @@ const deleteCourse = catchAsync(async (req: Request, res: Response, next: NextFu
     if (!doc.createdBy.equals(req.user?._id)) { throw new AppError('You do not have permission to delete this resource.', 403) };
 
     factory.deleteOne(Courses)(req, res, next);
-});;
+});
+
 
 export default {
     createCourse,
     getCourses,
     updateCourse,
-    deleteCourse
+    deleteCourse,
+    validate
 };

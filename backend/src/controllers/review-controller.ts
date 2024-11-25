@@ -8,6 +8,15 @@ import catchAsync from "../utils/catch-async";
 const createReview = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     // @ts-ignore
     req.body.studentId = req.user?._id;
+    const { studentId, courseId } = req.body;
+
+    console.log(studentId, courseId)
+
+    if (!courseId) throw new AppError('Missing required field: courseId', 400);
+
+    const review = (await Reviews.find({ studentId, courseId }))[0];
+
+    if (review !== null) throw new AppError('You added review for this course', 400);
 
     factory.createOne(Reviews)(req, res, next);
 });

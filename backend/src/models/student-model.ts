@@ -3,6 +3,7 @@ import { IStudent } from "../types/student-types";
 import validator from "validator";
 import { chackSamePassword, correctPassword } from "../utils/general-functions";
 import { hash } from "bcryptjs";
+import aws from "../utils/aws";
 
 
 const studentSchema = new Schema<IStudent>(
@@ -70,6 +71,20 @@ studentSchema.pre(/^find/, function (next) {
         match: { published: true },
         select: 'title description -_id'
     });
+
+    next();
+})
+
+
+studentSchema.post(/^find/, async function (docs, next) {
+
+    if (Array.isArray(docs)) {
+        docs.forEach(async (doc) => {
+            doc.profilePicture = doc.profilePicture ? await aws.getImageUrl(doc.profilePicture) : "";
+        });
+    } else {
+        docs.profilePicture = docs.profilePicture ? await aws.getImageUrl(docs.profilePicture) : "";
+    }
 
     next();
 })

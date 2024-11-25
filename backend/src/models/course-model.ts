@@ -1,5 +1,6 @@
 import { model, Schema } from "mongoose";
 import { ICourse, ILesson } from "../types/course-types";
+import aws from "../utils/aws";
 
 
 const lessonSchema = new Schema<ILesson>({
@@ -56,6 +57,25 @@ courseSchema.virtual('reviews', {
 courseSchema.pre(/^find/, function (next) {
      // @ts-ignore
      this.find({ published: true })
+
+     next();
+})
+
+courseSchema.post(/^find/, async function (result, next) {
+
+     if (Array.isArray(result)) {
+          for (const doc of result) {
+               doc.thumbnail = doc.thumbnail ? await aws.getImageUrl(doc.thumbnail) : "";
+               for (const lesson of doc.lessons) {
+                    lesson.videoUrl = await aws.getImageUrl(lesson.videoUrl);
+               }
+          }
+     } else {
+          result.thumbnail = result.thumbnail ? await aws.getImageUrl(result.thumbnail) : "";
+          for (const lesson of result.lessons) {
+               lesson.videoUrl = await aws.getImageUrl(lesson.videoUrl);
+          }
+     }
 
      next();
 })

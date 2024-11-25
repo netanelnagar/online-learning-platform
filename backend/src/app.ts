@@ -1,9 +1,7 @@
-import { config } from "dotenv";
-config({ path: ".env" });
+import config from "./config/config";
 import express from "express";
 import cors from "cors";
 import { catchAllErrors } from "./middlewares/catchAllErrors";
-import expressFile from "express-fileupload";
 import { getLogger } from "./utils/winston-logger";
 import figlet from "figlet";
 import rateLimit from "express-rate-limit";
@@ -15,6 +13,7 @@ import studentRouter from "./routes/student-route";
 import teacherRouter from "./routes/teacher-route";
 import cookieParser from "cookie-parser";
 import adminRouter from "./routes/admin-route";
+import { sendRes } from "./utils/general-functions";
 
 
 const log = getLogger("app");
@@ -59,7 +58,7 @@ app.use('/api/admin', adminRouter);
 
 
 app.use('*', (req, res, next) => {
-    res.status(404).send(`Page ${req.originalUrl} not found`)
+    sendRes(res, 404, "failed", "Page not found");
 });
 
 app.use(catchAllErrors);

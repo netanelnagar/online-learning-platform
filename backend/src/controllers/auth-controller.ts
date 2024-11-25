@@ -8,6 +8,7 @@ import catchAsync from "../utils/catch-async";
 import { AppError } from "../utils/app-error";
 import { promisify } from "util";
 import { Admin } from "../models/admin-model";
+import config from "../config/config";
 
 
 const signToken = (id: string) => {
@@ -118,9 +119,8 @@ const protect = (Model: Model<any>) => catchAsync(async (req: Request, res: Resp
         );
     }
 
-
     //@ts-ignore
-    const decoded = await promisify(verify)(token, process.env.JWT_SECRET!);
+    const decoded = await promisify(verify)(token, config.jwtSecret!);
 
     //@ts-ignore
     const user = await Model.findById(decoded.id);

@@ -6,6 +6,9 @@ import sharp from "sharp";
 import { join } from "path";
 import getVideoDurationInSeconds from "get-video-duration";
 import { Readable } from "stream";
+import aws from "../utils/aws";
+import config from "../config/config";
+import { sendRes } from "../utils/general-functions";
 
 // const multerStorage = multer.diskStorage({
 //     destination: function (req, file, cb) {
@@ -44,8 +47,9 @@ const upload = multer({
     fileFilter: multerFilter
 });
 
-const uploadUserPhoto = upload.single('photo');
-const uploadCourse = upload.array('videos');
+const userPhoto = upload.single('photo');
+const coursePhoto = upload.single('thumbnail')
+const courseVideos = upload.array("videos");
 
 
 const resizeUserPhoto = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -54,11 +58,13 @@ const resizeUserPhoto = catchAsync(async (req: Request, res: Response, next: Nex
     // @ts-ignore
     req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
 
-    await sharp(req.file.buffer)
-        .resize(500, 500)
-        .toFormat('jpeg')
-        .jpeg({ quality: 90 })
-        .toFile(join(__dirname, '..', 'uploads', req.file.filename));///here need to keep it in s3 and save the link
+
+    req.file.buffer = await resizePhoto(req.file.buffer);
+    ///here need to keep it in s3 and save the link
+
+    await aws.uploadToS3(req.file);
+
+    req.body.profilePicture = req.file.filename;
 
     next();
 });
@@ -66,36 +72,66 @@ const resizeUserPhoto = catchAsync(async (req: Request, res: Response, next: Nex
 
 const uploadCourseVideo = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
-    if (!req.files) return next();
+    if (!req.files) return sendRes(res, 201, "sucssus", req.body.user);
 
     req.body.lessons = [];
 
+
     // @ts-ignore
-    for (const file of req.files) {
+    for (const file of req.files?.videos) {
         const stream = bufferToStream(file.buffer);
         const duration = await getVideoDurationInSeconds(stream);
         // @ts-ignore
-        const filename = `course-${req.user.id}-${Date.now()}.mp4`;
-        // HERE NEED TO KEEP IN S3 and save the link
+        file.filename = `course-${req.user.id}-${Date.now()}.mp4`;
+        // HERE NEED TO resize and keep IN S3 and save the link
+
+        await aws.uploadToS3(file);
 
         req.body.lessons.push({
-            title: "file.originalname",
-            videoUrl: file.originalname,
+            title: file.originalname,
+            videoUrl: file.filename,
             duration: Number(duration.toFixed(2))
         });
     }
+
+    // add findOneAndUpdate method
+    next();
+});
+
+const uploadCoursePhoto = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+    if (!req.file) return next();
+
+    // @ts-ignore
+    req.file.filename = `course-${req.user.id}-${Date.now()}.jpeg`;
+
+    req.file.buffer = await resizePhoto(req.file.buffer);
+
+    await aws.uploadToS3(req.file);
+
+    req.body.thumbnail = req.file.filename;
 
     next();
 });
 
 
+const resizePhoto = async function (photo: Buffer): Promise<Buffer> {
+    return await sharp(photo)
+        .resize({ height: 500, width: 500, fit: "contain" })
+        .toFormat('jpeg')
+        .jpeg({ quality: 90 })
+        .toBuffer();
+}
+
 
 
 
 export default {
-    uploadUserPhoto,
-    uploadCourse,
+    uploadCoursePhoto,
     resizeUserPhoto,
-    uploadCourseVideo
+    uploadCourseVideo,
+    userPhoto,
+    coursePhoto,
+    courseVideos
 }
 

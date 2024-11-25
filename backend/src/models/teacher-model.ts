@@ -3,6 +3,7 @@ import validator from "validator";
 import { ITeacher } from "../types/teacher-types";
 import { hash } from "bcryptjs";
 import { chackSamePassword, correctPassword } from "../utils/general-functions";
+import aws from "../utils/aws";
 
 const teacherSchema = new Schema<ITeacher>(
      {
@@ -61,7 +62,18 @@ teacherSchema.pre(/^find/, function (next) {
 
      next();
 })
+teacherSchema.post(/^find/, async function (docs, next) {
 
+     if (Array.isArray(docs)) {
+          docs.forEach(async (doc) => {
+               doc.profilePicture = doc.profilePicture ? await aws.getImageUrl(doc.profilePicture) : "";
+          });
+     } else {
+          docs.profilePicture = docs.profilePicture ? await aws.getImageUrl(docs.profilePicture) : "";
+     }
+
+     next();
+})
 
 teacherSchema.pre("save", async function (next) {
 

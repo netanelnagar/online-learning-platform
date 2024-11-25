@@ -13,7 +13,8 @@ studentRouter.route("/login").post(studentController.login);
 studentRouter.use(authController.protect(Students));
 
 studentRouter.route("/updateMe").patch(
-    multerController.uploadUserPhoto,
+    studentController.validate,
+    multerController.userPhoto,
     multerController.resizeUserPhoto,
     studentController.updateMe
 );
