@@ -27,7 +27,6 @@ const adminSchema = new Schema<IAdmin>(
                     message: '{VALUE} is not a valid role.'
                }
           }, // Role in the system
-          profilePicture: { type: String }, // Optional profile picture URL
           actions: [                         // Logs of admin actions
                {
                     actionType: { type: String },  // e.g., 'DELETE_USER', 'CREATE_COURSE'

@@ -1,8 +1,8 @@
-import { model, Query, Schema } from "mongoose";
+import { model, Schema } from "mongoose";
 import validator from "validator";
 import { ITeacher } from "../types/teacher-types";
 import { hash } from "bcryptjs";
-import { chackSamePassword, correctPassword } from "../utils/general-functions";
+import { chackSamePassword, changedPasswordAfter, correctPassword, createPasswordResetToken } from "../utils/general-functions";
 import aws from "../utils/aws";
 
 const teacherSchema = new Schema<ITeacher>(
@@ -21,7 +21,11 @@ const teacherSchema = new Schema<ITeacher>(
                validate: [chackSamePassword, 'Passwords are not the same!']
 
           },
-          profilePicture: { type: String }, // Optional profile picture URL
+          passwordChangedAt: Date,
+          passwordResetToken: String,
+          passwordResetExpires: Date,
+          imageName: { type: String }, // Optional profile picture URL
+          profilePicture: { type: String },
           bio: { type: String }, // Short biography about the teacher
           qualifications: [String], // List of teacher's qualifications or certifications
           socialLinks: {             // Links to social profiles or portfolio
@@ -49,35 +53,35 @@ const teacherSchema = new Schema<ITeacher>(
      }
 );
 
+
 teacherSchema.virtual('courses', {
      ref: 'Courses',
      foreignField: 'createdBy',
      localField: '_id'
 });
 
-
 teacherSchema.pre(/^find/, function (next) {
      // @ts-ignore
      this.find({ active: true })
 
      next();
-})
-teacherSchema.post(/^find/, async function (docs, next) {
+});
 
+teacherSchema.post(/^find/, async function (docs, next) {
      if (Array.isArray(docs)) {
           docs.forEach(async (doc) => {
-               doc.profilePicture = doc.profilePicture ? await aws.getImageUrl(doc.profilePicture) : "";
+               doc.profilePicture = doc.imageName ? await aws.getImageUrl(doc.imageName) : "";
           });
-     } else {
-          docs.profilePicture = docs.profilePicture ? await aws.getImageUrl(docs.profilePicture) : "";
+     } else if (docs) {
+          docs.profilePicture = docs.imageName ? await aws.getImageUrl(docs.imageName) : "";
      }
 
      next();
-})
+});
 
 teacherSchema.pre("save", async function (next) {
 
-     !this.isModified("password") && next();
+     if (!this.isModified("password")) return next();
 
 
      this.password = await hash(this.password!, 8);
@@ -87,8 +91,16 @@ teacherSchema.pre("save", async function (next) {
      next();
 });
 
+teacherSchema.pre('save', function (next) {
+     if (!this.isModified('password') || this.isNew) return next();
+     // @ts-ignore
+     this.passwordChangedAt = Date.now() - 1000;
+     next();
+});
 
 teacherSchema.methods.correctPassword = correctPassword;
+teacherSchema.methods.changedPasswordAfter = changedPasswordAfter;
+teacherSchema.methods.createPasswordResetToken = createPasswordResetToken;
 
 
 export const Teachers = model('Teachers', teacherSchema, 'Teachers');

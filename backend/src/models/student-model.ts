@@ -1,7 +1,7 @@
 import { Schema, model } from "mongoose";
 import { IStudent } from "../types/student-types";
 import validator from "validator";
-import { chackSamePassword, correctPassword } from "../utils/general-functions";
+import { chackSamePassword, changedPasswordAfter, correctPassword, createPasswordResetToken } from "../utils/general-functions";
 import { hash } from "bcryptjs";
 import aws from "../utils/aws";
 
@@ -22,6 +22,9 @@ const studentSchema = new Schema<IStudent>(
             validate: [chackSamePassword, 'Passwords are not the same!']
 
         },
+        passwordChangedAt: Date,
+        passwordResetToken: String,
+        passwordResetExpires: Date,
         role: {
             type: String,
             enum: {
@@ -29,6 +32,7 @@ const studentSchema = new Schema<IStudent>(
                 message: '{VALUE} is not a valid role.' // Custom error message
             }
         },
+        imageName: { type: String },
         profilePicture: { type: String },
         enrolledCourses: [
             {
@@ -43,8 +47,8 @@ const studentSchema = new Schema<IStudent>(
             {
                 _id: false,
                 courseId: { type: Schema.Types.ObjectId, ref: "Courses" },
-                certificateUrl: { type: String },
-                completionDate: { type: Date }
+                certificateUrl: String,
+                completionDate: Date
             }
         ],
         active: {
@@ -56,6 +60,7 @@ const studentSchema = new Schema<IStudent>(
     autoIndex: true
 }
 );
+
 
 
 studentSchema.pre(/^find/, function (next) {
@@ -73,24 +78,23 @@ studentSchema.pre(/^find/, function (next) {
     });
 
     next();
-})
-
-
+});
 studentSchema.post(/^find/, async function (docs, next) {
 
     if (Array.isArray(docs)) {
         docs.forEach(async (doc) => {
-            doc.profilePicture = doc.profilePicture ? await aws.getImageUrl(doc.profilePicture) : "";
+            doc.profilePicture = doc.imageName ? await aws.getImageUrl(doc.imageName) : "";
         });
-    } else {
-        docs.profilePicture = docs.profilePicture ? await aws.getImageUrl(docs.profilePicture) : "";
+    } else if (docs) {
+        docs.profilePicture = docs.imageName ? await aws.getImageUrl(docs.imageName) : "";
     }
 
     next();
-})
+});
 
 studentSchema.pre("save", async function (next) {
-    !this.isModified("password") && next();
+
+    if (!this.isModified("password")) return next();
 
     this.password = await hash(this.password!, 8);
 
@@ -99,8 +103,18 @@ studentSchema.pre("save", async function (next) {
     next();
 });
 
+studentSchema.pre('save', function (next) {
+    if (!this.isModified('password') || this.isNew) return next();
+    // @ts-ignore
+    this.passwordChangedAt = Date.now() - 1000;
+    next();
+});
 
 studentSchema.methods.correctPassword = correctPassword;
+studentSchema.methods.changedPasswordAfter = changedPasswordAfter;
+studentSchema.methods.createPasswordResetToken = createPasswordResetToken;
+
+
 
 export const Students = model<IStudent>('Students', studentSchema, 'Students');
 

@@ -5,8 +5,12 @@ export interface IStudent {
      username: string;
      email: string;
      password?: string;
-     passwordConfirm: string | undefined;
+     passwordConfirm?: string;
+     passwordChangedAt?: Date;
+     passwordResetToken?: string;
+     passwordResetExpires?: Date;
      role?: string; // Optional because it has a default value
+     imageName?: string; // Optional
      profilePicture?: string; // Optional
      enrolledCourses: {
           courseId: Types.ObjectId;

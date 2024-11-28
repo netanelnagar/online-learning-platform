@@ -9,6 +9,7 @@ import { Readable } from "stream";
 import aws from "../utils/aws";
 import config from "../config/config";
 import { sendRes } from "../utils/general-functions";
+import { Courses } from "../models/course-model";
 
 // const multerStorage = multer.diskStorage({
 //     destination: function (req, file, cb) {
@@ -48,8 +49,12 @@ const upload = multer({
 });
 
 const userPhoto = upload.single('photo');
-const coursePhoto = upload.single('thumbnail')
-const courseVideos = upload.array("videos");
+
+
+const courseFiles = upload.fields([
+    { name: 'thumbnail', maxCount: 1 },
+    { name: 'videos' },
+]);
 
 
 const resizeUserPhoto = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -72,44 +77,61 @@ const resizeUserPhoto = catchAsync(async (req: Request, res: Response, next: Nex
 
 const uploadCourseVideo = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
-    if (!req.files) return sendRes(res, 201, "sucssus", req.body.user);
+    if (req.files
+        && typeof req.files === 'object'
+        && 'videos' in req.files
+    ) {
 
-    req.body.lessons = [];
+        for (const file of req.files?.videos) {
+            const stream = bufferToStream(file.buffer);
+            const duration = await getVideoDurationInSeconds(stream);
+            // @ts-ignore
+            file.filename = `lessons-${req.user.id}-${Date.now()}.mp4`;
+            // HERE NEED TO resize and keep IN S3 and save the link
+
+            await aws.uploadToS3(file);
 
 
-    // @ts-ignore
-    for (const file of req.files?.videos) {
-        const stream = bufferToStream(file.buffer);
-        const duration = await getVideoDurationInSeconds(stream);
-        // @ts-ignore
-        file.filename = `course-${req.user.id}-${Date.now()}.mp4`;
-        // HERE NEED TO resize and keep IN S3 and save the link
+            const lesson = {
+                title: file.originalname,
+                videoUrl: file.filename,
+                duration: Number(duration.toFixed(2))
+            };
 
-        await aws.uploadToS3(file);
-
-        req.body.lessons.push({
-            title: file.originalname,
-            videoUrl: file.filename,
-            duration: Number(duration.toFixed(2))
-        });
+            req.body = {
+                ...(await Courses.findOneAndUpdate(
+                    { _id: req.body._id },
+                    { $push: { lessons: lesson } },
+                    { new: true }
+                ))?.toObject()
+            };
+        }
     }
 
-    // add findOneAndUpdate method
-    next();
+    // give response the document after uploading the file
+    sendRes(res, 201, "sucssus", req.body);
 });
 
 const uploadCoursePhoto = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
-    if (!req.file) return next();
+    if (req.files
+        && typeof req.files === 'object'
+        && 'thumbnail' in req.files
+        && req.files.thumbnail.length
+    ) {
 
-    // @ts-ignore
-    req.file.filename = `course-${req.user.id}-${Date.now()}.jpeg`;
+        const thumbnailFile = req.files['thumbnail'][0];
 
-    req.file.buffer = await resizePhoto(req.file.buffer);
+        // @ts-ignore
+        thumbnailFile.filename = `thumbnail-${req.user.id}-${Date.now()}.jpeg`;
 
-    await aws.uploadToS3(req.file);
+        thumbnailFile.buffer = await resizePhoto(thumbnailFile.buffer);
 
-    req.body.thumbnail = req.file.filename;
+        await aws.uploadToS3(thumbnailFile);
+
+        req.body.thumbnail = thumbnailFile.filename;
+    }
+
 
     next();
 });
@@ -128,10 +150,9 @@ const resizePhoto = async function (photo: Buffer): Promise<Buffer> {
 
 export default {
     uploadCoursePhoto,
-    resizeUserPhoto,
     uploadCourseVideo,
+    resizeUserPhoto,
     userPhoto,
-    coursePhoto,
-    courseVideos
+    courseFiles
 }
 

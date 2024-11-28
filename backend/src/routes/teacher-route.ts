@@ -10,6 +10,8 @@ teacherRouter.route("/signup").post(teacherController.signup);
 teacherRouter.route("/login").post(teacherController.login);
 // teacherRouter.route("/logout").post(teacherController.logout);
 
+teacherRouter.post('/forgotPassword', authController.forgotPassword(Teachers));
+teacherRouter.patch('/resetPassword/:token', authController.resetPassword(Teachers));
 
 
 teacherRouter.use(authController.protect(Teachers));
@@ -20,6 +22,8 @@ teacherRouter.route("/updateMe").patch(
     multerController.resizeUserPhoto,
     teacherController.updateMe
 );
+
+teacherRouter.patch('/updateMyPassword', authController.updatePassword(Teachers));
 teacherRouter.route("/deleteMe").delete(teacherController.deleteMe);
 
 

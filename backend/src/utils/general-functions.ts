@@ -1,5 +1,9 @@
 import { compare } from "bcryptjs";
 import { Response } from "express";
+import { Document } from "mongoose";
+import { IStudent } from "../types/student-types";
+import { ITeacher } from "../types/teacher-types";
+import { createHash, randomBytes } from "crypto";
 
 // @ts-ignore
 export const chackSamePassword = function (el) {
@@ -25,3 +29,29 @@ export const sendRes = function (
     res.status(statusCode).json({ status, data });
 
 }
+
+
+export const changedPasswordAfter = function (this: IStudent | ITeacher, JWTTimestamp: number) {
+
+    if (this.passwordChangedAt) {
+        const changedTimestamp = this.passwordChangedAt.getTime() / 1000;
+
+        return JWTTimestamp < changedTimestamp;
+    }
+
+    // False means NOT changed
+    return false;
+};
+
+export const createPasswordResetToken = function (this: IStudent | ITeacher) {
+    const resetToken = randomBytes(32).toString('hex');
+
+    this.passwordResetToken = createHash('sha256')
+        .update(resetToken)
+        .digest('hex');
+
+    // @ts-ignore
+    this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
+
+    return resetToken;
+};

@@ -6,7 +6,11 @@ export interface ITeacher {
     username: string; // Teacher's full name (lowercase and unique)
     email: string; // Email (validated as a proper email address)
     password?: string; // Hashed password
-    passwordConfirm: string | undefined;
+    passwordConfirm?: string;
+    passwordChangedAt?: Date;
+    passwordResetToken?: string;
+    passwordResetExpires?: Date;
+    imageName?: string; // Optional profile picture URL
     profilePicture?: string; // Optional profile picture URL
     bio?: string; // Optional short biography about the teacher
     qualifications?: string[]; // Optional list of qualifications or certifications

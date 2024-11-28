@@ -6,7 +6,6 @@ export interface IAdmin {
      password?: string;
      passwordConfirm?: string;
      role?: string; // Optional because it has a default value
-     profilePicture?: string; // Optional
      actions?: {
           actionType?: string; // Optional
           description?: string; // Optional
