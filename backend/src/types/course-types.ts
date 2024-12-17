@@ -1,9 +1,10 @@
-import { Types } from "mongoose";
+import { Document, Types } from "mongoose";
 
 // Interface for Lesson
 export interface ILesson {
     title: string; // Lesson title
-    videoUrl: string; // URL to the video content
+    videoName: string; // URL to the video content
+    videoUrl?: string; // URL to the video content
     content?: string; // Optional additional content
     duration?: number; // Optional lesson duration in minutes
     resources?: { // Optional resources associated with the lesson
@@ -13,7 +14,8 @@ export interface ILesson {
 }
 
 // Interface for Course
-export interface ICourse {
+export interface ICourse extends Document {
+    _id: Types.ObjectId; // Unique identifier for the course
     title: string; // Course title
     description: string; // Course description
     thumbnail?: string; // Optional thumbnail image URL

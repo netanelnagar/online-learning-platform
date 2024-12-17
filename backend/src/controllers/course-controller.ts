@@ -5,6 +5,7 @@ import factory from "./factory";
 import { AppError } from "../utils/app-error";
 import { sendRes } from "../utils/general-functions";
 import aws from "../utils/aws";
+import multerController from "./multer-controller";
 
 
 const getCourses = factory.getAll(Courses);
@@ -54,10 +55,24 @@ const enrollToCourse = catchAsync(async (req: Request, res: Response, next: Next
     sendRes(res, 201, "success", "seccessfully enrolled");
 })
 
+const addLessons = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+    const doc = await Courses.findById(req.params.id);
+
+    if (!doc) { throw new AppError('No document found with that ID', 404) };
+
+    req.body = doc;
+
+    multerController.uploadCourseVideo(req, res, next)
+
+})
+
+
 export default {
     createCourse,
     getCourses,
     updateCourse,
     deleteCourse,
-    enrollToCourse
+    enrollToCourse,
+    addLessons
 };

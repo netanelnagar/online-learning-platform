@@ -1,7 +1,7 @@
-import { Types } from "mongoose";
+import { Document, Types } from "mongoose";
 
-export interface IStudent {
-     _id?: string;
+export interface IStudent extends Document {
+     _id: string; // Unique identifier for the course
      username: string;
      email: string;
      password?: string;

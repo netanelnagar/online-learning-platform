@@ -1,7 +1,8 @@
-import { Types } from "mongoose";
+import { Document, Types } from "mongoose";
 
 // Define the TypeScript interface for the Review schema
-export interface IReview {
+export interface IReview extends Document {
+     _id: Types.ObjectId; // Unique identifier for the course
      courseId: Types.ObjectId; // References a Course document
      studentId: Types.ObjectId; // References a Student document
      rating: number; // A number between 1 and 5

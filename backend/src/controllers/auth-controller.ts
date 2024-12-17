@@ -3,13 +3,13 @@ import { IStudent } from "../types/student-types";
 import { ITeacher } from "../types/teacher-types";
 import { IAdmin } from "../types/admin-types";
 import { NextFunction, Request, Response } from "express";
-import { Document, Model } from "mongoose";
+import { Model } from "mongoose";
 import catchAsync from "../utils/catch-async";
 import { AppError } from "../utils/app-error";
 import { promisify } from "util";
 import { Admin } from "../models/admin-model";
-import config from "../config/config";
 import { createHash } from "crypto";
+import Email from "../utils/email";
 
 
 const signToken = (id: string) => {
@@ -22,7 +22,7 @@ const createSendToken = (
     statusCode: number,
     req: Request,
     res: Response) => {
-    const token = signToken(user._id!);
+    const token = signToken(user._id);
 
     // res.cookie('jwt', token, {
     //     expires: new Date(
@@ -48,19 +48,36 @@ const createSendToken = (
 };
 
 const signup = (Model: Model<any>) => catchAsync(async (req: Request, res: Response, next) => {
-    const newUser = new Model(req.body) as Document;
+    const user = await Model.findOne({ email: req.body.email }).setOptions({ overridePublishedFilter: true });
 
-    const err = newUser.validateSync();
-    if (err) {
-        return next(new AppError(err.message, 400));
+    let newUser: IStudent | ITeacher | IAdmin | null;
+    if (!user) {
+
+        newUser = new Model(req.body);
+
+        const err = newUser?.validateSync();
+        if (err) {
+            return next(new AppError(err.message, 400));
+        }
+
+        await newUser?.save();
+
+
+
+    } else {
+
+        newUser = await Model.findOneAndUpdate({ email: user.email }, { ...req.body, active: true }, {
+            new: true,
+            runValidators: true
+        });
     }
+    const url = `${req.protocol}://${req.get('host')}/me`;
 
-    await newUser.save();
-    // const url = `${req.protocol}://${req.get('host')}/me`;
-    // console.log(url);
-    // await new Email(newUser, url).sendWelcome();
 
-    createSendToken(newUser.toObject(), 201, req, res);
+    await new Email(newUser!, url).sendWelcome();
+
+    createSendToken(newUser?.toObject(), 201, req, res);
+
 });
 
 const login = (Model: Model<any>) => catchAsync(async (req: Request, res: Response, next) => {
@@ -94,9 +111,9 @@ const signupAdmin = catchAsync(async (req: Request, res: Response, next) => {
     }
 
     await newUser.save();
-    // const url = `${req.protocol}://${req.get('host')}/me`;
+    const url = `${req.protocol}://${req.get('host')}/me`;
     // console.log(url);
-    // await new Email(newUser, url).sendWelcome();
+    await new Email(newUser, url).sendWelcome();
 
     createSendToken(newUser, 201, req, res);
 });
@@ -121,12 +138,13 @@ const protect = (Model: Model<any>) => catchAsync(async (req: Request, res: Resp
     }
 
     //@ts-ignore
-    const decoded = await promisify(verify)(token, config.jwtSecret!);
+    const decoded = await promisify(verify)(token, process.env.JWT_SECRET!);
 
 
     //@ts-ignore
-    const user = await Model.findById(decoded.id);
+    const user = await Model.findById(decoded.id).setOptions({ withUrlMedia: true });
 
+    // console.log(Model.modelName, user, decoded)
     if (!user) {
         return next(
             new AppError(
@@ -197,11 +215,8 @@ const forgotPassword = (Model: Model<any>) => catchAsync(async (req, res, next) 
 
     // 3) Send it to user's email
     try {
-        const resetURL = `${req.protocol}://${req.get(
-            'host'
-        )}/api/${Model.modelName.toLowerCase()}/resetPassword/${resetToken}`;
-        console.log(resetURL)
-        // await new Email(user, resetURL).sendPasswordReset();
+
+        await new Email(user, resetToken).sendPasswordReset();
 
         res.status(200).json({
             status: 'success',

@@ -1,4 +1,4 @@
-import { model, Schema } from "mongoose";
+import { model, Query, Schema } from "mongoose";
 import { ICourse, ILesson } from "../types/course-types";
 import aws from "../utils/aws";
 
@@ -7,7 +7,8 @@ const lessonSchema = new Schema<ILesson>({
      // @ts-ignore
      _id: false, // To enable embedding lessons in courses
      title: { type: String, required: true, unique: true },
-     videoUrl: { type: String, required: true },
+     videoName: { type: String, required: true, unique: true },
+     videoUrl: { type: String },
      content: { type: String },
      duration: { type: Number },
      resources: [
@@ -21,7 +22,7 @@ const lessonSchema = new Schema<ILesson>({
 
 const courseSchema = new Schema<ICourse>(
      {
-          title: { type: String, required: true, unique: true, lowercase: true },
+          title: { type: String, required: true, lowercase: true },
           description: { type: String, required: true },
           thumbnail: { type: String },
           category: { type: String },
@@ -39,7 +40,7 @@ const courseSchema = new Schema<ICourse>(
                total: { type: Number, default: 0 },
           },
           price: { type: Number, default: 0 },
-          published: { type: Boolean, default: false }
+          published: { type: Boolean, default: true }
      },
      {
           timestamps: true,
@@ -54,26 +55,27 @@ courseSchema.virtual('reviews', {
      localField: '_id'
 });
 
-courseSchema.pre(/^find/, function (next) {
-     // @ts-ignore
-     this.find({ published: true })
-
+courseSchema.pre<Query<any, ICourse>>(/^find/, function (next) {
+     if (!this.getOptions().overridePublishedFilter) {
+          this.find({ published: true });
+     }
      next();
 })
 
-courseSchema.post(/^find/, async function (result, next) {
-
-     if (Array.isArray(result)) {
-          for (const doc of result) {
-               doc.thumbnail = doc.thumbnail ? await aws.getImageUrl(doc.thumbnail) : "";
-               for (const lesson of doc.lessons) {
-                    lesson.videoUrl = await aws.getImageUrl(lesson.videoUrl);
+courseSchema.post<Query<any, ICourse>>("find", async function (result, next) {
+     if (this.getOptions().withUrlMedia) {
+          if (Array.isArray(result)) {
+               for (const doc of result) {
+                    doc.thumbnail = doc.thumbnail ? await aws.getImageUrl(doc.thumbnail) : "";
+                    for (const lesson of doc.lessons) {
+                         lesson.videoUrl = await aws.getImageUrl(lesson.videoName);
+                    }
                }
-          }
-     } else {
-          result.thumbnail = result.thumbnail ? await aws.getImageUrl(result.thumbnail) : "";
-          for (const lesson of result.lessons) {
-               lesson.videoUrl = await aws.getImageUrl(lesson.videoUrl);
+          } else if (result) {
+               result.thumbnail = result.thumbnail ? await aws.getImageUrl(result.thumbnail) : "";
+               for (const lesson of result.lessons) {
+                    lesson.videoUrl = await aws.getImageUrl(lesson.videoName);
+               }
           }
      }
 

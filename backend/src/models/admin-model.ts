@@ -1,7 +1,7 @@
 import { model, Schema } from "mongoose";
 import { IAdmin } from "../types/admin-types";
 import validator from "validator";
-import { chackSamePassword, correctPassword } from "../utils/general-functions";
+import { chackSamePassword, changedPasswordAfter, correctPassword, createPasswordResetToken } from "../utils/general-functions";
 import { hash } from "bcryptjs";
 
 const adminSchema = new Schema<IAdmin>(
@@ -20,6 +20,9 @@ const adminSchema = new Schema<IAdmin>(
                validate: [chackSamePassword, 'Passwords are not the same!']
 
           },
+          passwordChangedAt: Date,
+          passwordResetToken: String,
+          passwordResetExpires: Date,
           role: {
                type: String,
                enum: {
@@ -42,7 +45,7 @@ const adminSchema = new Schema<IAdmin>(
      }
 );
 
-adminSchema.pre("save", async function (next) {
+adminSchema.pre<IAdmin>("save", async function (next) {
 
      !this.isModified("password") && next();
 
@@ -55,6 +58,7 @@ adminSchema.pre("save", async function (next) {
 
 
 adminSchema.methods.correctPassword = correctPassword;
-
+adminSchema.methods.changedPasswordAfter = changedPasswordAfter;
+adminSchema.methods.createPasswordResetToken = createPasswordResetToken;
 
 export const Admin = model<IAdmin>('Admin', adminSchema, 'Admins');

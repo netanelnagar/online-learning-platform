@@ -13,7 +13,7 @@ const reviewSchema = new Schema<IReview>(
 );
 
 
-reviewSchema.pre('save', async function (next) {
+reviewSchema.pre<IReview>('save', async function (next) {
 
 })
 

@@ -19,11 +19,17 @@ courseRouter.post("/enrollToCourse/:id",
 
 courseRouter.use(authController.protect(Teachers))
 
-courseRouter.route("/").post(
+courseRouter.post("/",
     multerController.courseFiles,
     courseController.createCourse,
     multerController.uploadCoursePhoto,
+    // multerController.resizeCourseVideo,
     multerController.uploadCourseVideo,
+);
+
+courseRouter.patch("/addLessons/:id",
+    multerController.courseFiles,
+    courseController.addLessons,
 );
 
 // Create a new route for uploaded course videos

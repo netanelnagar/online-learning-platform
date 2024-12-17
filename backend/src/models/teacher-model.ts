@@ -1,4 +1,4 @@
-import { model, Schema } from "mongoose";
+import { model, Query, Schema } from "mongoose";
 import validator from "validator";
 import { ITeacher } from "../types/teacher-types";
 import { hash } from "bcryptjs";
@@ -60,26 +60,27 @@ teacherSchema.virtual('courses', {
      localField: '_id'
 });
 
-teacherSchema.pre(/^find/, function (next) {
-     // @ts-ignore
-     this.find({ active: true })
-
-     next();
-});
-
-teacherSchema.post(/^find/, async function (docs, next) {
-     if (Array.isArray(docs)) {
-          docs.forEach(async (doc) => {
-               doc.profilePicture = doc.imageName ? await aws.getImageUrl(doc.imageName) : "";
-          });
-     } else if (docs) {
-          docs.profilePicture = docs.imageName ? await aws.getImageUrl(docs.imageName) : "";
+teacherSchema.pre<Query<any, ITeacher>>(/^find/, function (next) {
+     if (!this.getOptions().overridePublishedFilter) {
+          this.find({ published: true });
      }
-
      next();
 });
 
-teacherSchema.pre("save", async function (next) {
+teacherSchema.post<Query<any, ITeacher>>(/^find/, async function (docs, next) {
+     if (this.getOptions().withUrlMedia) {
+          if (Array.isArray(docs)) {
+               docs.forEach(async (doc) => {
+                    doc.profilePicture = doc.imageName ? await aws.getImageUrl(doc.imageName) : "";
+               });
+          } else if (docs) {
+               docs.profilePicture = docs.imageName ? await aws.getImageUrl(docs.imageName) : "";
+          }
+     }
+     next();
+});
+
+teacherSchema.pre<ITeacher>("save", async function (next) {
 
      if (!this.isModified("password")) return next();
 
@@ -91,7 +92,7 @@ teacherSchema.pre("save", async function (next) {
      next();
 });
 
-teacherSchema.pre('save', function (next) {
+teacherSchema.pre<ITeacher>('save', function (next) {
      if (!this.isModified('password') || this.isNew) return next();
      // @ts-ignore
      this.passwordChangedAt = Date.now() - 1000;

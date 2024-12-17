@@ -3,23 +3,17 @@ import catchAsync from "../utils/catch-async";
 import { AppError } from "../utils/app-error";
 import { NextFunction, Request, Response } from "express";
 import sharp from "sharp";
-import { join } from "path";
 import getVideoDurationInSeconds from "get-video-duration";
-import { Readable } from "stream";
+import { PassThrough, Readable } from "stream";
 import aws from "../utils/aws";
-import config from "../config/config";
 import { sendRes } from "../utils/general-functions";
 import { Courses } from "../models/course-model";
+// import Ffmpeg from "fluent-ffmpeg";
+import { getLogger } from "../utils/winston-logger";
+// import ffmpegPath from "ffmpeg-static";
 
-// const multerStorage = multer.diskStorage({
-//     destination: function (req, file, cb) {
-//         cb(null, '/tmp/my-uploads')
-//     },
-//     filename: function (req, file, cb) {
-//         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-//         cb(null, file.fieldname + '-' + uniqueSuffix)
-//     }
-// });
+// Ffmpeg.setFfmpegPath(ffmpegPath!);
+const log = getLogger("multer")
 
 
 const bufferToStream = (buffer: Buffer): Readable => {
@@ -71,8 +65,35 @@ const resizeUserPhoto = catchAsync(async (req: Request, res: Response, next: Nex
 
     req.body.profilePicture = req.file.filename;
 
+    log.info
+
     next();
 });
+
+// const resizeCourseVideo = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+//     if (req.files
+//         && typeof req.files === 'object'
+//         && 'videos' in req.files
+//     ) {
+
+//         for (const file of req.files.videos) {
+//             const bufferStream = new PassThrough();
+//             bufferStream.end(file.buffer);
+//             const outputStream = new PassThrough();
+
+//             outputStream.on('data', (chunk) => {
+//                 let outputBuffer = Buffer.alloc(0);
+//                 file.buffer = Buffer.concat([outputBuffer, chunk]);
+//             });
+//             await Ffmpeg(bufferStream)
+//                 .outputOptions('-vf', 'scale=280:720') // Example: Resize to 1280x720
+//                 .toFormat('mp4')
+//                 .pipe(outputStream, { end: true });
+//         }
+//     }
+
+//     next();
+// });
 
 
 const uploadCourseVideo = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -82,7 +103,7 @@ const uploadCourseVideo = catchAsync(async (req: Request, res: Response, next: N
         && 'videos' in req.files
     ) {
 
-        for (const file of req.files?.videos) {
+        for (const file of req.files.videos) {
             const stream = bufferToStream(file.buffer);
             const duration = await getVideoDurationInSeconds(stream);
             // @ts-ignore
@@ -93,8 +114,8 @@ const uploadCourseVideo = catchAsync(async (req: Request, res: Response, next: N
 
 
             const lesson = {
-                title: file.originalname,
-                videoUrl: file.filename,
+                title: file.originalname.split('.')[0],
+                videoName: file.filename,
                 duration: Number(duration.toFixed(2))
             };
 
@@ -105,6 +126,7 @@ const uploadCourseVideo = catchAsync(async (req: Request, res: Response, next: N
                     { new: true }
                 ))?.toObject()
             };
+
         }
     }
 
@@ -132,7 +154,6 @@ const uploadCoursePhoto = catchAsync(async (req: Request, res: Response, next: N
         req.body.thumbnail = thumbnailFile.filename;
     }
 
-
     next();
 });
 
@@ -152,7 +173,8 @@ export default {
     uploadCoursePhoto,
     uploadCourseVideo,
     resizeUserPhoto,
+    // resizeCourseVideo,
     userPhoto,
-    courseFiles
+    courseFiles,
 }
 

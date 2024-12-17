@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Query, Schema, model } from "mongoose";
 import { IStudent } from "../types/student-types";
 import validator from "validator";
 import { chackSamePassword, changedPasswordAfter, correctPassword, createPasswordResetToken } from "../utils/general-functions";
@@ -63,11 +63,12 @@ const studentSchema = new Schema<IStudent>(
 
 
 
-studentSchema.pre(/^find/, function (next) {
-    // @ts-ignore
-    this.find({ active: true })
+studentSchema.pre<Query<any, IStudent>>(/^find/, function (next) {
 
-    // @ts-ignore
+    if (!this.getOptions().overridePublishedFilter) {
+        this.find({ published: true });
+    }
+
     this.populate({
         path: 'certificates.courseId',
         select: 'title description -_id'
@@ -79,20 +80,21 @@ studentSchema.pre(/^find/, function (next) {
 
     next();
 });
-studentSchema.post(/^find/, async function (docs, next) {
-
-    if (Array.isArray(docs)) {
-        docs.forEach(async (doc) => {
-            doc.profilePicture = doc.imageName ? await aws.getImageUrl(doc.imageName) : "";
-        });
-    } else if (docs) {
-        docs.profilePicture = docs.imageName ? await aws.getImageUrl(docs.imageName) : "";
+studentSchema.post<Query<any, IStudent>>(/^find/, async function (docs, next) {
+    if (this.getOptions().withUrlMedia) {
+        if (Array.isArray(docs)) {
+            docs.forEach(async (doc) => {
+                doc.profilePicture = doc.imageName ? await aws.getImageUrl(doc.imageName) : "";
+            });
+        } else if (docs) {
+            docs.profilePicture = docs.imageName ? await aws.getImageUrl(docs.imageName) : "";
+        }
     }
 
     next();
 });
 
-studentSchema.pre("save", async function (next) {
+studentSchema.pre<IStudent>("save", async function (next) {
 
     if (!this.isModified("password")) return next();
 
@@ -103,7 +105,7 @@ studentSchema.pre("save", async function (next) {
     next();
 });
 
-studentSchema.pre('save', function (next) {
+studentSchema.pre<IStudent>('save', function (next) {
     if (!this.isModified('password') || this.isNew) return next();
     // @ts-ignore
     this.passwordChangedAt = Date.now() - 1000;

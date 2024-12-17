@@ -1,21 +1,20 @@
 import { DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import config from '../config/config';
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { ILesson } from "../types/course-types";
 
 const s3 = new S3Client({
     credentials: {
-        accessKeyId: config.awsAccessKey!,
-        secretAccessKey: config.awsSecretAccessKey!,
+        accessKeyId: process.env.AWS_ACCESS_KEY!,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
     },
-    region: config.awsRegion!,
+    region: process.env.AWS_REGION!,
 })
 
 
 const uploadToS3 = async function (file: Express.Multer.File): Promise<void> {
 
     const command = new PutObjectCommand({
-        Bucket: config.awsS3BucketName!,
+        Bucket: process.env.AWS_S3_BUCKET_NAME!,
         Key: file.filename,
         Body: file.buffer,
         ContentType: file.mimetype,
@@ -26,7 +25,7 @@ const uploadToS3 = async function (file: Express.Multer.File): Promise<void> {
 
 const getImageUrl = async function (filename: string): Promise<string> {
     const command = new GetObjectCommand({
-        Bucket: config.awsS3BucketName!,
+        Bucket: process.env.AWS_S3_BUCKET_NAME!,
         Key: filename,
     });
 
@@ -36,7 +35,7 @@ const getImageUrl = async function (filename: string): Promise<string> {
 
 const deleteFileFromS3 = async function (filename: string): Promise<void> {
     const command = new DeleteObjectCommand({
-        Bucket: config.awsS3BucketName!,
+        Bucket: process.env.AWS_S3_BUCKET_NAME!,
         Key: filename,
     });
     await s3.send(command);
@@ -44,7 +43,7 @@ const deleteFileFromS3 = async function (filename: string): Promise<void> {
 
 const deleteFilesFromS3 = async function (lessons: ILesson[]): Promise<void> {
     const command = new DeleteObjectsCommand({
-        Bucket: config.awsS3BucketName!,
+        Bucket: process.env.AWS_S3_BUCKET_NAME!,
         Delete: { Objects: lessons.map(lesson => ({ Key: lesson.videoUrl })) },
     });
     await s3.send(command);

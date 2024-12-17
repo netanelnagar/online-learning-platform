@@ -4,14 +4,18 @@ import catchAsync from "../utils/catch-async";
 import { getLogger } from "../utils/winston-logger";
 import { AppError } from "../utils/app-error";
 import { sendRes } from "../utils/general-functions";
-import { IStudent } from "../types/student-types";
 import aws from "../utils/aws";
+
 
 const log = getLogger("factory")
 
 const getAll = (model: Model<any>) => catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
-    const data = await model.find();
+    const query = model.find();
+    if (model.modelName === "Courses") {
+        query.setOptions({ withUrlMedia: true })
+    }
+    const data = await query;
 
     sendRes(res, 200, "success", data);
 })
@@ -26,13 +30,12 @@ const createOne = (Model: Model<any>, isLastMiddleware = true) => catchAsync(asy
 
     await doc.save();
 
-    log.info(`create doc in ${Model.modelName} collection`)
+    log.info(`create doc in ${Model.modelName} collection`);
 
     if (isLastMiddleware) {
         return sendRes(res, 201, "success", doc)
     } else {
         req.body = doc.toObject();
-        console.log("first")
         next();
     }
 
@@ -48,6 +51,9 @@ const updateOne = (Model: Model<any>) => catchAsync(async (req: Request, res: Re
     if (!doc) {
         throw new AppError('No document found with that ID', 404);
     }
+
+    log.info(`Updated doc in ${Model.modelName} ID: ${doc._id} collection`);
+
     sendRes(res, 200, "success", doc);
 
 })
@@ -57,6 +63,8 @@ const deleteOne = (Model: Model<any>, isLastMiddleware = true) => catchAsync(asy
     const doc = await Model.findByIdAndDelete(req.params.id);
 
     if (doc === null) throw new AppError('No document found with that ID', 404);
+
+    log.info(`Deleted doc in ${Model.modelName} ID: ${doc._id} collection`);
 
     if (isLastMiddleware) {
         return sendRes(res, 204, "success", null);
@@ -84,6 +92,8 @@ const deleteMe = (Model: Model<any>) => catchAsync(async (req, res, next) => {
 
     if (doc.imageName) await aws.deleteFileFromS3(doc.imageName);
 
+    log.info(`Deleted doc in ${Model.modelName} ID: ${doc._id} collection`);
+
     sendRes(res, 204, "success", null);
 
 });
@@ -94,6 +104,8 @@ const updateMe = (Model: Model<any>) => catchAsync(async (req, res, next) => {
 
     //@ts-ignore
     const doc = await Model.findByIdAndUpdate(req.user?.id, req.body, { new: true, runValidators: true });
+
+    log.info(`Updated doc in ${Model.modelName} ID: ${doc._id} collection`);
 
     sendRes(res, 200, "success", doc);
 

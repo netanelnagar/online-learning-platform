@@ -1,8 +1,8 @@
-import { Types } from "mongoose";
+import { Document, Types } from "mongoose";
 
 // Interface for Teacher Schema
-export interface ITeacher {
-    _id?: string;
+export interface ITeacher extends Document {
+    _id: string; // Unique identifier for the course
     username: string; // Teacher's full name (lowercase and unique)
     email: string; // Email (validated as a proper email address)
     password?: string; // Hashed password
