@@ -14,7 +14,9 @@ const deleteTeacher = factory.deleteOne(Teachers);
 const updateTeacher = factory.updateOne(Teachers);
 const deleteMe = factory.deleteMe(Teachers);
 const updateMe = factory.updateMe(Teachers);
+const me = factory.me(Teachers);
 const validate = factory.validate;
+
 
 
 

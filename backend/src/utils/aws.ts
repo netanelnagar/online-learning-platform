@@ -2,13 +2,14 @@ import { DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand, PutObjectC
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { ILesson } from "../types/course-types";
 
-const s3 = new S3Client({
+let s3 = new S3Client({
     credentials: {
         accessKeyId: process.env.AWS_ACCESS_KEY!,
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
     },
     region: process.env.AWS_REGION!,
 })
+
 
 
 const uploadToS3 = async function (file: Express.Multer.File): Promise<void> {

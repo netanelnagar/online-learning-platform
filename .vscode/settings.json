@@ -1,5 +1,5 @@
 {
     "editor.fontSize": 18,
-    "files.autoSave": "onFocusChange",
+    "files.autoSave": "afterDelay",
     "editor.formatOnSave": true
 }

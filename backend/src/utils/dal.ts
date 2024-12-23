@@ -5,13 +5,11 @@ import { getLogger } from "./winston-logger";
 const log = getLogger("dal");
 
 export async function connectToMongo() {
-
     const url = process.env.MONGO_ROOT_URL!;
 
-    const db = await mongoose.connect(url);
+    const db = await mongoose.connect(url, { dbName: "learning_platform" });
 
     log.info(`connection to ${db.connections[0].name} on MongoDB. url: ${url}`)
-
 
 }
 

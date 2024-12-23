@@ -5,7 +5,10 @@
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "skipLibCheck": true,
-
+    "paths": {
+      "@Pages": ["./src/Pages"],
+      "@Ui": ["./src/Ui"],  
+    },
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,

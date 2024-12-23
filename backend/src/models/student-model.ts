@@ -66,7 +66,7 @@ const studentSchema = new Schema<IStudent>(
 studentSchema.pre<Query<any, IStudent>>(/^find/, function (next) {
 
     if (!this.getOptions().overridePublishedFilter) {
-        this.find({ published: true });
+        this.find({ active: true });
     }
 
     this.populate({
@@ -95,7 +95,6 @@ studentSchema.post<Query<any, IStudent>>(/^find/, async function (docs, next) {
 });
 
 studentSchema.pre<IStudent>("save", async function (next) {
-
     if (!this.isModified("password")) return next();
 
     this.password = await hash(this.password!, 8);

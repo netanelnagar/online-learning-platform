@@ -51,28 +51,22 @@ const signup = (Model: Model<any>) => catchAsync(async (req: Request, res: Respo
     const user = await Model.findOne({ email: req.body.email }).setOptions({ overridePublishedFilter: true });
 
     let newUser: IStudent | ITeacher | IAdmin | null;
-    if (!user) {
 
-        newUser = new Model(req.body);
+    newUser = new Model(user ? { ...req.body, _id: user._id } : req.body);
 
-        const err = newUser?.validateSync();
-        if (err) {
-            return next(new AppError(err.message, 400));
-        }
+    const err = newUser?.validateSync();
+    if (err) {
+        return next(new AppError(err.message, 400));
+    }
 
+    user ?
+        await Model.findOneAndUpdate({ email: user.email }, { ...req.body, active: true }, {
+            new: true,
+        })
+        :
         await newUser?.save();
 
-
-
-    } else {
-
-        newUser = await Model.findOneAndUpdate({ email: user.email }, { ...req.body, active: true }, {
-            new: true,
-            runValidators: true
-        });
-    }
     const url = `${req.protocol}://${req.get('host')}/me`;
-
 
     await new Email(newUser!, url).sendWelcome();
 
@@ -109,7 +103,6 @@ const signupAdmin = catchAsync(async (req: Request, res: Response, next) => {
     if (err) {
         return next(new AppError(err.message, 400));
     }
-
     await newUser.save();
     const url = `${req.protocol}://${req.get('host')}/me`;
     // console.log(url);
@@ -144,7 +137,6 @@ const protect = (Model: Model<any>) => catchAsync(async (req: Request, res: Resp
     //@ts-ignore
     const user = await Model.findById(decoded.id).setOptions({ withUrlMedia: true });
 
-    // console.log(Model.modelName, user, decoded)
     if (!user) {
         return next(
             new AppError(
@@ -154,7 +146,6 @@ const protect = (Model: Model<any>) => catchAsync(async (req: Request, res: Resp
         );
     }
 
-    // 4) Check if user changed password after the token was issued
     // @ts-ignore
     if (user.changedPasswordAfter(decoded.iat)) {
         return next(

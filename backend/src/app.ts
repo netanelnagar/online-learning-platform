@@ -1,3 +1,5 @@
+import { config } from "dotenv";
+config({ path: ".env" });
 import express from "express";
 import cors from "cors";
 import { catchAllErrors } from "./middlewares/catchAllErrors";
@@ -64,5 +66,7 @@ app.use(catchAllErrors);
 
 
 const port = process.env.PORT || 3002;
-app.listen(port, async () => { log.info(`app listening on port ${port}`) });
+app.listen(port, async () => {
+    log.info(`app listening on port ${port}`)
+});
 

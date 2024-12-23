@@ -6,8 +6,8 @@ import multerController from "../controllers/multer-controller";
 
 const studentRouter = Router();
 
-studentRouter.route("/signup").post(studentController.signup);
-studentRouter.route("/login").post(studentController.login);
+studentRouter.post("/signup", studentController.signup);
+studentRouter.post("/login", studentController.login);
 // studentRouter.route("/logout").post(studentController.logout);
 
 studentRouter.post('/forgotPassword', authController.forgotPassword(Students));
@@ -15,15 +15,15 @@ studentRouter.patch('/resetPassword/:token', authController.resetPassword(Studen
 
 studentRouter.use(authController.protect(Students));
 
+studentRouter.get("/me", studentController.me);
 studentRouter.route("/updateMe").patch(
     studentController.validate,
     multerController.userPhoto,
     multerController.resizeUserPhoto,
     studentController.updateMe
 );
-
 studentRouter.patch('/updateMyPassword', authController.updatePassword(Students));
-studentRouter.route("/deleteMe").delete(studentController.deleteMe);
+studentRouter.delete("/deleteMe", studentController.deleteMe);
 
 
 

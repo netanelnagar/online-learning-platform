@@ -22,10 +22,10 @@ const lessonSchema = new Schema<ILesson>({
 
 const courseSchema = new Schema<ICourse>(
      {
-          title: { type: String, required: true, lowercase: true },
+          title: { type: String, required: true, lowercase: true, unique: true },
           description: { type: String, required: true },
           thumbnail: { type: String },
-          category: { type: String },
+          category: { type: [String] },
           createdBy: { type: Schema.Types.ObjectId, ref: 'Teachers', required: true },
           lessons: [lessonSchema],
           studentsEnrolled: [

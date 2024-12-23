@@ -119,6 +119,12 @@ const validate = catchAsync(async (req, res, next) => {
     next();
 });
 
+const me = (Model: Model<any>) => catchAsync(async (req, res, next) => {
+    // @ts-ignore
+    const doc = await Model.findById(req.user?.id).setOptions({ withUrlMedia: true });
+    sendRes(res, 200, "success", doc);
+});
+
 export default {
     getAll,
     createOne,
@@ -127,5 +133,6 @@ export default {
     getOne,
     deleteMe,
     updateMe,
-    validate
-}
+    validate,
+    me
+}  

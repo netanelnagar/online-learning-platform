@@ -62,7 +62,7 @@ teacherSchema.virtual('courses', {
 
 teacherSchema.pre<Query<any, ITeacher>>(/^find/, function (next) {
      if (!this.getOptions().overridePublishedFilter) {
-          this.find({ published: true });
+          this.find({ active: true });
      }
      next();
 });

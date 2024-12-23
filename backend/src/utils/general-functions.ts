@@ -1,6 +1,5 @@
 import { compare } from "bcryptjs";
 import { Response } from "express";
-import { Document } from "mongoose";
 import { IStudent } from "../types/student-types";
 import { ITeacher } from "../types/teacher-types";
 import { createHash, randomBytes } from "crypto";

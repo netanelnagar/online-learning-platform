@@ -14,19 +14,21 @@ export default class Email {
     this.to = user.email;
     this.firstName = user.username.split(' ')[0];
     this.token = token;
-    this.from = `Netanel Nagar <${process.env.EMAIL_FROM}>`;
+    this.from = `Netanel Nagar <${process.env.MODE!.startsWith("dev") ? process.env.EMAIL_FROM_DEV : process.env.EMAIL_FROM_PROD}>`;
   }
 
   newTransport() {
     if (process.env.Mode!.toLowerCase().startsWith("prod")) {
-      // Sendgrid
-      return nodemailer.createTransport({
-        service: 'SendGrid',
-        auth: {
-          user: process.env.SENDGRID_USERNAME,
-          pass: process.env.SENDGRID_PASSWORD
-        }
-      });
+    // Mailersend 
+    return nodemailer.createTransport({
+      host: process.env.MAILERSEND_HOST!,
+      port: Number(process.env.MAILERSEND_PORT!),
+      secure: false,
+      auth: {
+        user: process.env.MAILERSEND_USERNAME,
+        pass: process.env.MAILERSEND_PASSWORD
+      }
+    });
     }
 
     return nodemailer.createTransport({
@@ -49,7 +51,6 @@ export default class Email {
       text: convert(html, { wordwrap: 130 })
     };
 
-    // 3) Create a transport and send email
     await this.newTransport().sendMail(mailOptions);
   }
 

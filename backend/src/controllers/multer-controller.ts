@@ -59,13 +59,12 @@ const resizeUserPhoto = catchAsync(async (req: Request, res: Response, next: Nex
 
 
     req.file.buffer = await resizePhoto(req.file.buffer);
-    ///here need to keep it in s3 and save the link
 
     await aws.uploadToS3(req.file);
 
-    req.body.profilePicture = req.file.filename;
+    req.body.imageName = req.file.filename;
 
-    log.info
+    log.info("uploaded image to s3");
 
     next();
 });
@@ -108,10 +107,8 @@ const uploadCourseVideo = catchAsync(async (req: Request, res: Response, next: N
             const duration = await getVideoDurationInSeconds(stream);
             // @ts-ignore
             file.filename = `lessons-${req.user.id}-${Date.now()}.mp4`;
-            // HERE NEED TO resize and keep IN S3 and save the link
 
             await aws.uploadToS3(file);
-
 
             const lesson = {
                 title: file.originalname.split('.')[0],

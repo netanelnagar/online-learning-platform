@@ -53,6 +53,6 @@
     "@types/validator": "^13.12.2",
     "nodemon": "^3.1.7",
     "ts-node": "^10.9.2",
-    "vitest": "^2.1.4"
+    "vitest": "^2.1.8"
   }
 }

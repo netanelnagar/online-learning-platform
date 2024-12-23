@@ -1,11 +1,10 @@
 import { MouseEvent, useContext, useEffect, useState } from "react";
-import "./Admin.css";
-import { authContext } from "../../Context/authContext/authContext";
+import { authContext } from "../Context/authContext/authContext";
 import { useNavigate } from "react-router-dom";
-import { IUsers } from "../../Models/Models";
+import { IUsers } from "../Models/Models";
 import axios from "axios";
-import { appConfig } from "../../config/appConfig";
-import toastContext from "../../Context/ToastContext/ToastContext";
+import { appConfig } from "../config/appConfig";
+import toastContext from "../Context/ToastContext/ToastContext";
 import { Button } from "primereact/button";
 
 import { DataView } from "primereact/dataview";

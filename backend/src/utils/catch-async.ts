@@ -11,4 +11,4 @@ const catchAsync = (fn: TFn) => {
 
 
 
-export default catchAsync;
+export default catchAsync; 
