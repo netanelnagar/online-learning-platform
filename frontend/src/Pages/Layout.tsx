@@ -1,54 +1,43 @@
-import {  useState } from "react";
-import { Header } from "./Header";
-// import { Main } from "./Main";
+import { lazy, Suspense, useState } from "react";
 import { Toast } from "primereact/toast";
-
 import { Navigate, Route, Routes } from "react-router-dom";
-import { Home } from "./Home";
 import { useToast } from "../Context/Toast";
+import Header from "./Header";
+import Home from "./Home";
+import Loader from "../Ui/Loader";
+
+const SignIn = lazy(() => import("./SignIn"));
+const SignUp = lazy(() => import("./SignUp"));
+const PageNotFound = lazy(() => import("./PageNotFound"));
+const Courses = lazy(() => import("./Courses"));
+const Teachers = lazy(() => import("./Teachers"));
+const Course = lazy(() => import("./Course"));
+const Teacher = lazy(() => import("./Teacher"));
+
 
 export function Layout(): JSX.Element {
   const toast = useToast();
-const [search, setSearch] = useState("");
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     setLoading(false);
-  //   }, 2000);
-
-  //   setInterval(() => {
-  //     const user = JSON.parse(sessionStorage.getItem("user") as string);
-
-  //     if (user) {
-  //       const now = Date.now();
-  //       const second = (now - user.lastConnection) / 1000;
-  //       second >= 60000 * 180 && sessionStorage.removeItem("user");
-  //       console.log(
-  //         "now: " + now,
-  //         "last: " + user.lastConnection,
-  //         "sum: " + second
-  //       );
-  //     }
-  //   }, 60000);
-
-  //   if (user) {
-  //     delete user.lastConnection;
-  //     userContext?.setUser(user);
-  //   }
-  // }, []);
+  const [search, setSearch] = useState("");
 
   return (
-    <div className="w-full h-dvh grid grid-rows-[auto,1fr]">
+    <div className="grid grid-rows-[auto,1fr] w-full h-dvh">
       <Toast ref={toast} />
-      <Header search={search} setSearch={setSearch}/>
-      <Routes>
-        <Route path="/" element={<Navigate to={"/home"} />} />
-        <Route path="/home" element={<Home />} />
-        {/* <Route path="/auth/*" element={<AuthPage />} />
-        <Route path="/user/*" element={<UserPage />} />
-        <Route path="/memoryGame/*" element={<MemoryGamePage />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/admin" element={<Admin />} /> */}
-      </Routes>
+      <Header search={search} setSearch={setSearch} />
+      <Suspense fallback={<div className="flex m-auto"><Loader className='w-28 h-28'/></div>}>
+        <Routes>
+          <Route path="/" element={<Navigate to={"/home"} />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/login" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/courses" element={<Courses />} />
+          <Route path="/courses/:id" element={<Course />} />
+          <Route path="/teachers" element={<Teachers />} />
+          <Route path="/teachers/:id" element={<Teacher />} />
+          <Route path="*" element={<PageNotFound />} />
+        </Routes>
+      </Suspense>
     </div>
   );
 }
+
+

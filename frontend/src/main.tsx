@@ -6,8 +6,8 @@ import { PrimeReactProvider } from 'primereact/api';
 import AuthContextComp from './Context/authContext/AuthContextComp.tsx';
 import { StrictMode } from 'react';
 import './index.css';
-import "bootstrap-icons/font/bootstrap-icons.min.css";
-import 'primeicons/primeicons.css';
+// import "bootstrap-icons/font/bootstrap-icons.min.css";
+// import 'primeicons/primeicons.css';
 import 'primereact/resources/primereact.css';
 import 'primereact/resources/themes/lara-light-indigo/theme.css';
 

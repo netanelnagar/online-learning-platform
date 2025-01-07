@@ -83,14 +83,23 @@ studentSchema.pre<Query<any, IStudent>>(/^find/, function (next) {
 studentSchema.post<Query<any, IStudent>>(/^find/, async function (docs, next) {
     if (this.getOptions().withUrlMedia) {
         if (Array.isArray(docs)) {
-            docs.forEach(async (doc) => {
+            for (const doc of docs) {
                 doc.profilePicture = doc.imageName ? await aws.getImageUrl(doc.imageName) : "";
-            });
+                doc.password = undefined;
+            }
         } else if (docs) {
             docs.profilePicture = docs.imageName ? await aws.getImageUrl(docs.imageName) : "";
+            docs.password = undefined;
+        }
+    } else {
+        if (Array.isArray(docs)) {
+            for (const doc of docs) {
+                doc.password = undefined;
+            }
+        } else if (docs) {
+            docs.password = undefined;
         }
     }
-
     next();
 });
 

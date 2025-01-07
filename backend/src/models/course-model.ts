@@ -16,7 +16,7 @@ const lessonSchema = new Schema<ILesson>({
                _id: false,
                type: { type: String }, // e.g., "pdf", "link"
                url: { type: String }
-          },
+          }, 
      ],
 });
 

@@ -24,15 +24,16 @@ const createSendToken = (
     res: Response) => {
     const token = signToken(user._id);
 
-    // res.cookie('jwt', token, {
-    //     expires: new Date(
-    //         Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
-    //     ),
-    //     httpOnly: true,
-    //     secure: req.secure || req.headers['x-forwarded-proto'] === 'https'
-    // });
+    res.cookie('jwt', token, {
+        expires: new Date(
+            Date.now() + (Number(process.env.JWT_COOKIE_EXPIRES_IN!) * 24 * 60 * 60 * 1000)
+        ),
+        httpOnly: true,
+        secure: req.secure || req.headers['x-forwarded-proto'] === 'https'
+    });
 
     user.password = undefined;
+    user.passwordConfirm = undefined;
     // @ts-ignore
     user.active = undefined;
     user.createdAt = undefined;
@@ -50,6 +51,11 @@ const createSendToken = (
 const signup = (Model: Model<any>) => catchAsync(async (req: Request, res: Response, next) => {
     const user = await Model.findOne({ email: req.body.email }).setOptions({ overridePublishedFilter: true });
 
+    if (req.originalUrl.includes('students')) {
+        delete req.body.enrolledCourses;
+        delete req.body.certificates;
+    }
+
     let newUser: IStudent | ITeacher | IAdmin | null;
 
     newUser = new Model(user ? { ...req.body, _id: user._id } : req.body);
@@ -59,12 +65,12 @@ const signup = (Model: Model<any>) => catchAsync(async (req: Request, res: Respo
         return next(new AppError(err.message, 400));
     }
 
-    user ?
-        await Model.findOneAndUpdate({ email: user.email }, { ...req.body, active: true }, {
+    if (user) {
+        if (!user.active) await Model.findOneAndUpdate({ email: user.email }, { ...req.body, active: true }, {
             new: true,
-        })
-        :
-        await newUser?.save();
+        });
+    }
+    else await newUser?.save();
 
     const url = `${req.protocol}://${req.get('host')}/me`;
 
@@ -82,7 +88,7 @@ const login = (Model: Model<any>) => catchAsync(async (req: Request, res: Respon
         return next(new AppError('Please provide email and password!', 400));
     }
     // 2) Check if user exists && password is correct
-    const user = await Model.findOne({ email }).select('+password');
+    const user = await Model.findOne({ email }).select('+password').setOptions({ withUrlMedia: true });
 
     // @ts-ignore
     if (!user || !(await user.correctPassword(password, user.password))) {
