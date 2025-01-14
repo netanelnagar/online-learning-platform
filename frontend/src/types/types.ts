@@ -3,17 +3,36 @@ export interface ICourse {
     title: string;
     description: string;
     thumbnail: string;
-    category: string;
+    category: string[];
     createdBy: string;
-    studentsEnrolled: number[];
+    studentsEnrolled: string[];
+    published: boolean;
+    lessons: ILesson[];
     rating: {
         amount: number;
         total: number;
     };
     price: number;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface ILesson {
+    title: string;
+    videoName: string;
+    videoUrl: string;
+    content: string;
+    duration: number;
+    resources: Resource[];
+}
+
+export interface Resource {
+    type: string;
+    url: string;
 }
 
 export interface ITeacher {
+    _id: string;
     username: string;
     email: string;
     profilePicture: string;
@@ -24,6 +43,9 @@ export interface ITeacher {
         linkedin?: string;
         website?: string;
     };
+    rating: number;
+    coursesCount: number;
+    totalStudents: number;
 }
 
 export interface IStudent {

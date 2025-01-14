@@ -5,6 +5,8 @@ import { useToast } from "../Context/Toast";
 import Header from "./Header";
 import Home from "./Home";
 import Loader from "../Ui/Loader";
+import { student, course } from "./providers";
+import { Contact } from "./Contact";
 
 const SignIn = lazy(() => import("./SignIn"));
 const SignUp = lazy(() => import("./SignUp"));
@@ -13,7 +15,7 @@ const Courses = lazy(() => import("./Courses"));
 const Teachers = lazy(() => import("./Teachers"));
 const Course = lazy(() => import("./Course"));
 const Teacher = lazy(() => import("./Teacher"));
-
+const Student = lazy(() => import("./Student"));
 
 export function Layout(): JSX.Element {
   const toast = useToast();
@@ -29,9 +31,11 @@ export function Layout(): JSX.Element {
           <Route path="/home" element={<Home />} />
           <Route path="/login" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/courses" element={<Courses />} />
-          <Route path="/courses/:id" element={<Course />} />
+          <Route path="/courses/:id" element={<Course {...course}  />} />
           <Route path="/teachers" element={<Teachers />} />
+          <Route path="/student" element={<Student student={student}/>} />
           <Route path="/teachers/:id" element={<Teacher />} />
           <Route path="*" element={<PageNotFound />} />
         </Routes>

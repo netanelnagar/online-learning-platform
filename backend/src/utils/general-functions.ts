@@ -5,7 +5,7 @@ import { ITeacher } from "../types/teacher-types";
 import { createHash, randomBytes } from "crypto";
 
 // @ts-ignore
-export const chackSamePassword = function (el) {
+export const checkSamePassword = function (el) {
     // @ts-ignore
     return el === this.password;
 }

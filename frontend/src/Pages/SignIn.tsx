@@ -51,9 +51,9 @@ function SignIn(): JSX.Element {
                         <button
                             type="button"
                             onClick={() => setFormData({ ...formData, role: 'student' })}
-                            className={`flex items-center px-6 py-3 rounded-xl text-sm font-medium transition-all duration-300 ease-in-out transform hover:scale-105
+                            className={`flex items-center px-6 py-3 rounded-xl text-sm font-medium
                         ${formData.role === 'student'
-                                    ? 'bg-sky-500 text-white shadow-lg shadow-blue-500/30'
+                                    ? 'bg-primary hover:bg-primary/90 text-white '
                                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
                         >
                             <User className="mr-2 w-4 h-4" />
@@ -62,9 +62,9 @@ function SignIn(): JSX.Element {
                         <button
                             type="button"
                             onClick={() => setFormData({ ...formData, role: 'teacher' })}
-                            className={`flex items-center px-6 py-3 rounded-xl text-sm font-medium transition-all duration-300 ease-in-out transform hover:scale-105
+                            className={`flex items-center px-6 py-3 rounded-xl text-sm font-medium 
                         ${formData.role === 'teacher'
-                                    ? 'bg-sky-500 text-white shadow-lg shadow-purple-500/30'
+                                    ? 'bg-primary hover:bg-primary/90 text-white 30'
                                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
                         >
                             <User className="mr-2 w-4 h-4" />
@@ -117,14 +117,14 @@ function SignIn(): JSX.Element {
                             <input
                                 id="remember-me"
                                 type="checkbox"
-                                className="border-gray-300 rounded focus:ring-sky-500 w-4 h-4 text-sky-600"
+                                className="border-gray-300 rounded w-4 h-4"
                             />
                             <label htmlFor="remember-me" className="block ml-2 text-gray-700 text-sm">
                                 Remember me
                             </label>
                         </div>
                         {/* need to add componnent for it */}
-                        <a href="#" className="font-medium text-sky-500 text-sm hover:text-sky-600 transition-colors">
+                        <a href="#" className="font-medium text-primary hover:text-primary/85 transition-colors">
                             Forgot password?
                         </a>
                     </div>
@@ -132,7 +132,7 @@ function SignIn(): JSX.Element {
                     {/* Submit Button */}
                     <button
                         type="submit"
-                        className="bg-sky-500 hover:bg-sky-600 shadow-lg shadow-sky-500/30 px-4 py-3 border border-transparent rounded-xl focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 w-full font-semibold text-sm text-white transform transition-all duration-300 ease-in-out hover:scale-105 focus:outline-none"
+                        className="bg-primary hover:bg-primary/85 px-4 py-3 border border-transparent rounded-xl focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 w-full font-semibold text-sm text-white focus:outline-none"
                     >
                         Sign in
                     </button>
@@ -141,7 +141,7 @@ function SignIn(): JSX.Element {
                     <div className="text-center text-sm">
                         <span className="text-gray-500">Don't have an account?</span>
                         {' '}
-                        <Link to={"/signup"} className="font-medium text-sky-500 hover:text-sky-600 transition-colors">
+                        <Link to={"/signup"} className="font-medium text-primary hover:text-primary/85 transition-colors">
                             Create one now
                         </Link>
                     </div>

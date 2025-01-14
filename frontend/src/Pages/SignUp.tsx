@@ -57,9 +57,9 @@ function SignUp(): JSX.Element {
                         <button
                             type="button"
                             onClick={() => setFormData({ ...formData, role: 'student' })}
-                            className={`flex items-center px-6 py-3 rounded-xl text-sm font-medium transition-all duration-300 ease-in-out transform hover:scale-105
+                            className={`flex items-center px-6 py-3 rounded-xl text-sm font-medium 
                         ${formData.role === 'student'
-                                    ? 'bg-sky-500 text-white shadow-lg shadow-blue-500/30'
+                                    ? 'bg-primary hover:bg-primary/90 text-white '
                                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
                         >
                             <User className="mr-2 w-4 h-4" />
@@ -68,9 +68,9 @@ function SignUp(): JSX.Element {
                         <button
                             type="button"
                             onClick={() => setFormData({ ...formData, role: 'teacher' })}
-                            className={`flex items-center px-6 py-3 rounded-xl text-sm font-medium transition-all duration-300 ease-in-out transform hover:scale-105
+                            className={`flex items-center px-6 py-3 rounded-xl text-sm font-medium 
                         ${formData.role === 'teacher'
-                                    ? 'bg-sky-500 text-white shadow-lg shadow-purple-500/30'
+                                    ? 'bg-primary hover:bg-primary/90 text-white '
                                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
                         >
                             <User className="mr-2 w-4 h-4" />
@@ -90,7 +90,7 @@ function SignUp(): JSX.Element {
                             <input
                                 type="text"
                                 required
-                                className="border-gray-200 bg-gray-50 px-4 py-3 pl-10 border focus:border-transparent rounded-xl focus:ring-2 focus:ring-blue-500 w-full text-gray-900 transition-all duration-300 ease-in-out placeholder-gray-400"
+                                className="border-gray-200 bg-gray-50 px-4 py-3 pl-10 border focus:border-transparent rounded-xl focus:ring-2 w-full text-gray-900 transition-all duration-300 ease-in-out focus:pr focus:outline-none placeholder-gray-400"
                                 placeholder="Enter your username"
                                 value={formData.username}
                                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
@@ -126,7 +126,7 @@ function SignUp(): JSX.Element {
                             <input
                                 type="password"
                                 required
-                                className="border-gray-200 bg-gray-50 px-4 py-3 pl-10 border focus:border-transparent rounded-xl focus:ring-2 focus:ring-blue-500 w-full text-gray-900 transition-all duration-300 ease-in-out placeholder-gray-400"
+                                className="border-gray-200 bg-gray-50 px-4 py-3 pl-10 border rounded-xl w-full text-gray-900 transition-all duration-300 ease-in-out focus: placeholder-gray-400"
                                 placeholder="Enter your password"
                                 value={formData.password}
                                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -155,7 +155,7 @@ function SignUp(): JSX.Element {
                     {/* Submit Button */}
                     <button
                         type="submit"
-                        className="bg-sky-500 hover:bg-sky-600 shadow-lg shadow-sky-500/30 px-4 py-3 border border-transparent rounded-xl focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 w-full font-semibold text-sm text-white transform transition-all duration-300 ease-in-out hover:scale-105 focus:outline-none"
+                        className="bg-primary hover:bg-primary/90 px-4 py-3 border border-transparent rounded-xl focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 w-full font-semibold text-sm text-white focus:outline-none"
                     >
                         Sign up
                     </button>
@@ -164,7 +164,7 @@ function SignUp(): JSX.Element {
                     <div className="text-center text-sm">
                         <span className="text-gray-500">Already have an account?</span>
                         {' '}
-                        <Link to={"/login"} className="font-medium text-sky-500 hover:text-sky-600 transition-colors">
+                        <Link to={"/login"} className="font-medium text-primary hover:text-primary transition-colors">
                             Sign in
                         </Link>
                     </div>

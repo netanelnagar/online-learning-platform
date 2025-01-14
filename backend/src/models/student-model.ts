@@ -1,7 +1,7 @@
 import { Query, Schema, model } from "mongoose";
 import { IStudent } from "../types/student-types";
 import validator from "validator";
-import { chackSamePassword, changedPasswordAfter, correctPassword, createPasswordResetToken } from "../utils/general-functions";
+import { checkSamePassword, changedPasswordAfter, correctPassword, createPasswordResetToken } from "../utils/general-functions";
 import { hash } from "bcryptjs";
 import aws from "../utils/aws";
 
@@ -19,7 +19,7 @@ const studentSchema = new Schema<IStudent>(
         passwordConfirm: {
             type: String,
             required: [true, 'Please confirm your password'],
-            validate: [chackSamePassword, 'Passwords are not the same!']
+            validate: [checkSamePassword, 'Passwords are not the same!']
 
         },
         passwordChangedAt: Date,
