@@ -7,10 +7,6 @@ export interface ILesson {
     videoUrl?: string; // URL to the video content
     content?: string; // Optional additional content
     duration?: number; // Optional lesson duration in minutes
-    resources?: { // Optional resources associated with the lesson
-        type: string; // e.g., "pdf", "link"
-        url: string;
-    }[];
 }
 
 // Interface for Course

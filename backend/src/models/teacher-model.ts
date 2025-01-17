@@ -2,7 +2,7 @@ import { model, Query, Schema } from "mongoose";
 import validator from "validator";
 import { ITeacher } from "../types/teacher-types";
 import { hash } from "bcryptjs";
-import { chackSamePassword, changedPasswordAfter, correctPassword, createPasswordResetToken } from "../utils/general-functions";
+import { checkSamePassword, changedPasswordAfter, correctPassword, createPasswordResetToken } from "../utils/general-functions";
 import aws from "../utils/aws";
 
 const teacherSchema = new Schema<ITeacher>(
@@ -18,7 +18,7 @@ const teacherSchema = new Schema<ITeacher>(
           passwordConfirm: {
                type: String,
                required: [true, 'Please confirm your password'],
-               validate: [chackSamePassword, 'Passwords are not the same!']
+               validate: [checkSamePassword, 'Passwords are not the same!']
 
           },
           passwordChangedAt: Date,
