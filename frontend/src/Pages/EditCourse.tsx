@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { PlayCircle, FileText, Link as LinkIcon, Plus, X } from "lucide-react";
-import Card from "../Ui/Card";
-import Input from "../Ui/Input";
-import Textarea from "../Ui/Textarea";
-import Button from "../Ui/Button";
+import Card from "../Components/Ui/Card";
+import Input from "../Components/Ui/Input";
+import Textarea from "../Components/Ui/Textarea";
+import Button from "../Components/Ui/Button";
 import { ICourse, ILesson } from "../types/types";
 import { course as co } from "./providers";
 import { useNavigate } from "react-router-dom";

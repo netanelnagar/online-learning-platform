@@ -2,6 +2,7 @@
 // import { Card, CardContent, CardHeader } from "@/components/ui/card";
 // import { Badge } from "@/components/ui/badge";
 
+import Footer from "./Footer";
 import { teachers as ts } from "./providers";
 import { TeacherCard } from "./TeacherCard";
 interface Teacher {
@@ -48,13 +49,14 @@ const teachers = Array.from({ length: 3 }, (_, i) => ([{
 const t = teachers.flat();
 export default function Teachers() {
   return (
-    <div className="overflow-y-scroll">
-      <div className="container px-3 py-6 mx-auto">
+    <div className="flex flex-col min-h-full overflow-y-auto">
+      <div className="container px-3 py-6 mx-auto flex-grow">
         <h2 className="mb-4 text-3xl font-bold text-primary">Top Teachers</h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {ts.map((teacher) => <TeacherCard teacher={teacher} />)}
         </div>
       </div>
+      {<Footer/>}
     </div>
 
   );

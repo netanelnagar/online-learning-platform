@@ -3,7 +3,8 @@ import { Mail, Lock, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useToast } from '../Context/Toast';
-import Loader from '../Ui/Loader';
+import Loader from '../Components/Ui/Loader';
+import Footer from './Footer';
 
 function SignUp(): JSX.Element {
 
@@ -42,134 +43,136 @@ function SignUp(): JSX.Element {
     };
 
     return (
-        <div className="flex justify-center py-4 w-full h-full overflow-y-scroll">
-            <div className="relative md:space-x-8 space-y-8 md:space-y-0 md:grid md:grid-cols-2 bg-white/70 shadow-xl m-auto mx-4 p-8 border border-black/20 rounded-2xl md:w-[700px] max-w-md md:max-w-screen-md">
-                {/* Header */}
-                {loader && <div className='bottom-0 left-0 z-10 absolute flex justify-center items-center bg-slate-200/70 w-full h-full'><Loader className='w-28 h-28' /></div>}
-                <div className="md:flex md:flex-col md:justify-center md:col-span-1 text-center">
-                    <h2 className="font-bold text-4xl">
-                        Create an Account
-                    </h2>
-                    <p className="mt-3">
-                        Sign up to get started
-                    </p>
-                    <div className="flex justify-center space-x-4 my-4">
-                        <button
-                            type="button"
-                            onClick={() => setFormData({ ...formData, role: 'student' })}
-                            className={`flex items-center px-6 py-3 rounded-xl text-sm font-medium 
+        <div className="flex flex-col min-h-full  overflow-y-auto">
+            <div className='px-2 py-4 flex-grow place-content-center'>
+                <div className="relative md:space-x-8 space-y-8 md:space-y-0 md:grid md:grid-cols-2 bg-white/70 shadow-xl m-auto p-8 border border-black/20 rounded-2xl md:w-[700px] max-w-md md:max-w-screen-md">
+                    {loader && <div className='absolute bottom-0 left-0 z-10 flex items-center justify-center w-full h-full bg-slate-200/70'><Loader className='w-28 h-28' /></div>}
+                    <div className="text-center md:flex md:flex-col md:justify-center md:col-span-1">
+                        <h2 className="text-4xl font-bold">
+                            Create an Account
+                        </h2>
+                        <p className="mt-3">
+                            Sign up to get started
+                        </p>
+                        <div className="flex justify-center my-4 space-x-4">
+                            <button
+                                type="button"
+                                onClick={() => setFormData({ ...formData, role: 'student' })}
+                                className={`flex items-center px-6 py-3 rounded-xl text-sm font-medium 
                         ${formData.role === 'student'
-                                    ? 'bg-primary hover:bg-primary/90 text-white '
-                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-                        >
-                            <User className="mr-2 w-4 h-4" />
-                            Student
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setFormData({ ...formData, role: 'teacher' })}
-                            className={`flex items-center px-6 py-3 rounded-xl text-sm font-medium 
+                                        ? 'bg-primary hover:bg-primary/90 text-white '
+                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                            >
+                                <User className="w-4 h-4 mr-2" />
+                                Student
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setFormData({ ...formData, role: 'teacher' })}
+                                className={`flex items-center px-6 py-3 rounded-xl text-sm font-medium 
                         ${formData.role === 'teacher'
-                                    ? 'bg-primary hover:bg-primary/90 text-white '
-                                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                                        ? 'bg-primary hover:bg-primary/90 text-white '
+                                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                            >
+                                <User className="w-4 h-4 mr-2" />
+                                Teacher
+                            </button>
+                        </div>
+                    </div>
+
+                    <form className="mt-10 space-y-6 md:col-span-1 md:mt-2" onSubmit={handleSubmit}>
+                        {/* Username Field */}
+                        <div className="relative">
+                            <label className="block mb-1 ml-1 text-sm font-medium text-gray-700">
+                                Username
+                            </label>
+                            <div className="relative">
+                                <User className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 top-1/2 left-3" />
+                                <input
+                                    type="text"
+                                    required
+                                    className="w-full px-4 py-3 pl-10 text-gray-900 placeholder-gray-400 transition-all duration-300 ease-in-out border border-gray-200 bg-gray-50 focus:border-transparent rounded-xl focus:ring-2 focus:pr focus:outline-none"
+                                    placeholder="Enter your username"
+                                    value={formData.username}
+                                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Email Field */}
+                        <div className="relative">
+                            <label className="block mb-1 ml-1 text-sm font-medium text-gray-700">
+                                Email address
+                            </label>
+                            <div className="relative">
+                                <Mail className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 top-1/2 left-3" />
+                                <input
+                                    type="email"
+                                    required
+                                    className="w-full px-4 py-3 pl-10 text-gray-900 placeholder-gray-400 transition-all duration-300 ease-in-out border border-gray-200 bg-gray-50 focus:border-transparent rounded-xl focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Enter your email"
+                                    value={formData.email}
+                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Password Field */}
+                        <div className="relative">
+                            <label className="block mb-1 ml-1 text-sm font-medium text-gray-700">
+                                Password
+                            </label>
+                            <div className="relative">
+                                <Lock className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 top-1/2 left-3" />
+                                <input
+                                    type="password"
+                                    required
+                                    className="w-full px-4 py-3 pl-10 text-gray-900 placeholder-gray-400 transition-all duration-300 ease-in-out border border-gray-200 bg-gray-50 rounded-xl focus:"
+                                    placeholder="Enter your password"
+                                    value={formData.password}
+                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Confirm Password Field */}
+                        <div className="relative">
+                            <label className="block mb-1 ml-1 text-sm font-medium text-gray-700">
+                                Confirm Password
+                            </label>
+                            <div className="relative">
+                                <Lock className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 top-1/2 left-3" />
+                                <input
+                                    type="password"
+                                    required
+                                    className="w-full px-4 py-3 pl-10 text-gray-900 placeholder-gray-400 transition-all duration-300 ease-in-out border border-gray-200 bg-gray-50 focus:border-transparent rounded-xl focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Confirm your password"
+                                    value={formData.passwordConfirm}
+                                    onChange={(e) => setFormData({ ...formData, passwordConfirm: e.target.value })}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Submit Button */}
+                        <button
+                            type="submit"
+                            className="w-full px-4 py-3 text-sm font-semibold text-white border border-transparent bg-primary hover:bg-primary/90 rounded-xl focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
                         >
-                            <User className="mr-2 w-4 h-4" />
-                            Teacher
+                            Sign up
                         </button>
-                    </div>
+
+                        {/* Sign In Link */}
+                        <div className="text-sm text-center">
+                            <span className="text-gray-500">Already have an account?</span>
+                            {' '}
+                            <Link to={"/login"} className="font-medium transition-colors text-primary hover:text-primary">
+                                Sign in
+                            </Link>
+                        </div>
+                    </form>
                 </div>
-
-                <form className="space-y-6 md:col-span-1 mt-10 md:mt-2" onSubmit={handleSubmit}>
-                    {/* Username Field */}
-                    <div className="relative">
-                        <label className="block mb-1 ml-1 font-medium text-gray-700 text-sm">
-                            Username
-                        </label>
-                        <div className="relative">
-                            <User className="top-1/2 left-3 absolute w-5 h-5 text-gray-400 transform -translate-y-1/2" />
-                            <input
-                                type="text"
-                                required
-                                className="border-gray-200 bg-gray-50 px-4 py-3 pl-10 border focus:border-transparent rounded-xl focus:ring-2 w-full text-gray-900 transition-all duration-300 ease-in-out focus:pr focus:outline-none placeholder-gray-400"
-                                placeholder="Enter your username"
-                                value={formData.username}
-                                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                            />
-                        </div>
-                    </div>
-
-                    {/* Email Field */}
-                    <div className="relative">
-                        <label className="block mb-1 ml-1 font-medium text-gray-700 text-sm">
-                            Email address
-                        </label>
-                        <div className="relative">
-                            <Mail className="top-1/2 left-3 absolute w-5 h-5 text-gray-400 transform -translate-y-1/2" />
-                            <input
-                                type="email"
-                                required
-                                className="border-gray-200 bg-gray-50 px-4 py-3 pl-10 border focus:border-transparent rounded-xl focus:ring-2 focus:ring-blue-500 w-full text-gray-900 transition-all duration-300 ease-in-out placeholder-gray-400"
-                                placeholder="Enter your email"
-                                value={formData.email}
-                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            />
-                        </div>
-                    </div>
-
-                    {/* Password Field */}
-                    <div className="relative">
-                        <label className="block mb-1 ml-1 font-medium text-gray-700 text-sm">
-                            Password
-                        </label>
-                        <div className="relative">
-                            <Lock className="top-1/2 left-3 absolute w-5 h-5 text-gray-400 transform -translate-y-1/2" />
-                            <input
-                                type="password"
-                                required
-                                className="border-gray-200 bg-gray-50 px-4 py-3 pl-10 border rounded-xl w-full text-gray-900 transition-all duration-300 ease-in-out focus: placeholder-gray-400"
-                                placeholder="Enter your password"
-                                value={formData.password}
-                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                            />
-                        </div>
-                    </div>
-
-                    {/* Confirm Password Field */}
-                    <div className="relative">
-                        <label className="block mb-1 ml-1 font-medium text-gray-700 text-sm">
-                            Confirm Password
-                        </label>
-                        <div className="relative">
-                            <Lock className="top-1/2 left-3 absolute w-5 h-5 text-gray-400 transform -translate-y-1/2" />
-                            <input
-                                type="password"
-                                required
-                                className="border-gray-200 bg-gray-50 px-4 py-3 pl-10 border focus:border-transparent rounded-xl focus:ring-2 focus:ring-blue-500 w-full text-gray-900 transition-all duration-300 ease-in-out placeholder-gray-400"
-                                placeholder="Confirm your password"
-                                value={formData.passwordConfirm}
-                                onChange={(e) => setFormData({ ...formData, passwordConfirm: e.target.value })}
-                            />
-                        </div>
-                    </div>
-
-                    {/* Submit Button */}
-                    <button
-                        type="submit"
-                        className="bg-primary hover:bg-primary/90 px-4 py-3 border border-transparent rounded-xl focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 w-full font-semibold text-sm text-white focus:outline-none"
-                    >
-                        Sign up
-                    </button>
-
-                    {/* Sign In Link */}
-                    <div className="text-center text-sm">
-                        <span className="text-gray-500">Already have an account?</span>
-                        {' '}
-                        <Link to={"/login"} className="font-medium text-primary hover:text-primary transition-colors">
-                            Sign in
-                        </Link>
-                    </div>
-                </form>
             </div>
+            <Footer />
         </div>
     );
 };

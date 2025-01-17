@@ -53,28 +53,28 @@ export default function Review() {
     }, []);
 
     return (
-        <div className="mx-auto px-4 py-12 w-full max-w-4xl">
-            <h2 className="mb-12 font-bold text-3xl text-center text-primary">
+        <div className="w-full max-w-4xl px-4 py-12 mx-auto">
+            <h2 className="mb-12 text-3xl font-bold text-center text-primary">
                 What Our Students Say
             </h2>
             <div className="relative">
-                <div className="bg-white shadow-lg rounded-xl overflow-hidden">
-                    <div className="relative p-8 h-full">
-                        <div className="flex md:flex-row flex-col items-center gap-8">
+                <div className="overflow-hidden bg-white shadow-lg rounded-xl">
+                    <div className="relative h-full p-8">
+                        <div className="flex flex-col items-center gap-8 md:flex-row">
                             <img
                                 src={testimonials[currentIndex].image}
                                 alt={testimonials[currentIndex].name}
-                                className="rounded-full w-24 h-24 object-cover"
+                                className="object-cover w-24 h-24 rounded-full"
                             />
                             <div className="flex-1">
-                                <p className="mb-4 text-gray-700 text-lg italic">
+                                <p className="mb-4 text-lg italic text-gray-700">
                                     "{testimonials[currentIndex].content}"
                                 </p>
                                 <div className="text-right">
                                     <p className="font-semibold text-primary">
                                         {testimonials[currentIndex].name}
                                     </p>
-                                    <p className="text-gray-500 text-sm">
+                                    <p className="text-sm text-gray-500">
                                         {testimonials[currentIndex].role}
                                     </p>
                                 </div>
@@ -85,14 +85,14 @@ export default function Review() {
 
                 <button
                     onClick={prevTestimonial}
-                    className="top-1/2 left-0 absolute bg-white hover:bg-gray-50 shadow-lg p-2 rounded-full transition-colors -translate-x-4 -translate-y-1/2"
+                    className="absolute left-0 p-2 transition-colors -translate-x-4 -translate-y-1/2 bg-white rounded-full shadow-lg top-1/2 hover:bg-gray-50"
                 >
                     <ChevronLeft className="w-6 h-6 text-primary" />
                 </button>
 
                 <button
                     onClick={nextTestimonial}
-                    className="top-1/2 right-0 absolute bg-white hover:bg-gray-50 shadow-lg p-2 rounded-full transition-colors -translate-y-1/2 translate-x-4"
+                    className="absolute right-0 p-2 transition-colors translate-x-4 -translate-y-1/2 bg-white rounded-full shadow-lg top-1/2 hover:bg-gray-50"
                 >
                     <ChevronRight className="w-6 h-6 text-primary" />
                 </button>

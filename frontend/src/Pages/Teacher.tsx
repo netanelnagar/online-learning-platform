@@ -4,12 +4,12 @@ import { useState } from "react";
 import { teacher as data } from "./providers";
 import { User, BookOpen, Plus } from "lucide-react";
 import { Avatar } from "primereact/avatar";
-import Button from "../Ui/Button";
-import Card, { specificCard } from "../Ui/Card";
-import { Tabs } from "../Ui/Tabs";
+import Button from "../Components/Ui/Button";
+import Card, { specificCard } from "../Components/Ui/Card";
+import { Tabs } from "../Components/Ui/Tabs";
 import { InputTextarea } from "primereact/inputtextarea";
 import { InputText } from "primereact/inputtext";
-import Input from "../Ui/Input";
+import Input from "../Components/Ui/Input";
 import Course from "./Course";
 import { EditCourse } from "./EditCourse";
 import { SpecificUiCourse } from "./SpecificUiCourse";
@@ -89,7 +89,7 @@ export default function Teacher({ teacher = data }: ITeacher) {
   ];
 
   return (
-    <div className="overflow-y-scroll">
+    <div className="overflow-y-auto">
       <div className="container p-8 mx-auto space-y-4 lg:px-12">
         {/* <div className="flex items-start gap-6 mb-8"> */}
         <div className="flex flex-col items-center gap-8 md:flex-row md:items-start">
@@ -236,14 +236,14 @@ export default function Teacher({ teacher = data }: ITeacher) {
               ) : (
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   {courses.map((course) => (
-                    <SpecificUiCourse key={course._id} {...course}  />
+                    <SpecificUiCourse key={course._id} {...course} />
                   ))}
                   {courses.map((course) => (
-                    <SpecificUiCourse key={course._id} {...course}  />
+                    <SpecificUiCourse key={course._id} {...course} />
                   ))}{courses.map((course) => (
-                    <SpecificUiCourse key={course._id} {...course}  />
+                    <SpecificUiCourse key={course._id} {...course} />
                   ))}{courses.map((course) => (
-                    <SpecificUiCourse key={course._id} {...course}  />
+                    <SpecificUiCourse key={course._id} {...course} />
                   ))}
                 </div>
               )}

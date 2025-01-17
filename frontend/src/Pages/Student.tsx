@@ -2,11 +2,11 @@ import { IStudent as IS } from "../types/types";
 import { BookOpen, CirclePlus, Clock, Pencil, Trophy } from "lucide-react";
 import { ProgressBar } from "primereact/progressbar";
 import { TabPanel, TabView } from "primereact/tabview";
-import Card, { specificCard } from "../Ui/Card";
-import Button from "../Ui/Button";
+import Card, { specificCard } from "../Components/Ui/Card";
+import Button from "../Components/Ui/Button";
 import { ChangeEventHandler, useState } from "react";
 import { Tooltip } from "primereact/tooltip";
-import { Tabs } from "../Ui/Tabs";
+import { Tabs } from "../Components/Ui/Tabs";
 
 const inputLabels: ("Username" | "Email" | "Password" | "Confirm Password")[] = ["Username", "Email", "Password", "Confirm Password"];
 
@@ -44,7 +44,7 @@ export default function Student({ student }: IStudent) {
 
 
   return (
-    <div className="overflow-y-scroll">
+    <div className="overflow-y-auto">
       <div className="container p-8 mx-auto lg:px-12">
         {/* <div className="p-8 bg-white rounded-lg shadow-lg"> */}
         <div className="flex flex-col items-center gap-8 md:flex-row md:items-start">
