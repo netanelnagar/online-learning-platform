@@ -11,13 +11,6 @@ const lessonSchema = new Schema<ILesson>({
      videoUrl: { type: String },
      content: { type: String },
      duration: { type: Number },
-     resources: [
-          {
-               _id: false,
-               type: { type: String }, // e.g., "pdf", "link"
-               url: { type: String }
-          }, 
-     ],
 });
 
 const courseSchema = new Schema<ICourse>(
