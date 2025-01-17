@@ -7,9 +7,10 @@ interface IButton {
     className?: string;
     onClick?: MouseEventHandler;
     disabled?: boolean;
+    type?: "button" | "submit" | "reset";
     variant?: 'primary' | 'secondary' | "outline";
 }
-function Button({ children, className, to, onClick, disabled, variant }: IButton) {
+function Button({ children, className, to, onClick, disabled, variant, type = "button"}: IButton) {
     let classes;
 
     switch (variant) {
@@ -39,7 +40,7 @@ function Button({ children, className, to, onClick, disabled, variant }: IButton
         <button className={`${classes}  ${className}`} onClick={e => {
             e.stopPropagation();
             onClick && onClick(e);
-        }} disabled={disabled}>{children}</button>
+        }} disabled={disabled} type={type}>{children}</button>
     )
 }
 

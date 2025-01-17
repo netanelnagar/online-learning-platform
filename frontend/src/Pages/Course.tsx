@@ -5,9 +5,9 @@ import { PlayCircle } from "lucide-react";
 import { useState } from "react";
 // import { useToast } from "@/components/ui/use-toast";
 import { useParams, useNavigate } from "react-router-dom";
-import Card from "../Ui/Card";
+import Card from "../Components/Ui/Card";
 import { Badge } from "primereact/badge";
-import Button from "../Ui/Button";
+import Button from "../Components/Ui/Button";
 import { course } from "./providers";
 import { ICourse } from "../types/types";
 
@@ -51,23 +51,23 @@ export default function Course({
   };
 
   return (
-    <div className="md:py-8 overflow-y-scroll">
+    <div className="md:py-8 overflow-y-auto">
       <button onClick={handleBack} className="my-4 ml-3">← Back</button>
       <div className="flex md:flex-row flex-col-reverse md:gap-x-9 mx-auto p-6 container">
         <div className="py-6 md:w-1/2">
           <div className="flex justify-between items-start mb-4">
             <div>
               <h3 className="mb-2 line-clamp-2 font-bold text-2xl">{title}</h3>
-              <div className="flex gap-2 mb-2 w-[250px] overflow-x-scroll">
+              <div className="flex gap-2 mb-2 w-[250px] overflow-x-auto">
                 {category.map((cat) => (
                   <><div key={cat} className="bg-primary px-2 py-1 rounded-full">{cat}</div>
-                  <div key={cat} className="bg-primary px-2 py-1 rounded-full">{cat}</div>
-                  <div key={cat} className="bg-primary px-2 py-1 rounded-full">{cat}</div></>
+                    <div key={cat} className="bg-primary px-2 py-1 rounded-full">{cat}</div>
+                    <div key={cat} className="bg-primary px-2 py-1 rounded-full">{cat}</div></>
                 ))}
                 {category.map((cat) => (
                   <><div key={cat} className="bg-primary px-2 py-1 rounded-full">{cat}</div>
-                  <div key={cat} className="bg-primary px-2 py-1 rounded-full">{cat}</div>
-                  <div key={cat} className="bg-primary px-2 py-1 rounded-full">{cat}</div></>
+                    <div key={cat} className="bg-primary px-2 py-1 rounded-full">{cat}</div>
+                    <div key={cat} className="bg-primary px-2 py-1 rounded-full">{cat}</div></>
                 ))}
               </div>
               <div className="flex items-center gap-2">
@@ -105,7 +105,7 @@ export default function Course({
               <Button
                 className="w-full md:w-auto"
                 onClick={handleEnroll}
-              disabled={isEnrolled}
+                disabled={isEnrolled}
               >
                 {isEnrolled ? "Enrolled" : "Enroll Now"}
               </Button>

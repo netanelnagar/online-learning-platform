@@ -2,12 +2,20 @@
   "compilerOptions": {
     "target": "ES2020",
     "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2020",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "module": "ESNext",
     "skipLibCheck": true,
     "paths": {
-      "@Pages": ["./src/Pages"],
-      "@Ui": ["./src/Ui"],  
+      "@Pages": [
+        "./src/Pages"
+      ],
+      "@Ui": [
+        "src/Components/Ui"
+      ],
     },
     /* Bundler mode */
     "moduleResolution": "bundler",
@@ -16,13 +24,19 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "test/PageNotFound.test.tsx"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": [
+    "src",
+    "test/PageNotFound.test.tsx"
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
 }

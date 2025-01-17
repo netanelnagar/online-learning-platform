@@ -1,13 +1,14 @@
 import { ITeacher } from "../types/types";
 import { GraduationCap, Star, Users } from "lucide-react";
-import Card from "../Ui/Card";
+import Card from "../Components/Ui/Card";
+import { Link } from "react-router-dom";
 interface ITeacherCard {
     teacher: ITeacher;
     className?: string;
 }
 export const TeacherCard = ({ teacher, className }: ITeacherCard) => {
     return (
-        <Card className={`transition-shadow hover:shadow-lg ${className}`}>
+        <Link to={`/teachers/${teacher._id}`} className={`bg-white shadow-sm p-6 rounded-lg border transition-shadow hover:shadow-lg ${className}`}>
             <div className="flex flex-row items-center gap-4">
                 <img className="w-16 h-16 rounded-full" src={teacher.profilePicture} alt={teacher.username} />
                 {/* <AvatarFallback>{teacher.name.split(' ').map(n => n[0]).join('')}</AvatarFallback> */}
@@ -41,6 +42,6 @@ export const TeacherCard = ({ teacher, className }: ITeacherCard) => {
                     </div>
                 </div>
             </div>
-        </Card>
+        </Link>
     )
 };

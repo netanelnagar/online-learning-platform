@@ -3,7 +3,7 @@ import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { stopBubbling } from "../utils/utils";
 import { Link } from "react-router-dom";
 import { Menu } from "lucide-react";
-import Button from "../Ui/Button";
+import Button from "../Components/Ui/Button";
 
 const links = ["Home", "Courses", "Teachers", "Contact"];
 
@@ -28,7 +28,7 @@ export default function Header({ search, setSearch }: IHeader): JSX.Element {
       <Menu className="text-3xl text-black lg:hidden" onClick={() => setOpen(o => !o)} />
       <Link to={"/home"} className="text-2xl font-bold my-name text-primary">EduPath</Link>
       <div className="flex-grow hidden mx-4 lg:flex max-w-96">
-        <input ref={input} type="text" placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} className="w-full px-4 py-2 text-black rounded-full bg-slate-100 focus:ring focus:ring-sky-300 focus:outline-none" />
+        <input ref={input} type="text" placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} className="w-full px-4 py-2 text-black rounded-full bg-slate-100 focus:ring focus:ring-primary focus:outline-none" />
       </div>
       <nav className="flex-wrap content-center justify-center hidden lg:flex">
         {links.map((link) => (

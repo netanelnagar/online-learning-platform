@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { ICourse } from "../types/types";
-import Card from "../Ui/Card";
+import Card from "../Components/Ui/Card";
 import { Badge } from "lucide-react";
 import { PlayCircle, FileText, Link as LinkIcon } from "lucide-react";
-import Button from "../Ui/Button";
+import Button from "../Components/Ui/Button";
 
 export function SpecificUiCourse({
     title,

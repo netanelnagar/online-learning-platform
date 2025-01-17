@@ -46,6 +46,7 @@ export interface ITeacher {
     rating: number;
     coursesCount: number;
     totalStudents: number;
+    role: string;
 }
 
 export interface IStudent {
@@ -54,4 +55,14 @@ export interface IStudent {
     profilePicture: string;
     enrolledCourses: string[];
     certificates: string[];
+    role: string;
+}
+
+export interface IAdmin {
+    _id: string; // Unique identifier for the course
+    username: string;
+    email: string;
+    role?: string; // Optional because it has a default value
+    createdAt?: Date; // Optional because it's automatically managed by timestamps
+    updatedAt?: Date; // Optional because it's automatically managed by timestamps
 }
