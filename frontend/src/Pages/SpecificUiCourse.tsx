@@ -1,22 +1,31 @@
 import { useState } from "react";
 import { ICourse } from "../types/types";
 import Card from "../Components/Ui/Card";
-import { Badge } from "lucide-react";
-import { PlayCircle, FileText, Link as LinkIcon } from "lucide-react";
+import { PlayCircle } from "lucide-react";
 import Button from "../Components/Ui/Button";
+import { useNavigate } from "react-router-dom";
 
+interface ISpecificUiCourse {
+    course: ICourse;
+    isTeacher?: boolean;
+    editCourse: (id: string) => void;
+}
 export function SpecificUiCourse({
-    title,
-    description,
-    category,
-    thumbnail,
-    rating,
-    price,
-    lessons,
-    studentsEnrolled,
-    // isTeacher = false
-}: ICourse) {
+    course,
+    isTeacher = false,
+    editCourse
+}: ISpecificUiCourse) {
     const [isEnrolled, setIsEnrolled] = useState(false);
+    const navigate = useNavigate();
+    const { _id,
+        title,
+        description,
+        category,
+        thumbnail,
+        rating,
+        price,
+        lessons,
+        studentsEnrolled } = course;
 
     const handleEnroll = () => {
         // TODO: Implement actual enrollment logic with Stripe integration
@@ -28,7 +37,11 @@ export function SpecificUiCourse({
     };
 
     return (
-        <Card className="">
+        <Card onClick={()=>{
+            if (!isTeacher) {
+                navigate(`/courses/${_id}`);
+            } 
+        }}>
             <img src={thumbnail} alt={title} className="object-cover w-full h-48" />
             <div className="p-0 md:p-6">
                 <div className="flex items-start my-4">
@@ -77,8 +90,11 @@ export function SpecificUiCourse({
                 </div>
 
                 <div className="flex gap-2 mt-4">
-                    {true ? (
-                        <Button className="w-full">Edit Course</Button>
+                    {isTeacher ? (
+                        <Button
+                            className="w-full"
+                            onClick={() => editCourse(_id)}
+                        >Edit Course</Button>
                     ) : (
                         <Button
                             className="w-full"

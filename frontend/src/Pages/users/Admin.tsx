@@ -1,9 +1,9 @@
 import { MouseEvent, useContext, useEffect, useState } from "react";
-import { authContext } from "../Context/authContext/authContext";
+// import { authContext } from "../Context/authContext/authContext";
 import { useNavigate } from "react-router-dom";
 import { IUsers } from "../Models/Models";
 import axios from "axios";
-import { appConfig } from "../Config/appConfig";
+import { appConfig } from "../../Config/appConfig";
 import toastContext from "../Context/ToastContext/ToastContext";
 import { Button } from "primereact/button";
 

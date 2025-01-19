@@ -78,7 +78,12 @@ teacherSchema.post<Query<any, ITeacher>>(/^find/, async function (docs, next) {
                docs.profilePicture = docs.imageName ? await aws.getImageUrl(docs.imageName) : "";
                docs.password = undefined;
           }
-     } else {
+     }
+     next();
+});
+
+teacherSchema.post<Query<any, ITeacher>>(/^find/, async function (docs, next) {
+     if (!this.getOptions().withPassword) {
           if (Array.isArray(docs)) {
                for (const doc of docs) {
                     doc.password = undefined;
@@ -89,7 +94,6 @@ teacherSchema.post<Query<any, ITeacher>>(/^find/, async function (docs, next) {
      }
      next();
 });
-
 teacherSchema.pre<ITeacher>("save", async function (next) {
 
      if (!this.isModified("password")) return next();

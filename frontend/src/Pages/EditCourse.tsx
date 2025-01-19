@@ -1,24 +1,22 @@
-import { useState } from "react";
-import { PlayCircle, FileText, Link as LinkIcon, Plus, X } from "lucide-react";
+import {  MouseEventHandler, useState } from "react";
+import {  Plus, X } from "lucide-react";
 import Card from "../Components/Ui/Card";
 import Input from "../Components/Ui/Input";
 import Textarea from "../Components/Ui/Textarea";
 import Button from "../Components/Ui/Button";
 import { ICourse, ILesson } from "../types/types";
-import { course as co } from "./providers";
-import { useNavigate } from "react-router-dom";
 
+interface IEditCourse {
+    course: ICourse;
+    handleBack: MouseEventHandler;
+    handleSave: MouseEventHandler;
+}
 
-
-export function EditCourse({ course = co }: { course: ICourse }) {
+export function EditCourse({ course  , handleBack, handleSave}: IEditCourse) {
     const [editedCourse, setEditedCourse] = useState(course);
     const [newLesson, setNewLesson] = useState<Partial<ILesson>>({});
-    const navigate = useNavigate();
 
-    const handleSave = () => {
-        // TODO: Implement save functionality
-        console.log("Saving course:", editedCourse);
-    };
+    
 
     const addLesson = () => {
         if (newLesson.title && newLesson.videoUrl) {
@@ -30,9 +28,7 @@ export function EditCourse({ course = co }: { course: ICourse }) {
         }
     };
 
-    const handleBack = () => {
-        navigate(-1);
-    };
+    
 
     return (
         <>

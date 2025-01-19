@@ -16,8 +16,8 @@ const PageNotFound = lazy(() => import("./PageNotFound"));
 const Courses = lazy(() => import("./Courses"));
 const Teachers = lazy(() => import("./Teachers"));
 const Course = lazy(() => import("./Course"));
-const Teacher = lazy(() => import("./Teacher"));
-const Student = lazy(() => import("./Student"));
+const Teacher = lazy(() => import("./users/Teacher"));
+const Student = lazy(() => import("./users/Student"));
 
 export function Layout(): JSX.Element {
   const toast = useToast();
@@ -27,7 +27,6 @@ export function Layout(): JSX.Element {
     <div className="grid grid-rows-[auto,1fr] w-full h-dvh">
       <Toast ref={toast} />
       <Header search={search} setSearch={setSearch} />
-      {/* <ErrorBoundary fallback={<>nati</>}> */}
       <Suspense fallback={<div className="flex m-auto"><Loader className='w-28 h-28' /></div>}>
         <Routes>
           <Route path="/" element={<Navigate to={"/home"} />} />
@@ -38,8 +37,9 @@ export function Layout(): JSX.Element {
           <Route path="/courses" element={<Courses />} />
           <Route path="/courses/:id" element={<Course {...course} />} />
           <Route path="/teachers" element={<Teachers />} />
+          <Route path="/teachers/:id" element={<Teacher  isRegularUserWantToSeeTeacherDetails={true} />} />
+          <Route path="/teacher" element={<Teacher />} />
           <Route path="/student" element={<Student student={student} />} />
-          <Route path="/teachers/:id" element={<Teacher />} />
           <Route path="/error" element={<div><h1>אופס! אירעה שגיאה.</h1><p>נא לנסות שוב מאוחר יותר.</p></div>} />
           <Route path="*" element={<PageNotFound />} />
         </Routes>

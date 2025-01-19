@@ -1,12 +1,12 @@
-import { IStudent as IS } from "../types/types";
+import { IStudent as IS } from "../../types/types";
 import { BookOpen, CirclePlus, Clock, Pencil, Trophy } from "lucide-react";
 import { ProgressBar } from "primereact/progressbar";
 import { TabPanel, TabView } from "primereact/tabview";
-import Card, { specificCard } from "../Components/Ui/Card";
-import Button from "../Components/Ui/Button";
+import Card, { specificCard } from "../../Components/Ui/Card";
+import Button from "../../Components/Ui/Button";
 import { ChangeEventHandler, useState } from "react";
 import { Tooltip } from "primereact/tooltip";
-import { Tabs } from "../Components/Ui/Tabs";
+import { Tabs } from "../../Components/Ui/Tabs";
 
 const inputLabels: ("Username" | "Email" | "Password" | "Confirm Password")[] = ["Username", "Email", "Password", "Confirm Password"];
 

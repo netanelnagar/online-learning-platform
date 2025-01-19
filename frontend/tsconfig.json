@@ -14,7 +14,7 @@
         "./src/Pages"
       ],
       "@Ui": [
-        "src/Components/Ui"
+        "./src/Components/Ui"
       ],
     },
     /* Bundler mode */

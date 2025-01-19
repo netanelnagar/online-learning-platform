@@ -15,6 +15,7 @@ export interface ICourse {
     price: number;
     createdAt?: string;
     updatedAt?: string;
+    isTeacher?: boolean;
 }
 
 export interface ILesson {

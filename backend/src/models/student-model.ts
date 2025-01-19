@@ -91,7 +91,12 @@ studentSchema.post<Query<any, IStudent>>(/^find/, async function (docs, next) {
             docs.profilePicture = docs.imageName ? await aws.getImageUrl(docs.imageName) : "";
             docs.password = undefined;
         }
-    } else {
+    }
+    next();
+});
+
+studentSchema.post<Query<any, IStudent>>(/^find/, async function (docs, next) {
+    if (!this.getOptions().withPassword) {
         if (Array.isArray(docs)) {
             for (const doc of docs) {
                 doc.password = undefined;

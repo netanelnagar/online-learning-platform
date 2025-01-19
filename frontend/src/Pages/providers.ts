@@ -72,6 +72,7 @@ export const student = {
     active: true,
     createdAt: "2024-12-29T15:50:30.994Z", // Parsed into a Date object
     updatedAt: "2024-12-29T15:50:30.994Z", // Parsed into a Date object
+    role: "student",
     __v: 0
 };
 

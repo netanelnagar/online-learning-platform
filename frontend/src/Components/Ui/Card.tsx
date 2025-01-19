@@ -1,8 +1,12 @@
+import { MouseEventHandler } from "react";
 
-export default function Card({ children, className }: { children: React.ReactNode, className?: string }) {
+export default function Card({ children, className, onClick }: { children: React.ReactNode, className?: string, onClick?: MouseEventHandler}) {
     const classes = "bg-white shadow-sm p-6 rounded-lg border"
     return (
-        <div className={`${classes} ${className}`}>{children}</div>
+        <div onClick={(e)=>{
+            e.stopPropagation();
+            onClick && onClick(e);
+        }} className={`${classes} ${className}`}>{children}</div>
     )
 }
 

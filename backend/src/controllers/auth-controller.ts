@@ -82,17 +82,18 @@ const signup = (Model: Model<any>) => catchAsync(async (req: Request, res: Respo
 
 const login = (Model: Model<any>) => catchAsync(async (req: Request, res: Response, next) => {
     const { email, password } = req.body;
-
+    
     // 1) Check if email and password exist
     if (!email || !password) {
         return next(new AppError('Please provide email and password!', 400));
     }
     // 2) Check if user exists && password is correct
-    const user = await Model.findOne({ email }).select('+password').setOptions({ withUrlMedia: true });
-
+    const user = await Model.findOne({ email }).select('+password').setOptions({ withPassword: true });
+    console.log("first login", req.body, user);
+    
     // @ts-ignore
-    if (!user || !(await user.correctPassword(password, user.password))) {
-        return next(new AppError('Incorrect email or password', 401));
+    if (!user || !(await user.correctPassword(password, user.password))) { 
+        return next(new AppError('Incorrect email or password', 401)); 
     }
 
     createSendToken(user, 200, req, res);

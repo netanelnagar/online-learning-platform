@@ -1,46 +1,76 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import { Mail, Lock, User } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useToast } from '../Context/Toast';
-import axios from 'axios';
+import { Link, useNavigate } from 'react-router-dom';
 import Loader from '../Components/Ui/Loader';
 import Footer from './Footer';
+import { useLoginUserMutation } from '../redux/api/authApi';
+import { Toast } from 'primereact/toast';
+import { Messages } from 'primereact/messages';
 
 function SignIn(): JSX.Element {
-    const toast = useToast();
+    const toast = useRef<Toast | null>(null);
+    const msgs = useRef<Messages | null>(null);
+    const navigate = useNavigate();
+
     const [formData, setFormData] = useState({
         email: '',
         password: '',
         role: 'student'
     });
-    const [loader, setLoader] = useState(false);
+    const [
+        loginUser,
+        {
+            data,
+            error,
+            isLoading,
+            isSuccess,
+        },
+    ] = useLoginUserMutation();
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         console.log('Form submitted:', formData);
-        try {
-            setLoader(true);
-            if (formData.role === 'student') {
-                const res = await axios.post('http://localhost:3002/api/students/login', formData)
-                console.log(res.data);
-            } else {
-                const res = await axios.post('http://localhost:3002/api/teachers/login', formData)
-                console.log(res.data);
-            }
-        } catch (error) {
-            console.error(error);
-            toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Some error' });
-        } finally {
-            setLoader(false);
-        }
+        loginUser(formData);
+        // try {
+        //     setLoader(true);
+        //     if (formData.role === 'student') {
+        //         const res = await axios.post('http://localhost:3002/api/students/login', formData)
+        //         console.log(res.data);
+        //     } else {
+        //         const res = await axios.post('http://localhost:3002/api/teachers/login', formData)
+        //         console.log(res.data);
+        //     }
+        // } catch (error) {
+        //     console.error(error);
+        //     toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Some error' });
+        // } finally {
+        //     setLoader(false);
+        // }
     };
+    useEffect(() => {
+        if (error) {
+            msgs.current?.show({ severity: 'error', summary: 'Error', detail: `${error.data.data}`, sticky: true, closable: false })
+        }else{
+            msgs.current?.clear();
+        }
+        if (isSuccess) {
+            toast.current?.show({ severity:'success', summary: 'Success', detail: 'Logged in successfully', sticky: true, closable: false });
+            setTimeout(() => {
+                navigate("/")
+            }, 1000);
+        }
+    }, [data,
+        error,
+        isLoading,
+        isSuccess,])
+
 
     return (
         <div className="flex flex-col min-h-full overflow-y-auto">
+            <Toast ref={toast}/>
             <div className='px-2 py-4 flex-grow place-content-center'>
                 <div className="md:space-x-8 space-y-8 md:space-y-0 md:grid md:grid-cols-2 bg-white/70 shadow-xl m-auto p-8 border border-black/20 rounded-2xl md:w-[700px] max-w-md md:max-w-screen-md">
-                    {/* Header */}
-                    {loader && <div className='absolute bottom-0 left-0 z-10 flex items-center justify-center w-full h-full bg-slate-200/70'><Loader className='w-28 h-28' /></div>}
+                    {isLoading && <div className='absolute bottom-0 left-0 z-10 flex items-center justify-center w-full h-full bg-slate-200/70'><Loader className='w-28 h-28' /></div>}
                     <div className="text-center md:flex md:flex-col md:justify-center md:col-span-1">
                         <h2 className="text-4xl font-bold">
                             Welcome Back
@@ -124,21 +154,18 @@ function SignIn(): JSX.Element {
                                     Remember me
                                 </label>
                             </div>
-                            {/* need to add componnent for it */}
                             <a href="#" className="font-medium transition-colors text-primary hover:text-primary/85">
                                 Forgot password?
                             </a>
                         </div>
 
-                        {/* Submit Button */}
                         <button
                             type="submit"
                             className="w-full px-4 py-3 text-sm font-semibold text-white border border-transparent bg-primary hover:bg-primary/85 rounded-xl focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
                         >
                             Sign in
                         </button>
-
-                        {/* Sign Up Link */}
+                        <Messages ref={msgs} />
                         <div className="text-sm text-center">
                             <span className="text-gray-500">Don't have an account?</span>
                             {' '}
