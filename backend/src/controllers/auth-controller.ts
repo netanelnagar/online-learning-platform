@@ -29,7 +29,8 @@ const createSendToken = (
             Date.now() + (Number(process.env.JWT_COOKIE_EXPIRES_IN!) * 24 * 60 * 60 * 1000)
         ),
         httpOnly: true,
-        secure: req.secure || req.headers['x-forwarded-proto'] === 'https'
+        secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+       sameSite: 'none'
     });
 
     user.password = undefined;
@@ -88,7 +89,7 @@ const login = (Model: Model<any>) => catchAsync(async (req: Request, res: Respon
         return next(new AppError('Please provide email and password!', 400));
     }
     // 2) Check if user exists && password is correct
-    const user = await Model.findOne({ email }).select('+password').setOptions({ withPassword: true });
+    const user = await Model.findOne({ email }).setOptions({ withPassword: true });
     console.log("first login", req.body, user);
     
     // @ts-ignore

@@ -6,9 +6,16 @@ import multerController from "../controllers/multer-controller";
 
 const teacherRouter = Router();
 
+
+// teacherRouter.get('/me', authController.getMe, teacherController.getMeData);
+teacherRouter.get('/:id', teacherController.getTeacher);
+teacherRouter.get('/', teacherController.getTeachers);
+// teacherRouter.get('/:id/courses', teacherController.getCoursesByTeacher);
+
 teacherRouter.route("/signup").post(teacherController.signup);
 teacherRouter.route("/login").post(teacherController.login);
 // teacherRouter.route("/logout").post(teacherController.logout);
+
 
 teacherRouter.post('/forgotPassword', authController.forgotPassword(Teachers));
 teacherRouter.patch('/resetPassword/:token', authController.resetPassword(Teachers));

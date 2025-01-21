@@ -17,6 +17,7 @@ export const authSlice = createSlice({
     initialState,
     reducers: {
         userLoggedIn: (state, action: PayloadAction<IAdmin | IStudent | ITeacher>) => {
+            console.log(action)
             state.user = action.payload;
             state.isAuthenticated = true;
         },

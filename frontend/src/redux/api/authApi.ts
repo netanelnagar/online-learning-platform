@@ -7,7 +7,7 @@ export const authApi = createApi({
     reducerPath: "authApi",
     baseQuery: fetchBaseQuery({
         baseUrl: USER_API,
-        // credentials: 'include'
+        credentials: 'include'
     }),
     endpoints: (builder) => ({
         registerUser: builder.mutation({
@@ -19,16 +19,14 @@ export const authApi = createApi({
         }),
         loginUser: builder.mutation({
             query: (inputData) => ({
-                url: "/students/login",
+                url: inputData.role === "student" ? "/students/login" : "/teachers/login",
                 method: "POST",
                 body: inputData
             }),
             async onQueryStarted(_, { queryFulfilled, dispatch }) {
                 try {
                     const result = await queryFulfilled;
-                    console.log(result);
-                    // @ts-ignore
-                    dispatch(userLoggedIn({ user: result.data.user }));
+                    dispatch(userLoggedIn(result?.data.data));
                 } catch (error) {
                     console.log(error);
                 }
@@ -39,7 +37,7 @@ export const authApi = createApi({
                 url: "logout",
                 method: "GET"
             }),
-            async onQueryStarted(_, { queryFulfilled, dispatch }) {
+            async onQueryStarted(_, {  dispatch }) {
                 try {
                     dispatch(userLoggedOut());
                 } catch (error) {
@@ -47,21 +45,11 @@ export const authApi = createApi({
                 }
             }
         }),
-        loadUser: builder.query({
-            query: () => ({
-                url: "profile",
-                method: "GET"
-            }),
-            async onQueryStarted(_, { queryFulfilled, dispatch }) {
-                try {
-                    const result = await queryFulfilled;
-                    console.log(result);
-                    // @ts-ignore
-                    dispatch(userLoggedIn({ user: result.data.user }));
-                } catch (error) {
-                    console.log(error);
-                }
-            }
+        loadUser: builder.mutation({
+            query: (url) => ({
+                url: url,
+                method: "GET",
+            })
         }),
         updateUser: builder.mutation({
             query: (formData) => ({
@@ -69,7 +57,8 @@ export const authApi = createApi({
                 method: "PUT",
                 body: formData,
                 // credentials: "include"
-            })
+            }),
+
         })
     })
 });
@@ -77,6 +66,6 @@ export const {
     useRegisterUserMutation,
     useLoginUserMutation,
     useLogoutUserMutation,
-    useLoadUserQuery,
+    useLoadUserMutation,
     useUpdateUserMutation
 } = authApi;

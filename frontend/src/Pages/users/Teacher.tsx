@@ -1,7 +1,6 @@
-import { CirclePlus, DollarSign,  Users , BookOpen, Plus} from "lucide-react";
-import { ICourse, ITeacher as interTeacher } from "../../types/types";
+import { CirclePlus, DollarSign, Users, BookOpen, Plus } from "lucide-react";
+import { ICourse, ITeacher as IT } from "../../types/types";
 import { useEffect, useState } from "react";
-import { teacher as data } from "../providers";
 import Button from "../../Components/Ui/Button";
 import Card, { specificCard } from "../../Components/Ui/Card";
 import { Tabs } from "../../Components/Ui/Tabs";
@@ -9,6 +8,9 @@ import Input from "../../Components/Ui/Input";
 import { EditCourse } from "../EditCourse";
 import { SpecificUiCourse } from "../SpecificUiCourse";
 import Textarea from "../../Components/Ui/Textarea";
+import { useParams } from "react-router-dom";
+import { useAppSelector } from "../../redux/app/store";
+import { useLoadUserMutation } from "../../redux/api/authApi";
 
 
 
@@ -48,26 +50,31 @@ const coursesB: ICourse[] = [{
 }]
 
 interface ITeacher {
-  teacher: interTeacher;
   isRegularUserWantToSeeTeacherDetails?: boolean;
 }
 
 
-export default function Teacher({ teacher = data, isRegularUserWantToSeeTeacherDetails }: ITeacher) {
+export default function Teacher({ isRegularUserWantToSeeTeacherDetails }: ITeacher) {
+  const { id } = useParams();
+  const teacher = useAppSelector(store => store.auth.user);
+  const [loadUser,  { data, error, isLoading, isSuccess, }] = useLoadUserMutation();
+
   const [isEditing, setIsEditing] = useState(false);
   const [showNewCourse, setShowNewCourse] = useState(false);
-  const [profile, setProfile] = useState({
-    username: "John Doe",
-    email: "john@example.com",
-    bio: "Passionate educator with 10+ years of experience in web development",
-    qualifications: "MSc in Computer Science, Certified Web Developer",
-    socialLinks: {
-      twitter: "https://twitter.com/johndoe",
-      linkedin: "https://linkedin.com/in/johndoe"
+  const [profile, setProfile] = useState<IT | null>(() =>{
+    if (!isRegularUserWantToSeeTeacherDetails) {
+     return teacher as IT;
+    } else {
+      loadUser(`/teachers/${id}`);
+      return null;
     }
   });
   const [courses, setCourses] = useState(coursesB);
   const [course, setCourse] = useState<null | ICourse>(null);
+
+  const handleCourseDelete = (courseId: string) => {
+    setCourses(courses.filter((c) => c._id !== courseId));
+  };
 
   const handleProfileUpdate = () => {
     setIsEditing(false);
@@ -76,6 +83,8 @@ export default function Teacher({ teacher = data, isRegularUserWantToSeeTeacherD
     //   description: "Your profile has been successfully updated.",
     // });
   };
+
+
 
   const handleNewCourse = () => {
     setShowNewCourse(true);
@@ -90,7 +99,13 @@ export default function Teacher({ teacher = data, isRegularUserWantToSeeTeacherD
   useEffect(() => {
     setCourses
   }, [])
-  
+
+  useEffect(() => {
+    if (data) {
+      setProfile(data);
+    }
+    console.log(data)
+  }, [data])
 
 
   return (
@@ -111,8 +126,8 @@ export default function Teacher({ teacher = data, isRegularUserWantToSeeTeacherD
             <h2 className="mb-2 text-2xl font-bold">{teacher?.username}</h2>
             <p className="mb-6 text-gray-600">{teacher?.email}</p>
           </div>
-          {/* </div> */}
         </div>
+
         {!isRegularUserWantToSeeTeacherDetails &&
           <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-3">
             {cardsData.map((data) => specificCard(data))}
@@ -127,7 +142,7 @@ export default function Teacher({ teacher = data, isRegularUserWantToSeeTeacherD
                     <div>
                       <label className="block mb-1 text-sm font-medium">Username</label>
                       <Input
-                        value={profile.username}
+                        value={profile?.username}
                         onChange={(e) => setProfile({ ...profile, username: e.target.value })}
                       />
                     </div>
@@ -135,21 +150,21 @@ export default function Teacher({ teacher = data, isRegularUserWantToSeeTeacherD
                       <label className="block mb-1 text-sm font-medium">Email</label>
                       <Input
                         type="email"
-                        value={profile.email}
+                        value={profile?.email}
                         onChange={(e) => setProfile({ ...profile, email: e.target.value })}
                       />
                     </div>
                     <div>
                       <label className="block mb-1 text-sm font-medium">Bio</label>
                       <Textarea
-                        value={profile.bio}
+                        value={profile?.bio}
                         onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
                       />
                     </div>
                     <div>
                       <label className="block mb-1 text-sm font-medium">Qualifications</label>
                       <Textarea
-                        value={profile.qualifications}
+                        value={profile?.qualifications.join(', ')}
                         onChange={(e) => setProfile({ ...profile, qualifications: e.target.value })}
                       />
                     </div>
@@ -158,7 +173,7 @@ export default function Teacher({ teacher = data, isRegularUserWantToSeeTeacherD
                       <div className="space-y-2">
                         <Input
                           placeholder="Twitter URL"
-                          value={profile.socialLinks.twitter}
+                          value={profile?.socialLinks.twitter}
                           onChange={(e) => setProfile({
                             ...profile,
                             socialLinks: { ...profile.socialLinks, twitter: e.target.value }
@@ -166,7 +181,7 @@ export default function Teacher({ teacher = data, isRegularUserWantToSeeTeacherD
                         />
                         <Input
                           placeholder="LinkedIn URL"
-                          value={profile.socialLinks.linkedin}
+                          value={profile?.socialLinks.linkedin}
                           onChange={(e) => setProfile({
                             ...profile,
                             socialLinks: { ...profile.socialLinks, linkedin: e.target.value }
@@ -180,16 +195,16 @@ export default function Teacher({ teacher = data, isRegularUserWantToSeeTeacherD
                   <div className="space-y-4">
                     <div>
                       <h3 className="mb-2 font-semibold">Bio</h3>
-                      <p className="text-gray-600">{profile.bio}</p>
+                      <p className="text-gray-600">{profile?.bio}</p>
                     </div>
                     <div>
                       <h3 className="mb-2 font-semibold">Qualifications</h3>
-                      <p className="text-gray-600">{profile.qualifications}</p>
+                      <p className="text-gray-600">{profile?.qualifications}</p>
                     </div>
                     <div>
                       <h3 className="mb-2 font-semibold">Social Links</h3>
                       <div className="flex gap-4">
-                        {Object.entries(profile.socialLinks).map(([platform, url]) => (
+                        {/* {Object.entries(profile?.socialLinks)?.map(([platform, url]) => (
                           <a
                             key={platform}
                             href={url}
@@ -199,7 +214,7 @@ export default function Teacher({ teacher = data, isRegularUserWantToSeeTeacherD
                           >
                             {platform}
                           </a>
-                        ))}
+                        ))} */}
                       </div>
                     </div>
                     {!isRegularUserWantToSeeTeacherDetails &&

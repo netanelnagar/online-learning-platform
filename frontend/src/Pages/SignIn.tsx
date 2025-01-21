@@ -7,7 +7,8 @@ import { useLoginUserMutation } from '../redux/api/authApi';
 import { Toast } from 'primereact/toast';
 import { Messages } from 'primereact/messages';
 
-function SignIn(): JSX.Element {
+function SignIn() {
+
     const toast = useRef<Toast | null>(null);
     const msgs = useRef<Messages | null>(null);
     const navigate = useNavigate();
@@ -17,44 +18,23 @@ function SignIn(): JSX.Element {
         password: '',
         role: 'student'
     });
-    const [
-        loginUser,
-        {
-            data,
-            error,
-            isLoading,
-            isSuccess,
-        },
-    ] = useLoginUserMutation();
+    const [loginUser, { data, error, isLoading, isSuccess, }] = useLoginUserMutation();
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         console.log('Form submitted:', formData);
         loginUser(formData);
-        // try {
-        //     setLoader(true);
-        //     if (formData.role === 'student') {
-        //         const res = await axios.post('http://localhost:3002/api/students/login', formData)
-        //         console.log(res.data);
-        //     } else {
-        //         const res = await axios.post('http://localhost:3002/api/teachers/login', formData)
-        //         console.log(res.data);
-        //     }
-        // } catch (error) {
-        //     console.error(error);
-        //     toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Some error' });
-        // } finally {
-        //     setLoader(false);
-        // }
     };
+
     useEffect(() => {
         if (error) {
+            // @ts-ignore
             msgs.current?.show({ severity: 'error', summary: 'Error', detail: `${error.data.data}`, sticky: true, closable: false })
-        }else{
+        } else {
             msgs.current?.clear();
         }
         if (isSuccess) {
-            toast.current?.show({ severity:'success', summary: 'Success', detail: 'Logged in successfully', sticky: true, closable: false });
+            toast.current?.show({ severity: 'success', summary: 'Success', detail: 'Logged in successfully', sticky: true, closable: false });
             setTimeout(() => {
                 navigate("/")
             }, 1000);
@@ -67,7 +47,7 @@ function SignIn(): JSX.Element {
 
     return (
         <div className="flex flex-col min-h-full overflow-y-auto">
-            <Toast ref={toast}/>
+            <Toast ref={toast} />
             <div className='px-2 py-4 flex-grow place-content-center'>
                 <div className="md:space-x-8 space-y-8 md:space-y-0 md:grid md:grid-cols-2 bg-white/70 shadow-xl m-auto p-8 border border-black/20 rounded-2xl md:w-[700px] max-w-md md:max-w-screen-md">
                     {isLoading && <div className='absolute bottom-0 left-0 z-10 flex items-center justify-center w-full h-full bg-slate-200/70'><Loader className='w-28 h-28' /></div>}
@@ -105,8 +85,6 @@ function SignIn(): JSX.Element {
                     </div>
 
                     <form className="mt-10 space-y-6 md:col-span-1 md:mt-2" onSubmit={handleSubmit}>
-
-                        {/* Email Field */}
                         <div className="relative">
                             <label className="block mb-1 ml-1 text-sm font-medium text-gray-700">
                                 Email address
@@ -123,8 +101,6 @@ function SignIn(): JSX.Element {
                                 />
                             </div>
                         </div>
-
-                        {/* Password Field */}
                         <div className="relative">
                             <label className="block mb-1 ml-1 text-sm font-medium text-gray-700">
                                 Password
@@ -141,8 +117,6 @@ function SignIn(): JSX.Element {
                                 />
                             </div>
                         </div>
-
-                        {/* Remember Me and Forgot Password */}
                         <div className="flex items-center justify-between">
                             <div className="flex items-center">
                                 <input

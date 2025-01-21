@@ -47,7 +47,12 @@ app.use(helmet({ crossOriginResourcePolicy: false, }));
 
 app.use(express.json());
 
-app.use(cors());
+const corsOptions = {
+    origin: process.env.FRONTEND_URL, 
+    credentials: true, // Allow cookies to be sent
+};
+
+app.use(cors(corsOptions));
 
 app.use(cookieParser());
 

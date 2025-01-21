@@ -8,8 +8,8 @@ import { Students } from "../models/student-model";
 const courseRouter = Router();
 
 
-courseRouter.route("/")
-    .get(courseController.getCourses);
+courseRouter.get("/", courseController.getCourses);
+// courseRouter.get("/:id", courseController.getCourse);
 
 //add pay procces before enrolling
 courseRouter.post("/enrollToCourse/:id",

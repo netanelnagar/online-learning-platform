@@ -5,10 +5,11 @@ import { useSelector } from 'react-redux';
 import rootReducer from "./rootReducer";
 import { authApi } from '../api/authApi';
 import { courseApi } from '../api/courseApi';
+import { teachersApi } from '../api/teachersApi';
 
 export const store = configureStore({
   reducer: rootReducer,
-  middleware:(defaultMiddleware) => defaultMiddleware().concat(authApi.middleware, courseApi.middleware)
+  middleware:(defaultMiddleware) => defaultMiddleware().concat(authApi.middleware, courseApi.middleware, teachersApi.middleware)
 })
 
 // Infer the `RootState` and `AppDispatch` types from the store itself

@@ -1,15 +1,12 @@
 import { Link } from "react-router-dom";
 import Button from "../Components/Ui/Button";
-import CourseCard from "./CourseCard";
 import Footer from "./Footer";
-import { courses, teachers } from "./providers";
-import Review from "./Review";
-import { TeacherCard } from "./TeacherCard";
+import CoursesHome from "./CoursesHome";
+import TeachersHome from "./TeachersHome";
 
 
 
 export default function Home(): JSX.Element {
-    
 
     return (
         <div className="flex flex-col min-h-full overflow-y-auto">
@@ -22,14 +19,17 @@ export default function Home(): JSX.Element {
                 <div className="mb-8">
                     <h2 className="mb-4 text-2xl font-semibold text-primary">Most Popular Courses</h2>
                     <div className="grid grid-flow-col auto-cols-max gap-4 overflow-x-scroll md:h-[390px]"> {/* Single Course */}
-                        {courses.map(course => <CourseCard key={course._id} course={course} className={`max-w-[350px] md:w-auto`} />)}
+                        {/* {!coursesError && !courses ? <>loading..</> :
+                        coursesError ? <div>{coursesError}</div> : courses.data.length ? courses.data.map((course) => <CourseCard key={course._id} course={course} className={`max-w-[350px] md:w-auto`} />) : <div>no courses found</div>} */}
+                        {/* {courses.map(course => <CourseCard key={course._id} course={course} className={`max-w-[350px] md:w-auto`} />)} */}
+                        <CoursesHome />
                     </div>
                 </div>
                 {/* <Review/> */}
                 <div className="mb-8">
                     <h2 className="mb-4 text-2xl font-semibold text-primary">Our Top Teachers</h2>
                     <div className="grid grid-flow-col auto-cols-max gap-4 overflow-x-scroll h-[290px]">
-                        {teachers.map((teacher) => <TeacherCard key={teacher._id} teacher={teacher} className={`max-w-[350px] md:w-auto`} />)}
+                        <TeachersHome />
                     </div>
                 </div>
                 <div className="p-8 mt-16 text-center bg-gray-200 rounded-xl">

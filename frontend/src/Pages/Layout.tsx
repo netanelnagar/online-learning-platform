@@ -1,12 +1,16 @@
+// import { ErrorBoundary } from "react-error-boundary";
 import { lazy, Suspense, useState } from "react";
 import { Toast } from "primereact/toast";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useRouteError } from "react-router-dom";
 import { useToast } from "../Context/Toast";
 import Header from "./Header";
 import Home from "./Home";
 import Loader from "../Components/Ui/Loader";
 import { student, course } from "./providers";
 import { Contact } from "./Contact";
+import { AuthenticatedUser, ProtectedRoute } from "../Components/ProtectedRoutes";
+// import { ErrorBoundary } from "./ErrorBoundary";
+// import {ErrorFallback} from "./ErrorBoundary";
 // import { ErrorBoundary } from "react-error-boundary";
 // import Footer from "./Footer";
 
@@ -31,15 +35,20 @@ export function Layout(): JSX.Element {
         <Routes>
           <Route path="/" element={<Navigate to={"/home"} />} />
           <Route path="/home" element={<Home />} />
-          <Route path="/login" element={<SignIn />} />
-          <Route path="/signup" element={<SignUp />} />
+          <Route path="/login" element={<AuthenticatedUser><SignIn  /></AuthenticatedUser>} />
+          <Route path="/signup" element={<AuthenticatedUser><SignUp /></AuthenticatedUser>} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/courses" element={<Courses />} />
           <Route path="/courses/:id" element={<Course {...course} />} />
           <Route path="/teachers" element={<Teachers />} />
-          <Route path="/teachers/:id" element={<Teacher  isRegularUserWantToSeeTeacherDetails={true} />} />
-          <Route path="/teacher" element={<Teacher />} />
-          <Route path="/student" element={<Student student={student} />} />
+          <Route path="/teachers/:id" element={<Teacher isRegularUserWantToSeeTeacherDetails={true} />} />
+          <Route path="/teacher" ErrorBoundary={ErrorBoundary}  element={<ProtectedRoute> <Teacher /></ProtectedRoute>} />
+
+       
+          {/* <ErrorBoundary FallbackComponent={ErrorFallback}>
+            <Route path="/teacher" element={<ProtectedRoute><Teacher /></ProtectedRoute>} />
+          </ErrorBoundary> */}
+          <Route path="/student" element={<ProtectedRoute> <Student student={student} /></ProtectedRoute>} />
           <Route path="/error" element={<div><h1>אופס! אירעה שגיאה.</h1><p>נא לנסות שוב מאוחר יותר.</p></div>} />
           <Route path="*" element={<PageNotFound />} />
         </Routes>
@@ -50,3 +59,9 @@ export function Layout(): JSX.Element {
 }
 
 
+function ErrorBoundary() {
+  let error = useRouteError();
+  console.error(error);
+  // Uncaught ReferenceError: path is not defined
+  return <div>Dang!</div>;
+}

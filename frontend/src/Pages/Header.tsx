@@ -50,11 +50,11 @@ export default function Header({ search, setSearch }: IHeader): JSX.Element {
             <input type="text" placeholder="Search..." value={search} onChange={e => setSearch(e.target.value)} className="w-full px-4 py-2 text-black rounded-full bg-slate-100 focus:ring focus:ring-sky-300 focus:outline-none" />
           </div>
           <div className="flex flex-col p-2 space-y-2 md:flex-row md:space-x-2 md:space-y-0">
-            <Link to={"/login"} className={`md:w-1/2 ${loginClasses}`}>Log In</Link>
-            <Link to={"/signup"} className={`md:w-1/2 ${signupClasses}`}>Sign Up</Link>
+            <Link to={"/login"} onClick={() => setOpen(false)} className={`md:w-1/2 ${loginClasses}`}>Log In</Link>
+            <Link to={"/signup"} onClick={() => setOpen(false)} className={`md:w-1/2 ${signupClasses}`}>Sign Up</Link>
           </div>
           {links.map((link) => (
-            <NavLink to={`/${link.toLowerCase()}`} key={link} className="mx-3 text-lg font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-100 link" onClick={() => setOpen(o => !o)}>
+            <NavLink to={`/${link.toLowerCase()}`} key={link} className="mx-3 text-lg font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-100 link" onClick={() => setOpen(false)}>
               {link}
             </NavLink>
           ))}

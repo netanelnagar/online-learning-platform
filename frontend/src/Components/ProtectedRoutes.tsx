@@ -1,11 +1,11 @@
-import { useSelector } from "react-redux"
 import { Navigate } from "react-router-dom";
+import { useAppSelector } from "../redux/app/store";
 
 interface IProtected {
     children?: React.ReactNode;
 }
 export const ProtectedRoute = ({ children }: IProtected) => {
-    const { isAuthenticated } = useSelector(store => store.auth);
+    const { isAuthenticated } = useAppSelector(store => store.auth);
 
     if (!isAuthenticated) {
         return <Navigate to="/login" />
@@ -14,7 +14,7 @@ export const ProtectedRoute = ({ children }: IProtected) => {
     return children;
 }
 export const AuthenticatedUser = ({ children }: IProtected) => {
-    const { isAuthenticated } = useSelector(store => store.auth);
+    const { isAuthenticated } = useAppSelector(store => store.auth);
 
     if (isAuthenticated) {
         return <Navigate to="/" />
@@ -24,13 +24,13 @@ export const AuthenticatedUser = ({ children }: IProtected) => {
 }
 
 export const AdminRoute = ({ children }: IProtected) => {
-    const { user, isAuthenticated } = useSelector(store => store.auth);
+    const { user, isAuthenticated } = useAppSelector(store => store.auth);
 
     if (!isAuthenticated) {
         return <Navigate to="/login" />
     }
 
-    if (user?.role !== "instructor") {
+    if (user?.role !== "admin") {
         return <Navigate to="/" />
     }
 

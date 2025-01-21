@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { ICourse } from "../../types/types";
 
-const COURSE_API = "http://localhost:8080/api/v1/course";
+const COURSE_API = "http://localhost:3002/api/courses";
 
 export const courseApi = createApi({
     reducerPath: "courseApi",
@@ -10,14 +11,26 @@ export const courseApi = createApi({
         credentials: "include",
     }),
     endpoints: (builder) => ({
-        createCourse: builder.mutation({
-            query: ({ courseTitle, category }) => ({
+        getCourses: builder.mutation<{status:string; data:ICourse[]}, void>({
+            query: () => ({
                 url: "",
-                method: "POST",
-                body: { courseTitle, category },
-            }),
-            invalidatesTags: ["Refetch_Creator_Course"],
+                method: "GET",
+            })
         }),
+        getCourseById: builder.mutation({
+            query: (courseId) => ({
+                url: `/${courseId}`,
+                method: "GET",
+            }),
+        }),
+        // createCourse: builder.mutation({
+        //     query: ({ courseTitle, category }) => ({
+        //         url: "",
+        //         method: "POST",
+        //         body: { courseTitle, category },
+        //     }),
+        //     invalidatesTags: ["Refetch_Creator_Course"],
+        // }),
         getSearchCourse: builder.query({
             query: ({ searchQuery, categories, sortByPrice }) => {
                 // Build qiery string
@@ -61,12 +74,7 @@ export const courseApi = createApi({
             }),
             invalidatesTags: ["Refetch_Creator_Course"],
         }),
-        getCourseById: builder.query({
-            query: (courseId) => ({
-                url: `/${courseId}`,
-                method: "GET",
-            }),
-        }),
+
         createLecture: builder.mutation({
             query: ({ lectureTitle, courseId }) => ({
                 url: `/${courseId}/lecture`,
@@ -116,12 +124,13 @@ export const courseApi = createApi({
     }),
 });
 export const {
-    useCreateCourseMutation,
+    // useCreateCourseMutation,
+    useGetCoursesMutation,
+    useGetCourseByIdMutation,
     useGetSearchCourseQuery,
     useGetPublishedCourseQuery,
     useGetCreatorCourseQuery,
     useEditCourseMutation,
-    useGetCourseByIdQuery,
     useCreateLectureMutation,
     useGetCourseLectureQuery,
     useEditLectureMutation,

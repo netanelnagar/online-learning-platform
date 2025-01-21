@@ -12,7 +12,7 @@ export default function CourseCard({ course, className }: ICourseCard) {
     return (
         <Link to={`/courses/${course._id}`} className={`transition-shadow bg-white border rounded-lg hover:shadow-lg ${className}`}>
             <img
-                src={course.thumbnail}
+                src={"https://plus.unsplash.com/premium_photo-1682787494977-d013bb5a8773?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"}
                 alt={course.title}
                 className="object-cover w-full h-48"
             />
