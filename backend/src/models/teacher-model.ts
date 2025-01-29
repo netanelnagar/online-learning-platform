@@ -24,6 +24,7 @@ const teacherSchema = new Schema<ITeacher>(
           passwordChangedAt: Date,
           passwordResetToken: String,
           passwordResetExpires: Date,
+          role: { type: String, default: "teacher" }, // Role of the user
           imageName: { type: String }, // Optional profile picture URL
           profilePicture: { type: String },
           bio: { type: String }, // Short biography about the teacher
@@ -32,13 +33,6 @@ const teacherSchema = new Schema<ITeacher>(
                linkedin: { type: String },
                github: { type: String },
                personalWebsite: { type: String }
-          },
-          role: {
-               type: String,
-               enum: {
-                    values: ['teacher'],
-                    message: '{VALUE} is not a valid role.' // Custom error message
-               }
           },
           active: {
                type: Boolean,
@@ -95,6 +89,8 @@ teacherSchema.post<Query<any, ITeacher>>(/^find/, async function (docs, next) {
      next();
 });
 teacherSchema.pre<ITeacher>("save", async function (next) {
+
+     this.role = "teacher";
 
      if (!this.isModified("password")) return next();
 

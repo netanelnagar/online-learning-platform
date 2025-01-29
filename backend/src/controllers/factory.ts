@@ -24,6 +24,7 @@ const getAll = (model: Model<any>) => catchAsync(async (req: Request, res: Respo
 
 const createOne = (Model: Model<any>, isLastMiddleware = true) => catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const doc = new Model(req.body) as Document;
+    
     const err = doc.validateSync();
 
     if (err) throw new AppError(err.message, 400);
@@ -43,10 +44,11 @@ const createOne = (Model: Model<any>, isLastMiddleware = true) => catchAsync(asy
 
 const updateOne = (Model: Model<any>) => catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
+
     const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
         new: true,
         runValidators: true
-    });
+    }).setOptions({ overridePublishedFilter: true });
 
     if (!doc) {
         throw new AppError('No document found with that ID', 404);

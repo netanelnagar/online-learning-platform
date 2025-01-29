@@ -1,5 +1,5 @@
 export interface ICourse {
-    _id: string;
+    _id?: string;
     title: string;
     description: string;
     thumbnail: string;
@@ -51,6 +51,7 @@ export interface ITeacher {
 }
 
 export interface IStudent {
+    _id: string;
     username: string;
     email: string;
     profilePicture: string;

@@ -18,19 +18,14 @@ export default function Home(): JSX.Element {
                 </div>
                 <div className="mb-8">
                     <h2 className="mb-4 text-2xl font-semibold text-primary">Most Popular Courses</h2>
-                    <div className="grid grid-flow-col auto-cols-max gap-4 overflow-x-scroll md:h-[390px]"> {/* Single Course */}
-                        {/* {!coursesError && !courses ? <>loading..</> :
-                        coursesError ? <div>{coursesError}</div> : courses.data.length ? courses.data.map((course) => <CourseCard key={course._id} course={course} className={`max-w-[350px] md:w-auto`} />) : <div>no courses found</div>} */}
-                        {/* {courses.map(course => <CourseCard key={course._id} course={course} className={`max-w-[350px] md:w-auto`} />)} */}
                         <CoursesHome />
-                    </div>
+                    
                 </div>
                 {/* <Review/> */}
                 <div className="mb-8">
                     <h2 className="mb-4 text-2xl font-semibold text-primary">Our Top Teachers</h2>
-                    <div className="grid grid-flow-col auto-cols-max gap-4 overflow-x-scroll h-[290px]">
                         <TeachersHome />
-                    </div>
+                    
                 </div>
                 <div className="p-8 mt-16 text-center bg-gray-200 rounded-xl">
                     <h2 className="mb-4 text-2xl font-semibold text-primary">Need Help?</h2>

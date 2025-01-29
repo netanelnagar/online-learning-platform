@@ -1,20 +1,23 @@
-import  { useEffect, useState } from 'react'
-import { useTeachersMutation } from '../redux/api/teachersApi';
+import { useTeachersQuery } from '../redux/api/teachersApi';
 import { TeacherCard } from './TeacherCard';
+import Loader from '../Components/Ui/Loader';
+
+
+
+
 
 export default function TeachersHome() {
-    const [getTeachers, { data: teachers, isError, isLoading }] = useTeachersMutation();
-    const [fetchAgain, setFetchAgain] = useState(true);
+    const{ data: teachers, isError, isLoading } = useTeachersQuery();
+   
+    if (isLoading) return <Loader className='h-20 w-20 m-auto' />;
+    if (isError) return <div >Error :( </div>;
 
-
-    useEffect(() => {
-        getTeachers();
-    }, [fetchAgain]);
-
-    if (isLoading) return <div>Loading...</div>;
-    if (isError) return <div onClick={() => setFetchAgain(f => !f)}>Error :(</div>;
     return (
-        <>  
-        {teachers && teachers.data.map((teacher) => <TeacherCard key={teacher._id} teacher={teacher} className={`max-w-[350px] md:w-auto`} />)}</>
+        <div className="grid grid-flow-col auto-cols-max gap-4 overflow-x-scroll h-[290px]">
+            {teachers && teachers.data.map((teacher) => <TeacherCard key={teacher._id} teacher={teacher} className={`max-w-[350px] md:w-auto`} />)}
+        </div>
     )
 }
+
+
+

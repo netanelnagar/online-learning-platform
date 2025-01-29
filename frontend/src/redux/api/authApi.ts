@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { userLoggedIn, userLoggedOut } from "../authSlice";
+import { register, userLoggedIn, userLoggedOut } from "../authSlice";
 
 const USER_API = "http://localhost:3002/api"
 
@@ -12,10 +12,19 @@ export const authApi = createApi({
     endpoints: (builder) => ({
         registerUser: builder.mutation({
             query: (inputData) => ({
-                url: "register",
+                url: inputData.role === "student" ? "/students/signup" : "/teachers/signup",
                 method: "POST",
-                body: inputData
-            })
+                body: inputData, 
+            }),
+            async onQueryStarted(_, { queryFulfilled, dispatch }) {
+                try {
+                    const result = await queryFulfilled;
+                    console.log(result);
+                    dispatch(register(result?.data));
+                } catch (error) {
+                    console.log(error);
+                }
+            }
         }),
         loginUser: builder.mutation({
             query: (inputData) => ({
@@ -26,7 +35,7 @@ export const authApi = createApi({
             async onQueryStarted(_, { queryFulfilled, dispatch }) {
                 try {
                     const result = await queryFulfilled;
-                    dispatch(userLoggedIn(result?.data.data));
+                    dispatch(userLoggedIn(result?.data));
                 } catch (error) {
                     console.log(error);
                 }
@@ -37,7 +46,7 @@ export const authApi = createApi({
                 url: "logout",
                 method: "GET"
             }),
-            async onQueryStarted(_, {  dispatch }) {
+            async onQueryStarted(_, { dispatch }) {
                 try {
                     dispatch(userLoggedOut());
                 } catch (error) {

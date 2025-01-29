@@ -8,19 +8,25 @@ import aws from "../utils/aws";
 import multerController from "./multer-controller";
 
 
-const getCourses = factory.getAll(Courses);
+export const getCourses = factory.getAll(Courses);
 
-const createCourse = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+export const getCoursesOfTeacher = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const { teacherId } = req.params;
+    const courses = await Courses.find({ createdBy: teacherId }).setOptions({ overridePublishedFilter: true });
+    sendRes(res, 200, "success", courses);
+});
+
+export const createCourse = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     // @ts-ignore
     req.body.createdBy = req.user?._id;
     req.body.price = Number(req.body.price);
     factory.createOne(Courses, false)(req, res, next);
 });
 
-const updateCourse = factory.updateOne(Courses);
+export const updateCourse = factory.updateOne(Courses);
 
 
-const deleteCourse = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+export const deleteCourse = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const course = await Courses.findById(req.params.id);
 
     if (!course) { throw new AppError('No document found with that ID', 404) };
@@ -36,7 +42,7 @@ const deleteCourse = catchAsync(async (req: Request, res: Response, next: NextFu
     sendRes(res, 204, "success", null);
 });
 
-const enrollToCourse = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+export const enrollToCourse = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
     const doc = await Courses.findByIdAndUpdate(req.params.id,
         {
@@ -55,7 +61,7 @@ const enrollToCourse = catchAsync(async (req: Request, res: Response, next: Next
     sendRes(res, 201, "success", "seccessfully enrolled");
 })
 
-const addLessons = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+export const addLessons = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
     const doc = await Courses.findById(req.params.id);
 
@@ -68,11 +74,3 @@ const addLessons = catchAsync(async (req: Request, res: Response, next: NextFunc
 })
 
 
-export default {
-    createCourse,
-    getCourses,
-    updateCourse,
-    deleteCourse,
-    enrollToCourse,
-    addLessons
-};

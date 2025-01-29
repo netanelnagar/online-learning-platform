@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 .page-not-found{
-  background: #ffffff url(../assets/404.jpg) center center/cover no-repeat;
+  background: #ffffff url(/404.jpg) center center/cover no-repeat;
 }
 
 ::-webkit-scrollbar {

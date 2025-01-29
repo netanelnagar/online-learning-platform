@@ -1,22 +1,22 @@
-import {  MouseEventHandler, useState } from "react";
-import {  Plus, X } from "lucide-react";
-import Card from "../Components/Ui/Card";
-import Input from "../Components/Ui/Input";
-import Textarea from "../Components/Ui/Textarea";
-import Button from "../Components/Ui/Button";
-import { ICourse, ILesson } from "../types/types";
+import { MouseEventHandler, useState } from "react";
+import { Plus, X } from "lucide-react";
+import Card from "../../Components/Ui/Card";
+import Input from "../../Components/Ui/Input";
+import Textarea from "../../Components/Ui/Textarea";
+import Button from "../../Components/Ui/Button";
+import { ICourse, ILesson } from "../../types/types";
 
 interface IEditCourse {
     course: ICourse;
     handleBack: MouseEventHandler;
-    handleSave: MouseEventHandler;
+    handleSave: (data: ICourse) => void;
 }
 
-export function EditCourse({ course  , handleBack, handleSave}: IEditCourse) {
+export function EditCourse({ course, handleBack, handleSave }: IEditCourse) {
     const [editedCourse, setEditedCourse] = useState(course);
     const [newLesson, setNewLesson] = useState<Partial<ILesson>>({});
 
-    
+
 
     const addLesson = () => {
         if (newLesson.title && newLesson.videoUrl) {
@@ -28,7 +28,7 @@ export function EditCourse({ course  , handleBack, handleSave}: IEditCourse) {
         }
     };
 
-    
+
 
     return (
         <>
@@ -121,7 +121,7 @@ export function EditCourse({ course  , handleBack, handleSave}: IEditCourse) {
                         </div>
                     </div>
 
-                    <Button onClick={handleSave} className="w-full text-sm">Save Changes</Button>
+                    <Button onClick={() => { setNewLesson({}); handleSave(editedCourse) }} className="w-full text-sm">Save</Button>
                 </div>
             </Card>
         </>

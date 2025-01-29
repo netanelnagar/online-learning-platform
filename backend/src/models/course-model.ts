@@ -6,8 +6,8 @@ import aws from "../utils/aws";
 const lessonSchema = new Schema<ILesson>({
      // @ts-ignore
      _id: false, // To enable embedding lessons in courses
-     title: { type: String, required: true, unique: true },
-     videoName: { type: String, required: true, unique: true },
+     title: { type: String, required: true },
+     videoName: { type: String, required: true },
      videoUrl: { type: String },
      content: { type: String },
      duration: { type: Number },
@@ -18,16 +18,18 @@ const courseSchema = new Schema<ICourse>(
           title: { type: String, required: true, lowercase: true, unique: true },
           description: { type: String, required: true },
           thumbnail: { type: String },
-          category: { type: [String] },
+          category: { type: [String], default: [] },
           createdBy: { type: Schema.Types.ObjectId, ref: 'Teachers', required: true },
-          lessons: [lessonSchema],
-          studentsEnrolled: [
-               {
-                    _id: false,
-                    studentId: { type: Schema.Types.ObjectId, ref: 'Students' },
-                    enrollmentDate: { type: Date, default: Date.now }
-               }
-          ],
+          lessons: { type: [lessonSchema], default: [] },
+          studentsEnrolled: {
+               type: [
+                    {
+                         _id: false,
+                         studentId: { type: Schema.Types.ObjectId, ref: 'Students' },
+                         enrollmentDate: { type: Date, default: Date.now }
+                    }
+               ], default: []
+          },
           rating: {
                amount: { type: Number, default: 0 },
                total: { type: Number, default: 0 },

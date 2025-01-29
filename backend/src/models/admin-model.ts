@@ -23,13 +23,7 @@ const adminSchema = new Schema<IAdmin>(
           passwordChangedAt: Date,
           passwordResetToken: String,
           passwordResetExpires: Date, 
-          role: {
-               type: String,
-               enum: {
-                    values: ['admin'],
-                    message: '{VALUE} is not a valid role.'
-               }
-          }, // Role in the system
+          role: { type: String, default: "admin" }, 
           actions: [                         // Logs of admin actions
                {
                     actionType: { type: String },  // e.g., 'DELETE_USER', 'CREATE_COURSE'
@@ -46,6 +40,7 @@ const adminSchema = new Schema<IAdmin>(
 );
 
 adminSchema.pre<IAdmin>("save", async function (next) {
+     this.role = "admin";
 
      !this.isModified("password") && next();
 

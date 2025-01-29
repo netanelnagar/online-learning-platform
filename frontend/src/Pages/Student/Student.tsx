@@ -1,14 +1,31 @@
 import { IStudent as IS } from "../../types/types";
-import { BookOpen, CirclePlus, Clock, Pencil, Trophy } from "lucide-react";
+import { BookOpen, CirclePlus, Clock, Trophy } from "lucide-react";
 import { ProgressBar } from "primereact/progressbar";
-import { TabPanel, TabView } from "primereact/tabview";
 import Card, { specificCard } from "../../Components/Ui/Card";
 import Button from "../../Components/Ui/Button";
-import { ChangeEventHandler, useState } from "react";
+import { useState } from "react";
 import { Tooltip } from "primereact/tooltip";
 import { Tabs } from "../../Components/Ui/Tabs";
+import Input from "../../Components/Ui/Input";
 
 const inputLabels: ("Username" | "Email" | "Password" | "Confirm Password")[] = ["Username", "Email", "Password", "Confirm Password"];
+
+const enrolledCourses = [
+  {
+    id: 1,
+    title: "Web Development Bootcamp",
+    progress: 75,
+    nextLesson: "Advanced CSS Layouts",
+    instructor: "John Doe"
+  },
+  {
+    id: 2,
+    title: "UX Design Fundamentals",
+    progress: 45,
+    nextLesson: "User Research Methods",
+    instructor: "Jane Smith"
+  }
+];
 
 
 interface IStudent {
@@ -16,25 +33,7 @@ interface IStudent {
 }
 type Account = { username: string; email: string; password: string; confirmPassword: string; };
 export default function Student({ student }: IStudent) {
-
   const [account, setAccount] = useState<Account>({ username: "", email: "", password: "", confirmPassword: "" });
-
-  const enrolledCourses = [
-    {
-      id: 1,
-      title: "Web Development Bootcamp",
-      progress: 75,
-      nextLesson: "Advanced CSS Layouts",
-      instructor: "John Doe"
-    },
-    {
-      id: 2,
-      title: "UX Design Fundamentals",
-      progress: 45,
-      nextLesson: "User Research Methods",
-      instructor: "Jane Smith"
-    }
-  ];
 
   const cardsData = [
     { title: "Enrolled Courses", amount: enrolledCourses.length.toString(), color: "primary", icon: <BookOpen className="w-6 h-6 text-primary" /> },
@@ -42,7 +41,13 @@ export default function Student({ student }: IStudent) {
     { title: "Certificates", amount: student.certificates.length.toString(), color: "neutral-800", icon: <Trophy className="w-6 h-6 text-neutral-800" /> }
   ];
 
+  const handleUpdateImage = () => {
+    //TODO:  Update the user's profile picture
+  }
 
+  const handleUpdateProfile = () => {
+    //TODO:  Update the user's profile and center the button
+  }
   return (
     <div className="overflow-y-auto">
       <div className="container p-8 mx-auto lg:px-12">
@@ -54,7 +59,7 @@ export default function Student({ student }: IStudent) {
               alt={student?.username}
               className="object-cover w-32 h-32 rounded-full"
             />
-            <CirclePlus className="absolute bottom-0 right-0 w-8 h-8 text-blue-900 bg-white rounded-full" onClick={(e) => console.log("first")} />
+            <CirclePlus className="absolute bottom-0 right-0 w-8 h-8 text-blue-900 bg-white rounded-full" onClick={handleUpdateImage} />
           </div>
           <div className="">
             <h2 className="mb-2 text-2xl font-bold">{student?.username}</h2>
@@ -88,7 +93,8 @@ export default function Student({ student }: IStudent) {
           {
             label: "Edit Account", content: <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
               <Tooltip target=".edit" content={"Click To Save"} position="top" />
-              {inputLabels.map((data) => input(data, account[correctKey(data) as keyof Account], (e) => setAccount({ ...account, [correctKey(data)]: e.target.value })))}
+              {inputLabels.map((data) => <Input key={data} placeholder={data} value={account[correctKey(data) as keyof Account]} onChange={(e) => setAccount({ ...account, [correctKey(data)]: e.target.value })} />)}
+              <Button className="" onClick={handleUpdateProfile}>Save Account</Button>
             </div>
           },
           {
@@ -106,20 +112,6 @@ export default function Student({ student }: IStudent) {
   )
 }
 
-
-
-function input(label: string, value?: string, onChange?: ChangeEventHandler<HTMLInputElement>) {
-  return (
-    <div className="relative flex flex-col gap-4 lg:col-start-1 lg:col-end-3" key={label}>
-      <label className="font-medium">{label}</label>
-      <input type={label === "Email" ? "email" : "text"} className="w-full px-4 py-2 text-black rounded-lg bg-slate-100 focus:ring focus:ring-sky-300 focus:outline-none" value={value} onChange={onChange} />
-      <div className="right-[0px] bottom-[0px] absolute flex bg-blue-400 rounded-r-lg w-[40px] h-[40px] text-black edit">
-        <Pencil className="w-6 h-6 m-auto" />
-      </div>
-    </div>
-  )
-
-}
 
 
 function correctKey(data: string) {

@@ -4,12 +4,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import Loader from '../Components/Ui/Loader';
 import Footer from './Footer';
 import { useLoginUserMutation } from '../redux/api/authApi';
-import { Toast } from 'primereact/toast';
 import { Messages } from 'primereact/messages';
+import { useToast } from '../Context/Toast';
 
 function SignIn() {
 
-    const toast = useRef<Toast | null>(null);
+    const toast = useToast();
     const msgs = useRef<Messages | null>(null);
     const navigate = useNavigate();
 
@@ -28,8 +28,7 @@ function SignIn() {
 
     useEffect(() => {
         if (error) {
-            // @ts-ignore
-            msgs.current?.show({ severity: 'error', summary: 'Error', detail: `${error.data.data}`, sticky: true, closable: false })
+            msgs.current?.show({ severity: 'error', summary: 'Error', detail: `some error please refresh and try again`, sticky: true, closable: false })
         } else {
             msgs.current?.clear();
         }
@@ -47,7 +46,6 @@ function SignIn() {
 
     return (
         <div className="flex flex-col min-h-full overflow-y-auto">
-            <Toast ref={toast} />
             <div className='px-2 py-4 flex-grow place-content-center'>
                 <div className="md:space-x-8 space-y-8 md:space-y-0 md:grid md:grid-cols-2 bg-white/70 shadow-xl m-auto p-8 border border-black/20 rounded-2xl md:w-[700px] max-w-md md:max-w-screen-md">
                     {isLoading && <div className='absolute bottom-0 left-0 z-10 flex items-center justify-center w-full h-full bg-slate-200/70'><Loader className='w-28 h-28' /></div>}

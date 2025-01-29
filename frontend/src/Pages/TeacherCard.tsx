@@ -1,6 +1,5 @@
 import { ITeacher } from "../types/types";
 import { GraduationCap, Star, Users } from "lucide-react";
-import Card from "../Components/Ui/Card";
 import { Link } from "react-router-dom";
 interface ITeacherCard {
     teacher: ITeacher;

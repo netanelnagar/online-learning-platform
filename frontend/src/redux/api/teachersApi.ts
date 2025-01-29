@@ -8,7 +8,7 @@ export const teachersApi = createApi({
         baseUrl: "http://localhost:3002/api/teachers",
     }),
     endpoints: (builder) => ({
-        teachers: builder.mutation<{status:string; data:ITeacher[]}, void>({
+        teachers: builder.query<{status:string; data:ITeacher[]}, void>({
             query: () => ({
                 url: "",
                 method: "GET",
@@ -24,4 +24,4 @@ export const teachersApi = createApi({
 })
 
 
-export const { useTeachersMutation, useTeacherByIdMutation } = teachersApi;
+export const { useTeachersQuery, useTeacherByIdMutation } = teachersApi;

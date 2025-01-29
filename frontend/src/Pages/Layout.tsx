@@ -20,8 +20,9 @@ const PageNotFound = lazy(() => import("./PageNotFound"));
 const Courses = lazy(() => import("./Courses"));
 const Teachers = lazy(() => import("./Teachers"));
 const Course = lazy(() => import("./Course"));
-const Teacher = lazy(() => import("./users/Teacher"));
-const Student = lazy(() => import("./users/Student"));
+const Teacher = lazy(() => import("./Teacher/Teacher"));
+const Student = lazy(() => import("./Student/Student"));
+const ShowTeacher = lazy(() => import("./Teacher"));
 
 export function Layout(): JSX.Element {
   const toast = useToast();
@@ -41,14 +42,10 @@ export function Layout(): JSX.Element {
           <Route path="/courses" element={<Courses />} />
           <Route path="/courses/:id" element={<Course {...course} />} />
           <Route path="/teachers" element={<Teachers />} />
-          <Route path="/teachers/:id" element={<Teacher isRegularUserWantToSeeTeacherDetails={true} />} />
+          <Route path="/teachers/:id" element={<ShowTeacher />} />
           <Route path="/teacher" ErrorBoundary={ErrorBoundary}  element={<ProtectedRoute> <Teacher /></ProtectedRoute>} />
-
-       
-          {/* <ErrorBoundary FallbackComponent={ErrorFallback}>
-            <Route path="/teacher" element={<ProtectedRoute><Teacher /></ProtectedRoute>} />
-          </ErrorBoundary> */}
-          <Route path="/student" element={<ProtectedRoute> <Student student={student} /></ProtectedRoute>} />
+          <Route path="/user/student" element={<ProtectedRoute> <Student student={student} /></ProtectedRoute>} />
+          <Route path="/user/teacher" element={<ProtectedRoute> <Teacher /></ProtectedRoute>} />
           <Route path="/error" element={<div><h1>אופס! אירעה שגיאה.</h1><p>נא לנסות שוב מאוחר יותר.</p></div>} />
           <Route path="*" element={<PageNotFound />} />
         </Routes>

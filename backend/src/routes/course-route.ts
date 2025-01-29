@@ -1,5 +1,5 @@
 import { Router } from "express";
-import courseController from "../controllers/course-controller";
+import  { addLessons, createCourse, deleteCourse, enrollToCourse, getCourses, getCoursesOfTeacher, updateCourse } from "../controllers/course-controller";
 import authController from "../controllers/auth-controller";
 import { Teachers } from "../models/teacher-model";
 import multerController from "../controllers/multer-controller";
@@ -8,20 +8,21 @@ import { Students } from "../models/student-model";
 const courseRouter = Router();
 
 
-courseRouter.get("/", courseController.getCourses);
+courseRouter.get("/", getCourses);
+courseRouter.get("/teacher/:teacherId", getCoursesOfTeacher);
 // courseRouter.get("/:id", courseController.getCourse);
 
 //add pay procces before enrolling
 courseRouter.post("/enrollToCourse/:id",
-    authController.protect(Students),
-    courseController.enrollToCourse
+    authController.protect(Students), 
+    enrollToCourse
 )
 
 courseRouter.use(authController.protect(Teachers))
 
 courseRouter.post("/",
     multerController.courseFiles,
-    courseController.createCourse,
+    createCourse,
     multerController.uploadCoursePhoto,
     // multerController.resizeCourseVideo,
     multerController.uploadCourseVideo,
@@ -29,12 +30,12 @@ courseRouter.post("/",
 
 courseRouter.patch("/addLessons/:id",
     multerController.courseFiles,
-    courseController.addLessons,
+    addLessons,
 );
 
 // Create a new route for uploaded course videos
 courseRouter.route("/:id")
-    .patch(courseController.updateCourse)
-    .delete(courseController.deleteCourse)
+    .patch(updateCourse)
+    .delete(deleteCourse);
 
 export default courseRouter;  

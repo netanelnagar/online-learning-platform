@@ -1,10 +1,12 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import { Mail, Lock, User } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useToast } from '../Context/Toast';
 import Loader from '../Components/Ui/Loader';
 import Footer from './Footer';
+import { useRegisterUserMutation } from '../redux/api/authApi';
+import { Messages } from 'primereact/messages';
 
 function SignUp(): JSX.Element {
 
@@ -16,37 +18,44 @@ function SignUp(): JSX.Element {
         passwordConfirm: '',
         role: 'student'
     });
-    const [loader, setLoader] = useState(false);
+    const msgs = useRef<Messages | null>(null);
+    const [register, { data, isLoading, error, isSuccess }] = useRegisterUserMutation();
+    const navigate = useNavigate();
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         console.log('Form submitted:', formData);
+
+
         if (formData.password === formData.passwordConfirm) {
-            try {
-                setLoader(true);
-                if (formData.role === 'student') {
-                    const res = await axios.post('http://localhost:3002/api/students/signup', formData)
-                    console.log(res.data);
-                } else {
-                    const res = await axios.post('http://localhost:3002/api/teachers/signup', formData)
-                    console.log(res.data);
-                }
-            } catch (error) {
-                console.error(error);
-                toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Some error' });
-            } finally {
-                setLoader(false);
-            }
+            register(formData);
+
         } else {
             toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Passwords do not match' });
         }
     };
 
+    useEffect(() => {
+        if (error) {
+            // @ts-ignore
+            msgs.current?.show({ severity: 'error', summary: 'Error', detail: `${error.data.data}`, sticky: true, closable: false })
+        } else {
+            msgs.current?.clear();
+        }
+        if (isSuccess) {
+            toast.current?.show({ severity: 'success', summary: 'Success', detail: 'Logged in successfully', sticky: true, closable: false });
+            setTimeout(() => {
+                navigate("/")
+            }, 1000);
+        }
+    }, [data, isSuccess])
+
+
     return (
         <div className="flex flex-col min-h-full  overflow-y-auto">
             <div className='px-2 py-4 flex-grow place-content-center'>
                 <div className="relative md:space-x-8 space-y-8 md:space-y-0 md:grid md:grid-cols-2 bg-white/70 shadow-xl m-auto p-8 border border-black/20 rounded-2xl md:w-[700px] max-w-md md:max-w-screen-md">
-                    {loader && <div className='absolute bottom-0 left-0 z-10 flex items-center justify-center w-full h-full bg-slate-200/70'><Loader className='w-28 h-28' /></div>}
+                    {isLoading && <div className='absolute bottom-0 left-0 z-10 flex items-center justify-center w-full h-full bg-slate-200/70'><Loader className='w-28 h-28' /></div>}
                     <div className="text-center md:flex md:flex-col md:justify-center md:col-span-1">
                         <h2 className="text-4xl font-bold">
                             Create an Account
@@ -152,16 +161,13 @@ function SignUp(): JSX.Element {
                                 />
                             </div>
                         </div>
-
-                        {/* Submit Button */}
                         <button
                             type="submit"
                             className="w-full px-4 py-3 text-sm font-semibold text-white border border-transparent bg-primary hover:bg-primary/90 rounded-xl focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
                         >
                             Sign up
                         </button>
-
-                        {/* Sign In Link */}
+                        <Messages ref={msgs} />
                         <div className="text-sm text-center">
                             <span className="text-gray-500">Already have an account?</span>
                             {' '}

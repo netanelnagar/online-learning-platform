@@ -25,13 +25,7 @@ const studentSchema = new Schema<IStudent>(
         passwordChangedAt: Date,
         passwordResetToken: String,
         passwordResetExpires: Date,
-        role: {
-            type: String,
-            enum: {
-                values: ['student'],
-                message: '{VALUE} is not a valid role.' // Custom error message
-            }
-        },
+        role: { type: String, default: "student" },
         imageName: { type: String },
         profilePicture: { type: String },
         enrolledCourses: [
@@ -109,6 +103,8 @@ studentSchema.post<Query<any, IStudent>>(/^find/, async function (docs, next) {
 });
 
 studentSchema.pre<IStudent>("save", async function (next) {
+    this.role = "student";
+
     if (!this.isModified("password")) return next();
 
     this.password = await hash(this.password!, 8);

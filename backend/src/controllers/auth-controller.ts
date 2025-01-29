@@ -71,7 +71,7 @@ const signup = (Model: Model<any>) => catchAsync(async (req: Request, res: Respo
             new: true,
         });
     }
-    else await newUser?.save();
+    else {await newUser?.save()};
 
     const url = `${req.protocol}://${req.get('host')}/me`;
 
@@ -131,6 +131,7 @@ const protect = (Model: Model<any>) => catchAsync(async (req: Request, res: Resp
     } else if (req.cookies.jwt) {
         token = req.cookies.jwt;
     }
+
 
     if (!token) {
         return next(

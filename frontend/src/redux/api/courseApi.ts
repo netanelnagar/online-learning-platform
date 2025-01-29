@@ -5,17 +5,33 @@ const COURSE_API = "http://localhost:3002/api/courses";
 
 export const courseApi = createApi({
     reducerPath: "courseApi",
-    tagTypes: ["Refetch_Creator_Course", "Refetch_Lecture"],
+    tagTypes: ["Refetch_Courses", "Refetch_Lecture"],
     baseQuery: fetchBaseQuery({
         baseUrl: COURSE_API,
         credentials: "include",
+        prepareHeaders: (headers, { getState }) => {
+            // @ts-ignore
+            const token = getState().auth.token;
+            if (token) {
+                headers.set('Authorization', `Bearer ${token}`);
+            }
+            return headers;
+        },
     }),
     endpoints: (builder) => ({
-        getCourses: builder.mutation<{status:string; data:ICourse[]}, void>({
+        getCourses: builder.query<{ status: string; data: ICourse[] }, void>({
             query: () => ({
                 url: "",
                 method: "GET",
-            })
+            }),
+            providesTags: ["Refetch_Courses"],
+        }),
+        getCoursesOfTeacher: builder.query<{ status: string; data: ICourse[] }, string>({
+            query: (teacherId: string) => ({
+                url: `/teacher/${teacherId}`,
+                method: "GET",
+            }),
+            providesTags: ["Refetch_Courses"],
         }),
         getCourseById: builder.mutation({
             query: (courseId) => ({
@@ -23,14 +39,15 @@ export const courseApi = createApi({
                 method: "GET",
             }),
         }),
-        // createCourse: builder.mutation({
-        //     query: ({ courseTitle, category }) => ({
-        //         url: "",
-        //         method: "POST",
-        //         body: { courseTitle, category },
-        //     }),
-        //     invalidatesTags: ["Refetch_Creator_Course"],
-        // }),
+        createCourse: builder.mutation({
+            query: (courseData) => ({
+                url: "",
+                method: "POST",
+                body: courseData,
+                credentials: "include"
+            }),
+            invalidatesTags: ["Refetch_Courses"],
+        }),
         getSearchCourse: builder.query({
             query: ({ searchQuery, categories, sortByPrice }) => {
                 // Build qiery string
@@ -64,15 +81,15 @@ export const courseApi = createApi({
                 url: "",
                 method: "GET",
             }),
-            providesTags: ["Refetch_Creator_Course"],
+            // providesTags: ["Refetch_Courses"],
         }),
-        editCourse: builder.mutation({
-            query: ({ formData, courseId }) => ({
-                url: `/${courseId}`,
-                method: "PUT",
+        editCourse: builder.mutation<{ status: string; data: ICourse[] }, ICourse>({
+            query: (formData) => ({
+                url: `/${formData._id}`,
+                method: "PATCH",
                 body: formData,
             }),
-            invalidatesTags: ["Refetch_Creator_Course"],
+            invalidatesTags: ["Refetch_Courses"],
         }),
 
         createLecture: builder.mutation({
@@ -120,12 +137,14 @@ export const courseApi = createApi({
                 url: `/${courseId}?publish=${query}`,
                 method: "PATCH",
             }),
+            invalidatesTags: ["Refetch_Courses"],
         }),
     }),
 });
 export const {
-    // useCreateCourseMutation,
-    useGetCoursesMutation,
+    useCreateCourseMutation,
+    useGetCoursesQuery,
+    useGetCoursesOfTeacherQuery,
     useGetCourseByIdMutation,
     useGetSearchCourseQuery,
     useGetPublishedCourseQuery,

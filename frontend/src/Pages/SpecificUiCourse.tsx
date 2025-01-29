@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 interface ISpecificUiCourse {
     course: ICourse;
     isTeacher?: boolean;
-    editCourse: (id: string) => void;
+    editCourse?: (id: string) => void;
 }
 export function SpecificUiCourse({
     course,
@@ -90,7 +90,7 @@ export function SpecificUiCourse({
                 </div>
 
                 <div className="flex gap-2 mt-4">
-                    {isTeacher ? (
+                    {isTeacher && editCourse ? (
                         <Button
                             className="w-full"
                             onClick={() => editCourse(_id)}
