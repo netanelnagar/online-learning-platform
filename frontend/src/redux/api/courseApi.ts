@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { ICourse } from "../../types/types";
+import { ICourse, IEnrolledCorses } from "../../types/types";
 
 const COURSE_API = "http://localhost:3002/api/courses";
 
@@ -32,6 +32,12 @@ export const courseApi = createApi({
                 method: "GET",
             }),
             providesTags: ["Refetch_Courses"],
+        }),
+        getEnrolledCourses: builder.query<{ status: string; data: IEnrolledCorses[] }, string>({
+            query: (studentId: string) => ({
+                url: `/student/${studentId}`,
+                method: "GET",
+            }),
         }),
         getCourseById: builder.mutation({
             query: (courseId) => ({
@@ -145,6 +151,7 @@ export const {
     useCreateCourseMutation,
     useGetCoursesQuery,
     useGetCoursesOfTeacherQuery,
+    useGetEnrolledCoursesQuery,
     useGetCourseByIdMutation,
     useGetSearchCourseQuery,
     useGetPublishedCourseQuery,

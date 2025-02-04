@@ -25,6 +25,7 @@ export const authSlice = createSlice({
         userLoggedOut: (state) => {
             delete state.user;
             state.isAuthenticated = false;
+            state.token = undefined;
         },
         // Use the PayloadAction type to declare the contents of `action.payload`
         register: (state, action: PayloadAction<{ token: string; data: IAdmin | IStudent | ITeacher }>) => {

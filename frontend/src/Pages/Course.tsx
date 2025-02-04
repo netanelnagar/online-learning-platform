@@ -4,38 +4,22 @@
 import { PlayCircle } from "lucide-react";
 import { useState } from "react";
 // import { useToast } from "@/components/ui/use-toast";
-import { useParams, useNavigate } from "react-router-dom";
-import Card from "../Components/Ui/Card";
-import { Badge } from "primereact/badge";
+import { useNavigate, useParams } from "react-router-dom";
 import Button from "../Components/Ui/Button";
-import { course } from "./providers";
 import { ICourse } from "../types/types";
-
-
-
+import { useToast } from "../Context/Toast";
 
 
 interface CourseProps extends ICourse {
   isTeacher?: boolean;
 }
 
-export default function Course({
-  _id,
-  title,
-  description,
-  category,
-  thumbnail,
-  rating,
-  price,
-  lessons,
-  studentsEnrolled,
-  isTeacher = false
-}: CourseProps) {
+export default function Course({ isTeacher = false }: CourseProps) {
 
-  // const { toast } = useToast();
+  const { toast } = useToast();
   const [isEnrolled, setIsEnrolled] = useState(false);
   const navigate = useNavigate();
-  // const { courseId } = useParams();
+  const { courseId } = useParams();
 
   const handleEnroll = () => {
     // TODO: Implement actual enrollment logic with Stripe integration
@@ -59,11 +43,6 @@ export default function Course({
             <div>
               <h3 className="mb-2 line-clamp-2 font-bold text-2xl">{title}</h3>
               <div className="flex gap-2 mb-2 w-[250px] overflow-x-auto">
-                {category.map((cat) => (
-                  <><div key={cat} className="bg-primary px-2 py-1 rounded-full">{cat}</div>
-                    <div key={cat} className="bg-primary px-2 py-1 rounded-full">{cat}</div>
-                    <div key={cat} className="bg-primary px-2 py-1 rounded-full">{cat}</div></>
-                ))}
                 {category.map((cat) => (
                   <><div key={cat} className="bg-primary px-2 py-1 rounded-full">{cat}</div>
                     <div key={cat} className="bg-primary px-2 py-1 rounded-full">{cat}</div>

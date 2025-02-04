@@ -7,14 +7,22 @@ export const authApi = createApi({
     reducerPath: "authApi",
     baseQuery: fetchBaseQuery({
         baseUrl: USER_API,
-        credentials: 'include'
+        credentials: 'include',
+        prepareHeaders: (headers, { getState }) => {
+            // @ts-ignore
+            const token = getState().auth.token;
+            if (token) {
+                headers.set('Authorization', `Bearer ${token}`);
+            }
+            return headers;
+        },
     }),
     endpoints: (builder) => ({
         registerUser: builder.mutation({
             query: (inputData) => ({
                 url: inputData.role === "student" ? "/students/signup" : "/teachers/signup",
                 method: "POST",
-                body: inputData, 
+                body: inputData,
             }),
             async onQueryStarted(_, { queryFulfilled, dispatch }) {
                 try {
@@ -60,14 +68,16 @@ export const authApi = createApi({
                 method: "GET",
             })
         }),
-        updateUser: builder.mutation({
-            query: (formData) => ({
-                url: "profile/update",
-                method: "PUT",
-                body: formData,
-                // credentials: "include"
+        updateUser: builder.mutation<any, { role: string; data: any }>({
+            query: ({ role, data }) => ({
+                url: `${role}/updateMe`,
+                method: "PATCH",
+                body: data,
             }),
-
+            async onQueryStarted(_, { queryFulfilled, dispatch }) {
+                const result = await queryFulfilled;
+                dispatch(userLoggedIn(result?.data));
+            }
         })
     })
 });

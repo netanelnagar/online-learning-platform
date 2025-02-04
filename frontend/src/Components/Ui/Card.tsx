@@ -14,7 +14,7 @@ const colorMap = {
     primary: "bg-primary/10",
     secondary: "bg-secondary/10",
 };
-export function specificCard({ title, amount, color, icon }: { title: string, amount: string, color: string, icon: any }) {
+export function specificCard({ title, amount, color, icon }: { title: string, amount: string, color: string, icon: JSX.Element }) {
     return (
         <Card className="p-6" key={title}>
             <div className="flex items-center gap-4">

@@ -1,29 +1,28 @@
-import React from 'react'
 
 interface InputProps {
-    id?: string;
     className?: string;
     placeholder?: string;
     type?: string;
-    value?: string | number;
-    onChange?: React.ChangeEventHandler<HTMLInputElement>;
-    required?: boolean;
-    name?: string;
+    register: any;
+    label: string;
+    showLabel?: boolean;
 }
 export default function Input({
-    className, placeholder, type, value, onChange, id, required, name
+    className, placeholder, type, register, label, showLabel
 }: InputProps) {
-    const classes = "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus:ring-primary"
+    const id = crypto.randomUUID();
+    const classes = " w-full rounded-md border border-input bg-background px-4 py-3 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus:ring-primary"
     return (
-        <input
-            id={id}
-            className={`${classes} ${className}`}
-            placeholder={placeholder}
-            type={type}
-            value={value}
-            onChange={onChange}
-            required={required}
-            name={name}
-        ></input>
+        <>
+            {showLabel && <label htmlFor={id} className="capitalize">{label}</label>}
+            <input
+                id={id}
+                className={`${classes} ${className}`}
+                placeholder={placeholder}
+                type={type}
+                {...register(label)}
+            />
+        </>
     )
 }
+

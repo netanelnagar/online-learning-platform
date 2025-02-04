@@ -1,11 +1,14 @@
 import { NextFunction, Request, Response } from "express";
 import { Courses } from "../models/course-model";
+import { CourseProgress } from "../models/course-progress-model";
+
 import catchAsync from "../utils/catch-async";
 import factory from "./factory";
 import { AppError } from "../utils/app-error";
 import { sendRes } from "../utils/general-functions";
 import aws from "../utils/aws";
 import multerController from "./multer-controller";
+import { IEnrolledCorses } from "../types/general-types";
 
 
 export const getCourses = factory.getAll(Courses);
@@ -14,6 +17,20 @@ export const getCoursesOfTeacher = catchAsync(async (req: Request, res: Response
     const { teacherId } = req.params;
     const courses = await Courses.find({ createdBy: teacherId }).setOptions({ overridePublishedFilter: true });
     sendRes(res, 200, "success", courses);
+});
+
+export const getEnrolledCourses = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const { studentId } = req.params;
+    const courses = await Courses.find({ "studentsEnrolled.studentId": { $in: studentId } });
+    const coursesProgress = await CourseProgress.find({ userId: studentId });
+    const data: IEnrolledCorses[] = [];
+    courses.forEach((course) => data.push({
+        title: course.title,
+        teacherName: course.createdBy.name,
+        lessons: course.lessons,
+        courseProgress: coursesProgress.find(c => c.courseId === course._id),
+    }))
+    sendRes(res, 200, "success", data);
 });
 
 export const createCourse = catchAsync(async (req: Request, res: Response, next: NextFunction) => {

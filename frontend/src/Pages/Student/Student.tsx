@@ -1,53 +1,45 @@
 import { IStudent as IS } from "../../types/types";
-import { BookOpen, CirclePlus, Clock, Trophy } from "lucide-react";
+import { BookOpen, CirclePlus, Clock, LogOut, Trophy } from "lucide-react";
 import { ProgressBar } from "primereact/progressbar";
 import Card, { specificCard } from "../../Components/Ui/Card";
-import Button from "../../Components/Ui/Button";
-import { useState } from "react";
-import { Tooltip } from "primereact/tooltip";
 import { Tabs } from "../../Components/Ui/Tabs";
-import Input from "../../Components/Ui/Input";
-
-const inputLabels: ("Username" | "Email" | "Password" | "Confirm Password")[] = ["Username", "Email", "Password", "Confirm Password"];
-
-const enrolledCourses = [
-  {
-    id: 1,
-    title: "Web Development Bootcamp",
-    progress: 75,
-    nextLesson: "Advanced CSS Layouts",
-    instructor: "John Doe"
-  },
-  {
-    id: 2,
-    title: "UX Design Fundamentals",
-    progress: 45,
-    nextLesson: "User Research Methods",
-    instructor: "Jane Smith"
-  }
-];
+import { useAppDispatch, useAppSelector } from "../../redux/app/store";
+import { useGetEnrolledCoursesQuery } from "../../redux/api/courseApi";
+import Loader from "../../Components/Ui/Loader";
+import { userLoggedOut } from "../../redux/authSlice";
+import { MouseEventHandler } from "react";
 
 
-interface IStudent {
-  student: IS;
-}
-type Account = { username: string; email: string; password: string; confirmPassword: string; };
-export default function Student({ student }: IStudent) {
-  const [account, setAccount] = useState<Account>({ username: "", email: "", password: "", confirmPassword: "" });
+
+
+export default function Student() {
+  const student = useAppSelector(store => store.auth.user) as IS;
+  const logout = useAppDispatch();
+  const { data: courses, isLoading, isError } = useGetEnrolledCoursesQuery(student._id);
+
 
   const cardsData = [
-    { title: "Enrolled Courses", amount: enrolledCourses.length.toString(), color: "primary", icon: <BookOpen className="w-6 h-6 text-primary" /> },
-    { title: "Learning Hours", amount: "24", color: "secondary", icon: <Clock className="w-6 h-6 text-secondary" /> },
-    { title: "Certificates", amount: student.certificates.length.toString(), color: "neutral-800", icon: <Trophy className="w-6 h-6 text-neutral-800" /> }
+    { title: "Enrolled Courses", amount: courses?.data.length.toString()|| "0", color: "primary", icon: <BookOpen className="w-6 h-6 text-primary" /> },
+    { title: "Learning Hours", amount: "0", color: "secondary", icon: <Clock className="w-6 h-6 text-secondary" /> },
+    { title: "Certificates", amount: student.certificates.length.toString() || "0", color: "neutral-800", icon: <Trophy className="w-6 h-6 text-neutral-800" /> }
   ];
+
+
 
   const handleUpdateImage = () => {
     //TODO:  Update the user's profile picture
   }
 
-  const handleUpdateProfile = () => {
-    //TODO:  Update the user's profile and center the button
+
+
+  const handleLogOut: MouseEventHandler = (e) => {
+    e.stopPropagation();
+    logout(userLoggedOut());
   }
+
+
+
+  if (!student) return <Loader className="w-20 h-20 m-auto" />;
   return (
     <div className="overflow-y-auto">
       <div className="container p-8 mx-auto lg:px-12">
@@ -64,6 +56,8 @@ export default function Student({ student }: IStudent) {
           <div className="">
             <h2 className="mb-2 text-2xl font-bold">{student?.username}</h2>
             <p className="mb-6 text-gray-600">{student?.email}</p>
+            <p className="mb-6 flex gap-4" onClick={handleLogOut}><LogOut />log out</p>
+
           </div>
         </div>
         <div className="grid grid-cols-1 gap-6 my-8 md:grid-cols-3">
@@ -72,31 +66,44 @@ export default function Student({ student }: IStudent) {
         <Tabs className="" tabs={[
           {
             label: "Courses", content: <div className="grid grid-cols-1 gap-6">
-              {enrolledCourses.map((course) => (
-                <Card key={course.id} className="p-6">
+              {courses && !isLoading ? courses.data.map((course) => {
+
+                const progress = course.courseProgress ? (course.lessons.length / course.courseProgress.lessonsProgress.length) * 100 : 0;
+
+                return (<Card key={course.title} className="p-6">
                   <div className="flex flex-col gap-4 md:flex-row md:items-center">
                     <div className="flex-1">
                       <h3 className="mb-2 text-xl font-semibold">{course.title}</h3>
-                      <p className="mb-2 text-gray-500">Instructor: {course.instructor}</p>
-                      <p className="text-sm text-gray-500">Next: {course.nextLesson}</p>
+                      <p className="mb-2 text-gray-500">Instructor: {course.teacherName}</p>
                     </div>
+
                     <div className="w-full md:w-48">
                       <p className="mb-2 text-sm text-gray-500">Progress</p>
-                      <ProgressBar showValue={false} value={course.progress} className="h-5 bg-sky-200" color="rgb(14 165 233)" />
-                      <p className="mt-1 text-sm text-right">{course.progress}%</p>
+                      <ProgressBar showValue={false} value={progress} className="h-5 bg-sky-200" color="rgb(14 165 233)" />
+                      <p className="mt-1 text-sm text-right">{progress}%</p>
                     </div>
                   </div>
                 </Card>
-              ))}
+                )
+              })
+                : isError ? <div className="text-center text-gray-500">Have some error please refresh the page.</div>
+                  : <Loader className="w-20 h-20 m-auto" />
+              }
             </div>
           },
-          {
-            label: "Edit Account", content: <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-              <Tooltip target=".edit" content={"Click To Save"} position="top" />
-              {inputLabels.map((data) => <Input key={data} placeholder={data} value={account[correctKey(data) as keyof Account]} onChange={(e) => setAccount({ ...account, [correctKey(data)]: e.target.value })} />)}
-              <Button className="" onClick={handleUpdateProfile}>Save Account</Button>
-            </div>
-          },
+          // {
+          //className="w-1/3 max-w-80"
+          //   label: "Edit Account", content: <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 lg:flex-row">
+          //     <Input
+          //       register={register}
+          //       showLabel={false}
+          //       label='username'
+          //       className="w-full lg:w-1/3 lg:max-w-80 bg-gray-50 text-gray-900 placeholder-gray-400 "
+          //       placeholder="Enter your new username"
+          //     />
+          //     <Button className="text-xs" type="submit" disabled={LoadingUpdate}>Save Changes</Button>
+          //   </form>
+          // },
           {
             label: "Certificates", content: <>
               {student.certificates.length ? <div className="grid grid-cols-1 gap-6"></div> :
@@ -113,8 +120,3 @@ export default function Student({ student }: IStudent) {
 }
 
 
-
-function correctKey(data: string) {
-  return data === "Confirm Password" ? "confirmPassword" : data.toLowerCase();
-
-}

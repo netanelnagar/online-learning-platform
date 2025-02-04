@@ -1,13 +1,14 @@
-import { CirclePlus, DollarSign, Users, BookOpen } from "lucide-react";
-import {  ITeacher as IT } from "../../types/types";
-import {  useState } from "react";
-import  { specificCard } from "../../Components/Ui/Card";
+import { CirclePlus, DollarSign, Users, BookOpen, LogOut } from "lucide-react";
+import { ITeacher as IT } from "../../types/types";
+import { MouseEventHandler, useState } from "react";
+import { specificCard } from "../../Components/Ui/Card";
 import { Tabs } from "../../Components/Ui/Tabs";
-import { useAppSelector } from "../../redux/app/store";
+import { useAppDispatch, useAppSelector } from "../../redux/app/store";
 import Loader from "../../Components/Ui/Loader";
 import ProfileTab from "./ProfileTab ";
 import CoursesTab from "./CoursesTab";
 import { useToast } from "../../Context/Toast";
+import { userLoggedOut } from "../../redux/authSlice";
 
 // TODO: Replace with real data
 const cardsData = [
@@ -21,6 +22,7 @@ export default function Teacher() {
 
   const toast = useToast();
   const teacher = useAppSelector(store => store.auth.user) as IT;
+  const logout = useAppDispatch();
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState<IT | null>(teacher as IT);
 
@@ -37,6 +39,12 @@ export default function Teacher() {
   const handleUpdateImage = () => {
     //TODO:  Update the user's profile picture
   }
+
+  const handleLogOut: MouseEventHandler = (e) => {
+    e.stopPropagation();
+    logout(userLoggedOut());
+  }
+
 
   if (!profile) return <Loader className="w-20 h-20 m-auto" />;
 
@@ -55,6 +63,7 @@ export default function Teacher() {
           <div className="flex flex-col items-start">
             <h2 className="mb-2 text-2xl font-bold">{profile?.username}</h2>
             <p className="mb-6 text-gray-600">{profile?.email}</p>
+            <p className="mb-6 flex gap-4" onClick={handleLogOut}><LogOut />log out</p>
           </div>
         </div>
         <div className="grid grid-cols-1 gap-6 mb-8 md:grid-cols-3">
@@ -63,7 +72,7 @@ export default function Teacher() {
         <Tabs tabs={[
           {
             label: "Profile",
-            content: <ProfileTab profile={profile} setProfile={setProfile} isEditing={isEditing}  setIsEditing={setIsEditing} handleProfileUpdate={handleProfileUpdate}/>
+            content: <ProfileTab profile={profile} setProfile={setProfile} isEditing={isEditing} setIsEditing={setIsEditing} handleProfileUpdate={handleProfileUpdate} />
           }, {
             label: "Courses",
             content: <CoursesTab teacher={profile} />

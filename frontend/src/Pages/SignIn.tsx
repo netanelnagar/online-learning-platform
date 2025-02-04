@@ -1,11 +1,22 @@
-import { FormEvent, useEffect, useRef, useState } from 'react';
 import { Mail, Lock, User } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
+import { Messages } from 'primereact/messages';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import Loader from '../Components/Ui/Loader';
 import Footer from './Footer';
 import { useLoginUserMutation } from '../redux/api/authApi';
-import { Messages } from 'primereact/messages';
 import { useToast } from '../Context/Toast';
+import Input from '../Components/Ui/Input';
+import { signinSchema } from '../utils/yupSchemas';
+import { yupResolver } from '@hookform/resolvers/yup';
+
+
+interface IFormInput {
+    email: string;
+    password: string;
+    role: 'student' | 'teacher';
+}
 
 function SignIn() {
 
@@ -13,18 +24,16 @@ function SignIn() {
     const msgs = useRef<Messages | null>(null);
     const navigate = useNavigate();
 
-    const [formData, setFormData] = useState({
-        email: '',
-        password: '',
-        role: 'student'
+    const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<IFormInput>({
+        defaultValues: { role: "student" },
+          resolver: yupResolver(signinSchema),
     });
     const [loginUser, { data, error, isLoading, isSuccess, }] = useLoginUserMutation();
 
-    const handleSubmit = async (e: FormEvent) => {
-        e.preventDefault();
-        console.log('Form submitted:', formData);
-        loginUser(formData);
+    const onSubmit: SubmitHandler<IFormInput> = async (data) => {
+        loginUser(data);
     };
+
 
     useEffect(() => {
         if (error) {
@@ -43,6 +52,7 @@ function SignIn() {
         isLoading,
         isSuccess,])
 
+    const selectedRole = watch("role");
 
     return (
         <div className="flex flex-col min-h-full overflow-y-auto">
@@ -59,9 +69,9 @@ function SignIn() {
                         <div className="flex justify-center my-4 space-x-4">
                             <button
                                 type="button"
-                                onClick={() => setFormData({ ...formData, role: 'student' })}
+                                onClick={() => setValue("role", "student")}
                                 className={`flex items-center px-6 py-3 rounded-xl text-sm font-medium
-                        ${formData.role === 'student'
+                        ${selectedRole === 'student'
                                         ? 'bg-primary hover:bg-primary/90 text-white '
                                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
                             >
@@ -70,9 +80,9 @@ function SignIn() {
                             </button>
                             <button
                                 type="button"
-                                onClick={() => setFormData({ ...formData, role: 'teacher' })}
+                                onClick={() => setValue("role", "teacher")}
                                 className={`flex items-center px-6 py-3 rounded-xl text-sm font-medium 
-                        ${formData.role === 'teacher'
+                        ${selectedRole === 'teacher'
                                         ? 'bg-primary hover:bg-primary/90 text-white 30'
                                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
                             >
@@ -82,22 +92,23 @@ function SignIn() {
                         </div>
                     </div>
 
-                    <form className="mt-10 space-y-6 md:col-span-1 md:mt-2" onSubmit={handleSubmit}>
+                    <form className="mt-10 space-y-6 md:col-span-1 md:mt-2" onSubmit={handleSubmit(onSubmit)}>
                         <div className="relative">
                             <label className="block mb-1 ml-1 text-sm font-medium text-gray-700">
                                 Email address
                             </label>
                             <div className="relative">
                                 <Mail className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 top-1/2 left-3" />
-                                <input
-                                    type="email"
-                                    required
-                                    className="w-full px-4 py-3 pl-10 text-gray-900 placeholder-gray-400 transition-all duration-300 ease-in-out border border-gray-200 bg-gray-50 focus:border-transparent rounded-xl focus:ring-2 focus:ring-blue-500"
+                                <Input
+                                    register={register}
+                                    showLabel={false}
+                                    label='email'
+                                    className="bg-gray-50 pl-10 text-gray-900 placeholder-gray-400 "
                                     placeholder="Enter your email"
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+
                                 />
                             </div>
+                            {errors.email && <p className='m-1 text-red-600'>{errors.email.message}</p>}
                         </div>
                         <div className="relative">
                             <label className="block mb-1 ml-1 text-sm font-medium text-gray-700">
@@ -105,15 +116,15 @@ function SignIn() {
                             </label>
                             <div className="relative">
                                 <Lock className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 top-1/2 left-3" />
-                                <input
-                                    type="password"
-                                    required
-                                    className="w-full px-4 py-3 pl-10 text-gray-900 placeholder-gray-400 transition-all duration-300 ease-in-out border border-gray-200 bg-gray-50 focus:border-transparent rounded-xl focus:ring-2 focus:ring-blue-500"
+                                <Input
+                                    register={register}
+                                    showLabel={false}
+                                    label='password'
+                                    className="bg-gray-50 pl-10 text-gray-900 placeholder-gray-400 "
                                     placeholder="Enter your password"
-                                    value={formData.password}
-                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                 />
                             </div>
+                            {errors.password && <p className='m-1 text-red-600'>{errors.password.message}</p>}
                         </div>
                         <div className="flex items-center justify-between">
                             <div className="flex items-center">

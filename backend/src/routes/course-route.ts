@@ -1,8 +1,8 @@
 import { Router } from "express";
-import  { addLessons, createCourse, deleteCourse, enrollToCourse, getCourses, getCoursesOfTeacher, updateCourse } from "../controllers/course-controller";
+import  { addLessons, createCourse, deleteCourse, enrollToCourse, getCourses, getCoursesOfTeacher, getEnrolledCourses, updateCourse } from "../controllers/course-controller";
 import authController from "../controllers/auth-controller";
-import { Teachers } from "../models/teacher-model";
 import multerController from "../controllers/multer-controller";
+import { Teachers } from "../models/teacher-model";
 import { Students } from "../models/student-model";
 
 const courseRouter = Router();
@@ -13,9 +13,14 @@ courseRouter.get("/teacher/:teacherId", getCoursesOfTeacher);
 // courseRouter.get("/:id", courseController.getCourse);
 
 //add pay procces before enrolling
-courseRouter.post("/enrollToCourse/:id",
+courseRouter.get("/enrollToCourse/:id",
     authController.protect(Students), 
     enrollToCourse
+)
+
+courseRouter.get("/student/:studentId",
+    authController.protect(Students), 
+    getEnrolledCourses
 )
 
 courseRouter.use(authController.protect(Teachers))

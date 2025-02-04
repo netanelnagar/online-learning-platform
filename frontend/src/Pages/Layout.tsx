@@ -6,7 +6,6 @@ import { useToast } from "../Context/Toast";
 import Header from "./Header";
 import Home from "./Home";
 import Loader from "../Components/Ui/Loader";
-import { student, course } from "./providers";
 import { Contact } from "./Contact";
 import { AuthenticatedUser, ProtectedRoute } from "../Components/ProtectedRoutes";
 // import { ErrorBoundary } from "./ErrorBoundary";
@@ -36,15 +35,15 @@ export function Layout(): JSX.Element {
         <Routes>
           <Route path="/" element={<Navigate to={"/home"} />} />
           <Route path="/home" element={<Home />} />
-          <Route path="/login" element={<AuthenticatedUser><SignIn  /></AuthenticatedUser>} />
+          <Route path="/login" element={<AuthenticatedUser><SignIn /></AuthenticatedUser>} />
           <Route path="/signup" element={<AuthenticatedUser><SignUp /></AuthenticatedUser>} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/courses" element={<Courses />} />
-          <Route path="/courses/:id" element={<Course {...course} />} />
+          <Route path="/courses/:id" element={<Course  />} />
           <Route path="/teachers" element={<Teachers />} />
           <Route path="/teachers/:id" element={<ShowTeacher />} />
-          <Route path="/teacher" ErrorBoundary={ErrorBoundary}  element={<ProtectedRoute> <Teacher /></ProtectedRoute>} />
-          <Route path="/user/student" element={<ProtectedRoute> <Student student={student} /></ProtectedRoute>} />
+          <Route path="/teacher" ErrorBoundary={ErrorBoundary} element={<ProtectedRoute> <Teacher /></ProtectedRoute>} />
+          <Route path="/user/student" element={<ProtectedRoute> <Student /></ProtectedRoute>} />
           <Route path="/user/teacher" element={<ProtectedRoute> <Teacher /></ProtectedRoute>} />
           <Route path="/error" element={<div><h1>אופס! אירעה שגיאה.</h1><p>נא לנסות שוב מאוחר יותר.</p></div>} />
           <Route path="*" element={<PageNotFound />} />

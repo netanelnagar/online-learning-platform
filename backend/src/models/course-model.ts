@@ -4,8 +4,6 @@ import aws from "../utils/aws";
 
 
 const lessonSchema = new Schema<ILesson>({
-     // @ts-ignore
-     _id: false, // To enable embedding lessons in courses
      title: { type: String, required: true },
      videoName: { type: String, required: true },
      videoUrl: { type: String },
@@ -19,7 +17,11 @@ const courseSchema = new Schema<ICourse>(
           description: { type: String, required: true },
           thumbnail: { type: String },
           category: { type: [String], default: [] },
-          createdBy: { type: Schema.Types.ObjectId, ref: 'Teachers', required: true },
+          createdBy: {
+               teacherId: { type: Schema.Types.ObjectId, ref: 'Teachers', required: true },
+               name: { type: String, required: true }
+
+          },
           lessons: { type: [lessonSchema], default: [] },
           studentsEnrolled: {
                type: [

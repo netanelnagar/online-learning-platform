@@ -58,6 +58,7 @@ const studentSchema = new Schema<IStudent>(
 
 
 studentSchema.pre<Query<any, IStudent>>(/^find/, function (next) {
+    console.log("first student")
 
     if (!this.getOptions().overridePublishedFilter) {
         this.find({ active: true });

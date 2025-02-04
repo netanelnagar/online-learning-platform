@@ -6,6 +6,7 @@ import TeachersHome from "./TeachersHome";
 
 
 
+
 export default function Home(): JSX.Element {
 
     return (
@@ -18,14 +19,14 @@ export default function Home(): JSX.Element {
                 </div>
                 <div className="mb-8">
                     <h2 className="mb-4 text-2xl font-semibold text-primary">Most Popular Courses</h2>
-                        <CoursesHome />
-                    
+                    <CoursesHome />
+
                 </div>
                 {/* <Review/> */}
                 <div className="mb-8">
                     <h2 className="mb-4 text-2xl font-semibold text-primary">Our Top Teachers</h2>
-                        <TeachersHome />
-                    
+                    <TeachersHome />
+
                 </div>
                 <div className="p-8 mt-16 text-center bg-gray-200 rounded-xl">
                     <h2 className="mb-4 text-2xl font-semibold text-primary">Need Help?</h2>

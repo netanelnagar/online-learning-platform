@@ -68,3 +68,26 @@ export interface IAdmin {
     createdAt?: Date; // Optional because it's automatically managed by timestamps
     updatedAt?: Date; // Optional because it's automatically managed by timestamps
 }
+
+
+
+export interface ILessonsProgress {
+    _id: string;
+    lessonId: string;
+    viewed: boolean;
+}
+
+export interface ICourseProgressSchema {
+    _id: string;
+    userId: string;
+    courseId: string;
+    completed: boolean;
+    lessonsProgress: ILessonsProgress[];
+}
+
+export interface IEnrolledCorses {
+    title: string;
+    teacherName: string;
+    lessons: ILesson[];
+    courseProgress?: ICourseProgressSchema;
+}

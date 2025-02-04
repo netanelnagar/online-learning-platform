@@ -131,18 +131,16 @@ const protect = (Model: Model<any>) => catchAsync(async (req: Request, res: Resp
     } else if (req.cookies.jwt) {
         token = req.cookies.jwt;
     }
-
-
+    
     if (!token) {
         return next(
             new AppError('You are not logged in! Please log in to get access.', 401)
         );
     }
-
+    
     //@ts-ignore
     const decoded = await promisify(verify)(token, process.env.JWT_SECRET!);
-
-
+    
     //@ts-ignore
     const user = await Model.findById(decoded.id).setOptions({ withUrlMedia: true });
 

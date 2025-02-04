@@ -1,38 +1,39 @@
-import { FormEvent, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { Mail, Lock, User } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { useToast } from '../Context/Toast';
 import Loader from '../Components/Ui/Loader';
 import Footer from './Footer';
 import { useRegisterUserMutation } from '../redux/api/authApi';
 import { Messages } from 'primereact/messages';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { yupResolver } from "@hookform/resolvers/yup"
+import Input from '../Components/Ui/Input';
+import { signupSchema } from '../utils/yupSchemas';
 
+
+
+interface IFormInput {
+    username: string;
+    email: string;
+    password: string;
+    passwordConfirm: string;
+    role: 'student' | 'teacher';
+}
 function SignUp(): JSX.Element {
-
-    const toast = useToast();
-    const [formData, setFormData] = useState({
-        username: '',
-        email: '',
-        password: '',
-        passwordConfirm: '',
-        role: 'student'
+    const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<IFormInput>({
+        defaultValues: { role: "student" },
+        resolver: yupResolver(signupSchema),
     });
+    const toast = useToast();
     const msgs = useRef<Messages | null>(null);
-    const [register, { data, isLoading, error, isSuccess }] = useRegisterUserMutation();
+    const [sendToServer, { data, isLoading, error, isSuccess }] = useRegisterUserMutation();
     const navigate = useNavigate();
 
-    const handleSubmit = async (e: FormEvent) => {
-        e.preventDefault();
-        console.log('Form submitted:', formData);
+    const selectedRole = watch("role");
 
-
-        if (formData.password === formData.passwordConfirm) {
-            register(formData);
-
-        } else {
-            toast.current?.show({ severity: 'error', summary: 'Error', detail: 'Passwords do not match' });
-        }
+    const onSubmit: SubmitHandler<IFormInput> = async (data) => {
+        sendToServer(data);
     };
 
     useEffect(() => {
@@ -66,9 +67,10 @@ function SignUp(): JSX.Element {
                         <div className="flex justify-center my-4 space-x-4">
                             <button
                                 type="button"
-                                onClick={() => setFormData({ ...formData, role: 'student' })}
+
+                                onClick={() => setValue("role", "student")}
                                 className={`flex items-center px-6 py-3 rounded-xl text-sm font-medium 
-                        ${formData.role === 'student'
+                        ${selectedRole === 'student'
                                         ? 'bg-primary hover:bg-primary/90 text-white '
                                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
                             >
@@ -77,9 +79,9 @@ function SignUp(): JSX.Element {
                             </button>
                             <button
                                 type="button"
-                                onClick={() => setFormData({ ...formData, role: 'teacher' })}
+                                onClick={() => setValue("role", "teacher")}
                                 className={`flex items-center px-6 py-3 rounded-xl text-sm font-medium 
-                        ${formData.role === 'teacher'
+                        ${selectedRole === 'teacher'
                                         ? 'bg-primary hover:bg-primary/90 text-white '
                                         : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
                             >
@@ -89,77 +91,76 @@ function SignUp(): JSX.Element {
                         </div>
                     </div>
 
-                    <form className="mt-10 space-y-6 md:col-span-1 md:mt-2" onSubmit={handleSubmit}>
-                        {/* Username Field */}
+                    <form className="mt-10 space-y-6 md:col-span-1 md:mt-2" onSubmit={handleSubmit(onSubmit)}>
+
                         <div className="relative">
                             <label className="block mb-1 ml-1 text-sm font-medium text-gray-700">
                                 Username
                             </label>
                             <div className="relative">
                                 <User className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 top-1/2 left-3" />
-                                <input
-                                    type="text"
-                                    required
-                                    className="w-full px-4 py-3 pl-10 text-gray-900 placeholder-gray-400 transition-all duration-300 ease-in-out border border-gray-200 bg-gray-50 focus:border-transparent rounded-xl focus:ring-2 focus:pr focus:outline-none"
-                                    placeholder="Enter your username"
-                                    value={formData.username}
-                                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                                <Input
+                                    register={register}
+                                    label='username'
+                                    showLabel={false}
+                                    className="bg-gray-50 pl-10 text-gray-900 placeholder-gray-400 "
+                                    placeholder='Enter your username'
                                 />
                             </div>
+                            {errors.username && <p className='m-1 text-red-600'>{errors.username.message}</p>}
                         </div>
 
-                        {/* Email Field */}
                         <div className="relative">
                             <label className="block mb-1 ml-1 text-sm font-medium text-gray-700">
                                 Email address
                             </label>
                             <div className="relative">
                                 <Mail className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 top-1/2 left-3" />
-                                <input
-                                    type="email"
-                                    required
-                                    className="w-full px-4 py-3 pl-10 text-gray-900 placeholder-gray-400 transition-all duration-300 ease-in-out border border-gray-200 bg-gray-50 focus:border-transparent rounded-xl focus:ring-2 focus:ring-blue-500"
+                                <Input
+                                    register={register}
+                                    showLabel={false}
+                                    label='email'
+                                    className="bg-gray-50 pl-10 text-gray-900 placeholder-gray-400 "
                                     placeholder="Enter your email"
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+
                                 />
                             </div>
+                            {errors.email && <p className='m-1 text-red-600'>{errors.email.message}</p>}
                         </div>
 
-                        {/* Password Field */}
                         <div className="relative">
                             <label className="block mb-1 ml-1 text-sm font-medium text-gray-700">
                                 Password
                             </label>
                             <div className="relative">
                                 <Lock className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 top-1/2 left-3" />
-                                <input
-                                    type="password"
-                                    required
-                                    className="w-full px-4 py-3 pl-10 text-gray-900 placeholder-gray-400 transition-all duration-300 ease-in-out border border-gray-200 bg-gray-50 rounded-xl focus:"
+                                <Input
+                                    register={register}
+                                    showLabel={false}
+                                    label='password'
+                                    className="bg-gray-50 pl-10 text-gray-900 placeholder-gray-400 "
                                     placeholder="Enter your password"
-                                    value={formData.password}
-                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                                 />
                             </div>
+                            {errors.password && <p className='m-1 text-red-600'>{errors.password.message}</p>}
+
                         </div>
 
-                        {/* Confirm Password Field */}
                         <div className="relative">
                             <label className="block mb-1 ml-1 text-sm font-medium text-gray-700">
                                 Confirm Password
                             </label>
                             <div className="relative">
                                 <Lock className="absolute w-5 h-5 text-gray-400 transform -translate-y-1/2 top-1/2 left-3" />
-                                <input
-                                    type="password"
-                                    required
-                                    className="w-full px-4 py-3 pl-10 text-gray-900 placeholder-gray-400 transition-all duration-300 ease-in-out border border-gray-200 bg-gray-50 focus:border-transparent rounded-xl focus:ring-2 focus:ring-blue-500"
+                                <Input
+                                    register={register}
+                                    showLabel={false}
+                                    label='passwordConfirm'
+                                    className="bg-gray-50 pl-10 text-gray-900 placeholder-gray-400 "
                                     placeholder="Confirm your password"
-                                    value={formData.passwordConfirm}
-                                    onChange={(e) => setFormData({ ...formData, passwordConfirm: e.target.value })}
                                 />
                             </div>
+                            {errors.passwordConfirm && <p className='m-1 text-red-600'>{errors.passwordConfirm.message}</p>}
                         </div>
                         <button
                             type="submit"
