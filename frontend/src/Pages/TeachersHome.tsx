@@ -13,7 +13,7 @@ export default function TeachersHome() {
     if (isError) return <div >Error :( </div>;
 
     return (
-        <div className="grid grid-flow-col auto-cols-max gap-4 overflow-x-scroll h-[290px]">
+        <div className="grid grid-flow-col auto-cols-max gap-4 overflow-x-scroll max-h-[590px]">
             {teachers && teachers.data.map((teacher) => <TeacherCard key={teacher._id} teacher={teacher} className={`max-w-[350px] md:w-auto`} />)}
         </div>
     )

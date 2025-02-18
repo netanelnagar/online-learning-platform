@@ -12,9 +12,7 @@ const log = getLogger("factory")
 const getAll = (model: Model<any>) => catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
     const query = model.find();
-    if (model.modelName === "Courses") {
-        query.setOptions({ withUrlMedia: true })
-    }
+
     const data = await query;
 
     sendRes(res, 200, "success", data);
@@ -23,20 +21,21 @@ const getAll = (model: Model<any>) => catchAsync(async (req: Request, res: Respo
 
 
 const createOne = (Model: Model<any>, isLastMiddleware = true) => catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const doc = new Model(req.body) as Document;
-    
+    let doc = new Model(req.body) as Document;
+
     const err = doc.validateSync();
 
     if (err) throw new AppError(err.message, 400);
 
-    await doc.save();
+    doc = await doc.save();
 
     log.info(`create doc in ${Model.modelName} collection`);
 
     if (isLastMiddleware) {
         return sendRes(res, 201, "success", doc)
     } else {
-        req.body = doc.toObject();
+        // @ts-ignore
+        req.doc = doc;
         next();
     }
 
@@ -114,8 +113,8 @@ const updateMe = (Model: Model<any>) => catchAsync(async (req, res, next) => {
 });
 
 const validate = catchAsync(async (req, res, next) => {
-    const { username, email, password, passwordConfirm } = req.body;
-    if (username || email) throw new AppError("Can't update username or email.", 400);
+    const { email, password, passwordConfirm } = req.body;
+    if (email) throw new AppError("Can't update email.", 400);
     if (password || passwordConfirm)
         throw new AppError('This route is not for password updates. Please use /updateMyPassword.', 400);
     next();

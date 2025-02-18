@@ -8,6 +8,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import Button from "../Components/Ui/Button";
 import { ICourse } from "../types/types";
 import { useToast } from "../Context/Toast";
+import { useGetCourseByIdQuery } from "../redux/api/courseApi";
+import Loader from "../Components/Ui/Loader";
 
 
 interface CourseProps extends ICourse {
@@ -16,10 +18,11 @@ interface CourseProps extends ICourse {
 
 export default function Course({ isTeacher = false }: CourseProps) {
 
-  const { toast } = useToast();
+  const toast = useToast();
   const [isEnrolled, setIsEnrolled] = useState(false);
   const navigate = useNavigate();
-  const { courseId } = useParams();
+  const { id } = useParams();
+  const { data, isError, isLoading } = useGetCourseByIdQuery(id!);
 
   const handleEnroll = () => {
     // TODO: Implement actual enrollment logic with Stripe integration
@@ -33,6 +36,13 @@ export default function Course({ isTeacher = false }: CourseProps) {
   const handleBack = () => {
     navigate(-1);
   };
+
+  if (isLoading) return <Loader className="m-auto" />;
+
+  if (isError) return <div className="m-auto">Error :(</div>;
+
+  const { title, description, category, price, studentsEnrolled, rating, lessons, thumbnail } = data.data;
+
 
   return (
     <div className="md:py-8 overflow-y-auto">
@@ -56,7 +66,7 @@ export default function Course({ isTeacher = false }: CourseProps) {
             </div>
             <div className="text-right">
               <p className="font-bold text-2xl">${price}</p>
-              <p className="text-gray-500 text-sm">{studentsEnrolled.length} students</p>
+              <p className="text-gray-500 text-sm">{studentsEnrolled} students</p>
             </div>
           </div>
 
@@ -91,7 +101,7 @@ export default function Course({ isTeacher = false }: CourseProps) {
             )}
           </div>
         </div>
-        <img src={thumbnail} alt={title} className="rounded-lg md:w-1/2 -[600px] object-cover" />
+        <img src={thumbnail || "https://plus.unsplash.com/premium_photo-1682787494977-d013bb5a8773?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"} alt={title} className="rounded-lg md:w-1/2 -[600px] object-cover" />
       </div>
     </div>
   );

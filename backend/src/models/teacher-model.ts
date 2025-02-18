@@ -115,3 +115,4 @@ teacherSchema.methods.createPasswordResetToken = createPasswordResetToken;
 
 
 export const Teachers = model('Teachers', teacherSchema, 'Teachers');
+

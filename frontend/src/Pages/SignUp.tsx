@@ -44,7 +44,7 @@ function SignUp(): JSX.Element {
             msgs.current?.clear();
         }
         if (isSuccess) {
-            toast.current?.show({ severity: 'success', summary: 'Success', detail: 'Logged in successfully', sticky: true, closable: false });
+            toast.current?.show({ severity: 'success', summary: 'Success', detail: 'Logged in successfully', life: 3000 });
             setTimeout(() => {
                 navigate("/")
             }, 1000);

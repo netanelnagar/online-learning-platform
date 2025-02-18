@@ -12,8 +12,8 @@ interface IProps {
 export function ToastComponent(props: IProps) {
     const toast = useRef<Toast | null>(null);
     return (
-        <toastContext.Provider value= { toast } >
-        { props.children }
+        <toastContext.Provider value={toast} >
+            {props.children}
         </toastContext.Provider>
     )
 }

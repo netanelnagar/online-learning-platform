@@ -45,7 +45,7 @@ const deleteFileFromS3 = async function (filename: string): Promise<void> {
 const deleteFilesFromS3 = async function (lessons: ILesson[]): Promise<void> {
     const command = new DeleteObjectsCommand({
         Bucket: process.env.AWS_S3_BUCKET_NAME!,
-        Delete: { Objects: lessons.map(lesson => ({ Key: lesson.videoUrl })) },
+        Delete: { Objects: lessons.map(lesson => ({ Key: lesson.videoName })) },
     });
     await s3.send(command);
 }

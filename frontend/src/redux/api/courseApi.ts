@@ -39,20 +39,45 @@ export const courseApi = createApi({
                 method: "GET",
             }),
         }),
-        getCourseById: builder.mutation({
+        getCourseById: builder.query<any, string>({
             query: (courseId) => ({
                 url: `/${courseId}`,
                 method: "GET",
             }),
         }),
         createCourse: builder.mutation({
-            query: (courseData) => ({
-                url: "",
-                method: "POST",
-                body: courseData,
-                credentials: "include"
-            }),
+            query: (data) => {
+                const formData = new FormData();
+
+                formData.append("title", data.title);
+                formData.append("description", data.description);
+                formData.append("price", data.price);
+                formData.append("name", data.name);
+                formData.append("teacherId", data.teacherId);
+                formData.append("thumbnail", data.thumbnail);
+                data.lessons.forEach((lesson: { title: string; video: File; }) => {
+                    formData.append("titles", lesson.title);
+                    formData.append("videos", lesson.video);
+                });
+
+                return {
+                    url: "",
+                    method: "POST",
+                    formData: true,
+                    body: formData,
+                    Accept: "*/*",
+                }
+            },
+            onQueryStarted: async (_, { queryFulfilled }) => {
+                try {
+                    const result = await queryFulfilled;
+                    console.log(result);
+                } catch (error) {
+                    console.log(error);
+                }
+            },
             invalidatesTags: ["Refetch_Courses"],
+            extraOptions: { maxRetries: 0 },
         }),
         getSearchCourse: builder.query({
             query: ({ searchQuery, categories, sortByPrice }) => {
@@ -89,21 +114,61 @@ export const courseApi = createApi({
             }),
             // providesTags: ["Refetch_Courses"],
         }),
-        editCourse: builder.mutation<{ status: string; data: ICourse[] }, ICourse>({
-            query: (formData) => ({
-                url: `/${formData._id}`,
-                method: "PATCH",
-                body: formData,
-            }),
-            invalidatesTags: ["Refetch_Courses"],
+        editCourse: builder.mutation<{ status: string; data: ICourse[] }, any>({
+            query: (data) => {
+                const formData = new FormData();
+
+                formData.append("title", data.title);
+                formData.append("description", data.description);
+                formData.append("price", String(data.price));
+                formData.append("name", data.name);
+                formData.append("teacherId", data.teacherId);
+                data.thumbnail && formData.append("thumbnail", data.thumbnail);
+
+                return {
+                    url: `/${data._id}`,
+                    method: "PATCH",
+                    body: formData,
+                    formData: true,
+                    Accept: "*/*",
+                }
+            },
+            onQueryStarted: async (_, { queryFulfilled }) => {
+                try {
+                    const result = await queryFulfilled;
+                    console.log(result);
+                } catch (error) {
+                    console.log(error);
+                }
+            },
+            // invalidatesTags: ["Refetch_Courses"],
         }),
 
-        createLecture: builder.mutation({
-            query: ({ lectureTitle, courseId }) => ({
-                url: `/${courseId}/lecture`,
-                method: "POST",
-                body: { lectureTitle },
-            }),
+        addLesson: builder.mutation({
+            query: (data) => {
+                const formData = new FormData();
+                console.log(data);
+                data.lessons.forEach((lesson: { title: string; video: File; }) => {
+                    formData.append("titles", lesson.title);
+                    formData.append("videos", lesson.video);
+                });
+
+                return {
+                    url: `/add-lessons/${data._id}`,
+                    method: "PATCH",
+                    body: formData,
+                    formData: true,
+                    Accept: "*/*",
+                }
+            },
+            onQueryStarted: async (_, { queryFulfilled }) => {
+                try {
+                    const result = await queryFulfilled;
+                    console.log(result);
+                } catch (error) {
+                    console.log(error);
+                }
+            },
         }),
         getCourseLecture: builder.query({
             query: (courseId) => ({
@@ -125,9 +190,9 @@ export const courseApi = createApi({
                 body: { lectureTitle, videoInfo, isPreviewFree },
             }),
         }),
-        removeLecture: builder.mutation({
-            query: (lectureId) => ({
-                url: `/lecture/${lectureId}`,
+        removeLesson: builder.mutation({
+            query: ({ courseId, lessonId }) => ({
+                url: `/remove-lesson?course=${String(courseId)}&lesson=${String(lessonId)}`,
                 method: "DELETE",
             }),
             invalidatesTags: ["Refetch_Lecture"],
@@ -152,15 +217,15 @@ export const {
     useGetCoursesQuery,
     useGetCoursesOfTeacherQuery,
     useGetEnrolledCoursesQuery,
-    useGetCourseByIdMutation,
+    useGetCourseByIdQuery,
     useGetSearchCourseQuery,
     useGetPublishedCourseQuery,
     useGetCreatorCourseQuery,
     useEditCourseMutation,
-    useCreateLectureMutation,
+    useAddLessonMutation,
     useGetCourseLectureQuery,
     useEditLectureMutation,
-    useRemoveLectureMutation,
+    useRemoveLessonMutation,
     useGetLectureByIdQuery,
     usePublishCourseMutation,
 } = courseApi;

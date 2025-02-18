@@ -2,11 +2,9 @@ import { Document, Types } from "mongoose";
 
 // Interface for Lesson
 export interface ILesson {
-    _id: Types.ObjectId;
+    _id?: Types.ObjectId;
     title: string; // Lesson title
     videoName: string; // URL to the video content
-    videoUrl?: string; // URL to the video content
-    content?: string; // Optional additional content
     duration?: number; // Optional lesson duration in minutes
 }
 

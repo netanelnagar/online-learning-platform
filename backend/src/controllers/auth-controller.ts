@@ -29,8 +29,10 @@ const createSendToken = (
             Date.now() + (Number(process.env.JWT_COOKIE_EXPIRES_IN!) * 24 * 60 * 60 * 1000)
         ),
         httpOnly: true,
-        secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
-       sameSite: 'none'
+        // secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+        // TODO: deleted this row in production
+        secure: true,
+        sameSite: 'none'
     });
 
     user.password = undefined;
@@ -71,7 +73,7 @@ const signup = (Model: Model<any>) => catchAsync(async (req: Request, res: Respo
             new: true,
         });
     }
-    else {await newUser?.save()};
+    else { await newUser?.save() };
 
     const url = `${req.protocol}://${req.get('host')}/me`;
 
@@ -83,21 +85,20 @@ const signup = (Model: Model<any>) => catchAsync(async (req: Request, res: Respo
 
 const login = (Model: Model<any>) => catchAsync(async (req: Request, res: Response, next) => {
     const { email, password } = req.body;
-    
+
     // 1) Check if email and password exist
     if (!email || !password) {
         return next(new AppError('Please provide email and password!', 400));
     }
     // 2) Check if user exists && password is correct
     const user = await Model.findOne({ email }).setOptions({ withPassword: true });
-    console.log("first login", req.body, user);
-    
+
     // @ts-ignore
-    if (!user || !(await user.correctPassword(password, user.password))) { 
-        return next(new AppError('Incorrect email or password', 401)); 
+    if (!user || !(await user.correctPassword(password, user.password))) {
+        return next(new AppError('Incorrect email or password', 401));
     }
 
-    createSendToken(user, 200, req, res);
+    createSendToken(user.toObject(), 200, req, res);
 });
 
 const signupAdmin = catchAsync(async (req: Request, res: Response, next) => {
@@ -131,16 +132,16 @@ const protect = (Model: Model<any>) => catchAsync(async (req: Request, res: Resp
     } else if (req.cookies.jwt) {
         token = req.cookies.jwt;
     }
-    
+
     if (!token) {
         return next(
             new AppError('You are not logged in! Please log in to get access.', 401)
         );
     }
-    
+
     //@ts-ignore
     const decoded = await promisify(verify)(token, process.env.JWT_SECRET!);
-    
+
     //@ts-ignore
     const user = await Model.findById(decoded.id).setOptions({ withUrlMedia: true });
 

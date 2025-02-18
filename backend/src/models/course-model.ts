@@ -6,9 +6,7 @@ import aws from "../utils/aws";
 const lessonSchema = new Schema<ILesson>({
      title: { type: String, required: true },
      videoName: { type: String, required: true },
-     videoUrl: { type: String },
-     content: { type: String },
-     duration: { type: Number },
+     duration: { type: Number, required: true },
 });
 
 const courseSchema = new Schema<ICourse>(
@@ -16,7 +14,7 @@ const courseSchema = new Schema<ICourse>(
           title: { type: String, required: true, lowercase: true, unique: true },
           description: { type: String, required: true },
           thumbnail: { type: String },
-          category: { type: [String], default: [] },
+          category: { type: String },
           createdBy: {
                teacherId: { type: Schema.Types.ObjectId, ref: 'Teachers', required: true },
                name: { type: String, required: true }
@@ -56,6 +54,22 @@ courseSchema.pre<Query<any, ICourse>>(/^find/, function (next) {
      if (!this.getOptions().overridePublishedFilter) {
           this.find({ published: true });
      }
+
+     if (!this.getOptions().isCreateCourse) {
+          this.find({ $where: 'this.lessons.length>0' });
+     }
+     next();
+})
+
+courseSchema.post<Query<any, ICourse>>("find", async function (result, next) {
+     if (Array.isArray(result)) {
+          for (const doc of result) {
+               doc.thumbnail = doc.thumbnail ? await aws.getImageUrl(doc.thumbnail) : "";
+          }
+     } else if (result) {
+          result.thumbnail = result.thumbnail ? await aws.getImageUrl(result.thumbnail) : "";
+     }
+
      next();
 })
 
@@ -63,13 +77,11 @@ courseSchema.post<Query<any, ICourse>>("find", async function (result, next) {
      if (this.getOptions().withUrlMedia) {
           if (Array.isArray(result)) {
                for (const doc of result) {
-                    doc.thumbnail = doc.thumbnail ? await aws.getImageUrl(doc.thumbnail) : "";
                     for (const lesson of doc.lessons) {
                          lesson.videoUrl = await aws.getImageUrl(lesson.videoName);
                     }
                }
           } else if (result) {
-               result.thumbnail = result.thumbnail ? await aws.getImageUrl(result.thumbnail) : "";
                for (const lesson of result.lessons) {
                     lesson.videoUrl = await aws.getImageUrl(lesson.videoName);
                }
@@ -78,6 +90,7 @@ courseSchema.post<Query<any, ICourse>>("find", async function (result, next) {
 
      next();
 })
+
 
 
 export const Courses = model('Courses', courseSchema, 'Courses');

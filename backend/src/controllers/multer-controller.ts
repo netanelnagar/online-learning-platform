@@ -10,6 +10,7 @@ import { sendRes } from "../utils/general-functions";
 import { Courses } from "../models/course-model";
 // import Ffmpeg from "fluent-ffmpeg";
 import { getLogger } from "../utils/winston-logger";
+import { ILesson } from "../types/course-types";
 // import ffmpegPath from "ffmpeg-static";
 
 // Ffmpeg.setFfmpegPath(ffmpegPath!);
@@ -102,7 +103,9 @@ const uploadCourseVideo = catchAsync(async (req: Request, res: Response, next: N
         && 'videos' in req.files
     ) {
 
-        for (const file of req.files.videos) {
+        const lessons: ILesson[] = [];
+
+        for (const [index, file] of req.files.videos.entries()) {
             const stream = bufferToStream(file.buffer);
             const duration = await getVideoDurationInSeconds(stream);
             // @ts-ignore
@@ -110,25 +113,29 @@ const uploadCourseVideo = catchAsync(async (req: Request, res: Response, next: N
 
             await aws.uploadToS3(file);
 
-            const lesson = {
-                title: file.originalname.split('.')[0],
+            lessons.push({
+                title: (typeof req.body?.titles === "string" ? req.body?.titles : req.body?.titles?.[index]) || "Lesson",
                 videoName: file.filename,
                 duration: Number(duration.toFixed(2))
-            };
+            });
 
-            req.body = {
-                ...(await Courses.findOneAndUpdate(
-                    { _id: req.body._id },
-                    { $push: { lessons: lesson } },
-                    { new: true }
-                ))?.toObject()
-            };
-
+            log.info("uploaded video to s3");
         }
+
+
+        // @ts-ignore
+        req.doc = (await Courses.findOneAndUpdate(
+            // @ts-ignore
+            { _id: req.doc._id },
+            { $push: { lessons: { $each: lessons } } },
+            { new: true }
+        ).setOptions({ isCreateCourse: true }))?.toObject();
+    } else {
+        throw new AppError('No videos provided.', 400);
     }
 
-    // give response the document after uploading the file
-    sendRes(res, 201, "sucssus", req.body);
+    // @ts-ignore
+    sendRes(res, 201, "succuss", req.doc);
 });
 
 const uploadCoursePhoto = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -148,7 +155,17 @@ const uploadCoursePhoto = catchAsync(async (req: Request, res: Response, next: N
 
         await aws.uploadToS3(thumbnailFile);
 
-        req.body.thumbnail = thumbnailFile.filename;
+
+        log.info("uploaded thumbnail to s3");
+
+        req.body.doc = (await Courses.findOneAndUpdate(
+            // @ts-ignore
+            { _id: req.user.id },
+            { thumbnail: thumbnailFile.filename },
+            { new: true }
+        ))?.toObject();
+    } else {
+        throw new AppError('No thumbnail provided.', 400);
     }
 
     next();

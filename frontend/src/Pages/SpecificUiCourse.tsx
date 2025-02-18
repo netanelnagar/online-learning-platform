@@ -36,11 +36,13 @@ export function SpecificUiCourse({
         // });
     };
 
+    console.log(thumbnail)
+
     return (
-        <Card onClick={()=>{
+        <Card onClick={() => {
             if (!isTeacher) {
                 navigate(`/courses/${_id}`);
-            } 
+            }
         }}>
             <img src={thumbnail} alt={title} className="object-cover w-full h-48" />
             <div className="p-0 md:p-6">
@@ -49,16 +51,7 @@ export function SpecificUiCourse({
                         <h3 className="mb-2 text-xl font-bold line-clamp-2">{title}</h3>
                         <div className="flex gap-2 mb-2">
                             <div className="flex gap-2 mb-2 overflow-x-scroll max-w-[250px]">
-                                {category.map((cat) => (
-                                    <><div key={cat} className="px-2 py-1 rounded-full bg-primary">{cat}</div>
-                                        <div key={cat} className="px-2 py-1 rounded-full bg-primary">{cat}</div>
-                                        <div key={cat} className="px-2 py-1 rounded-full bg-primary">{cat}</div></>
-                                ))}
-                                {category.map((cat) => (
-                                    <><div key={cat} className="px-2 py-1 rounded-full bg-primary">{cat}</div>
-                                        <div key={cat} className="px-2 py-1 rounded-full bg-primary">{cat}</div>
-                                        <div key={cat} className="px-2 py-1 rounded-full bg-primary">{cat}</div></>
-                                ))}
+                                <div key={category} className="px-2 py-1 rounded-full bg-primary">{category}</div>
                             </div>
                         </div>
                         <div className="flex items-center gap-2 w-[180px]">
@@ -93,7 +86,7 @@ export function SpecificUiCourse({
                     {isTeacher && editCourse ? (
                         <Button
                             className="w-full"
-                            onClick={() => editCourse(_id)}
+                            onClick={() => editCourse(_id!)}
                         >Edit Course</Button>
                     ) : (
                         <Button

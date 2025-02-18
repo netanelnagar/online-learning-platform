@@ -75,8 +75,12 @@ export const authApi = createApi({
                 body: data,
             }),
             async onQueryStarted(_, { queryFulfilled, dispatch }) {
-                const result = await queryFulfilled;
-                dispatch(userLoggedIn(result?.data));
+                try {
+                    const result = await queryFulfilled;
+                    dispatch(userLoggedIn(result?.data));
+                } catch (error) {
+                    console.log(error)
+                }
             }
         })
     })

@@ -1,138 +1,199 @@
-import { Dispatch, SetStateAction } from "react";
 import Button from "../../Components/Ui/Button";
 import Card from "../../Components/Ui/Card";
 import { ITeacher } from "../../types/types";
 import Input from "../../Components/Ui/Input";
 import Textarea from "../../Components/Ui/Textarea";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { editTeacherSchema } from "../../utils/yupSchemas";
+import { useUpdateUserMutation } from "../../redux/api/authApi";
+import { useEffect } from "react";
+import Loader from "../../Components/Ui/Loader";
+import { useToast } from "../../Context/Toast";
+import { ArrowLeftIcon } from "lucide-react";
 
 
 interface IProfileTab {
-    profile: ITeacher;
+    teacher: ITeacher;
     isEditing: boolean;
-    setProfile: Dispatch<SetStateAction<ITeacher | null>>;
     setIsEditing: (value: boolean) => void;
-    handleProfileUpdate: () => void;
 }
 
-const ProfileTab = ({ profile, isEditing, setProfile, setIsEditing, handleProfileUpdate }: IProfileTab) => (
-    <Card className="p-6">
-        {isEditing ? (
-            <EditProfileForm
-                profile={profile}
-                handleProfileUpdate={handleProfileUpdate}
-                setIsEditing={setIsEditing}
-                setProfile={setProfile}
-            />
-        ) : (
-            <ProfileView profile={profile} setIsEditing={setIsEditing} />
-        )}
-    </Card>
-);
+const ProfileTab = ({ teacher, isEditing, setIsEditing }: IProfileTab) => {
+
+    return (
+        <>
+            {isEditing && <button
+                onClick={() => setIsEditing(false)}
+                className="flex gap-2 mb-2 w-full font-bold text-black"
+            >
+                <ArrowLeftIcon /> Go Back
+            </button>}
+            <Card className="p-6 relative">
+                {isEditing ? (
+                    <EditProfileForm
+                        teacher={teacher}
+                        setIsEditing={setIsEditing}
+                    />
+                ) : (
+                    <ProfileView teacher={teacher} setIsEditing={setIsEditing} />
+                )}
+            </Card>
+        </>
+
+    )
+};
 
 interface IEditProfileForm {
-    profile: ITeacher;
-    setProfile: Dispatch<SetStateAction<ITeacher | null>>
-    handleProfileUpdate: () => void;
+    teacher: ITeacher;
     setIsEditing: (value: boolean) => void;
 }
 
-const EditProfileForm = ({ profile, setProfile, handleProfileUpdate }: IEditProfileForm) => (
-    <div className="space-y-4 flex flex-col">
-        <div>
-            <label className="block mb-1 text-sm font-medium">Username</label>
+interface IFormInput {
+    username: string;
+    bio: string;
+    qualifications: string;
+    linkedIn?: string;
+    twitter?: string;
+    website?: string;
+}
+
+
+const EditProfileForm = ({ teacher, setIsEditing }: IEditProfileForm) => {
+    const toast = useToast();
+    const { register, handleSubmit, formState: { errors } } = useForm<IFormInput>({
+        defaultValues: {
+            username: teacher?.username,
+            bio: teacher?.bio,
+            qualifications: teacher?.qualifications.join(','),
+            linkedIn: teacher?.socialLinks?.linkedin,
+            twitter: teacher?.socialLinks?.twitter,
+            website: teacher?.socialLinks?.website,
+        },
+        resolver: yupResolver(editTeacherSchema),
+    });
+    const [update, { isError, isLoading, isSuccess }] = useUpdateUserMutation();
+
+    const onSubmit: SubmitHandler<IFormInput> = (data) => {
+        const onlyTruthyKeys = Object.fromEntries(Object.entries(data).filter(([_, value]) => Boolean(value)))
+        update({ role: "teachers", data: { ...onlyTruthyKeys, qualifications: onlyTruthyKeys.qualifications.split(",") } });
+    }
+
+    useEffect(() => {
+        isError && toast.current?.show({
+            severity: 'error',
+            summary: 'Error',
+            detail: `Failed to update profile`,
+            life: 3000
+        });
+
+        isSuccess && toast.current?.show({
+            severity: 'success',
+            summary: 'Success',
+            detail: `Profile updated successfully`,
+            life: 3000
+        });
+        isSuccess && setIsEditing(false);
+    }, [isError, isSuccess])
+
+
+    return (
+        <form className="space-y-4 flex flex-col" onSubmit={handleSubmit(onSubmit)}>
+            {isLoading && <div className='absolute bottom-0 left-0 z-10 flex items-center justify-center w-full h-full bg-slate-200/70'><Loader className='w-20 h-20' /></div>}
             <Input
-                value={profile?.username}
-                onChange={(e) => setProfile({ ...profile, username: e.target.value } as ITeacher)}
+                label="username"
+                placeholder="Enter your new username"
+                register={register}
+                showLabel={true}
+                showErr={true}
+                err={errors?.username}
             />
-        </div>
-        <div>
-            <label className="block mb-1 text-sm font-medium">Email</label>
-            <Input
-                type="email"
-                value={profile?.email}
-                onChange={(e) => setProfile({ ...profile, email: e.target.value } as ITeacher)}
-            />
-        </div>
-        <div>
-            <label className="block mb-1 text-sm font-medium">Bio</label>
             <Textarea
-                value={profile?.bio}
-                onChange={(e) => setProfile({ ...profile, bio: e.target.value } as ITeacher)}
+                label="bio"
+                placeholder="Enter your bio"
+                register={register}
+                showLabel={true}
+                showErr={true}
+                err={errors?.bio}
             />
-        </div>
-        <div>
-            <label className="block mb-1 text-sm font-medium">Qualifications</label>
             <Textarea
-                value={profile?.qualifications.join(', ')}
-                // TODO: need to convert e.target.value to array
-                onChange={(e) => setProfile({ ...profile, qualifications: [e.target.value] } as ITeacher)}
+                label="qualifications"
+                placeholder="Enter your qualifications. (add , between two or more)"
+                register={register}
+                showLabel={true}
+                showErr={true}
+                err={errors?.qualifications}
             />
-        </div>
-        <div>
-            <label className="block mb-1 text-sm font-medium">Social Links</label>
-            <div className="space-y-2">
-                <Input
-                    placeholder="Twitter URL"
-                    value={profile?.socialLinks?.twitter}
-                    onChange={(e) => setProfile({
-                        ...profile,
-                        socialLinks: { ...profile?.socialLinks, twitter: e.target.value }
-                    } as ITeacher)}
-                />
-                <Input
-                    placeholder="LinkedIn URL"
-                    value={profile?.socialLinks?.linkedin}
-                    onChange={(e) => setProfile({
-                        ...profile,
-                        socialLinks: { ...profile?.socialLinks, linkedin: e.target.value }
-                    } as ITeacher)}
-                />
+            <div>
+                <label className="block mb-1 text-sm font-medium">Social Links</label>
+                <div className="space-y-2">
+                    <Input
+                        placeholder="Twitter URL"
+                        label="twitter"
+                        register={register}
+                        showLabel={false}
+                    />
+                    <Input
+                        placeholder="LinkedIn URL"
+                        label="linkedIn"
+                        register={register}
+                        showLabel={false}
+                    />
+                </div>
             </div>
-        </div>
-        <Button className="text-sm mx-auto" onClick={handleProfileUpdate}>
-            Save Changes
-        </Button>
-    </div>
-);
+            <Input
+                label="website"
+                placeholder="Enter your website"
+                register={register}
+                showLabel={true}
+            />
+            <Button className="text-sm mx-auto" type="submit">
+                Save Changes
+            </Button>
+        </form>
+    )
+};
 
 interface IProfileView {
-    profile: ITeacher;
+    teacher: ITeacher;
     setIsEditing: (value: boolean) => void;
 }
-const ProfileView = ({ profile, setIsEditing }: IProfileView) => (
-    <div className="space-y-4">
-        <div>
-            <h3 className="mb-2 font-semibold">Bio</h3>
-            <p className="text-gray-600">{profile?.bio}</p>
-        </div>
-        <div>
-            <h3 className="mb-2 font-semibold">Qualifications</h3>
-            <p className="text-gray-600">{profile?.qualifications}</p>
-        </div>
-        <div>
-            <h3 className="mb-2 font-semibold">Social Links</h3>
-            <div className="flex gap-4">
-                {profile?.socialLinks && Object.entries(profile?.socialLinks)?.map(([platform, url]) => (
-                    <a
-                        key={platform}
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline"
-                    >
-                        {platform}
-                    </a>
-                ))}
+const ProfileView = ({ teacher, setIsEditing }: IProfileView) => {
+    return (
+        <div className="space-y-4">
+            <div>
+                <h3 className="mb-2 font-semibold">Bio</h3>
+                <p className="text-gray-600">{teacher?.bio}</p>
             </div>
+            <div>
+                <h3 className="mb-2 font-semibold">Qualifications</h3>
+                <p className="text-gray-600">{teacher?.qualifications}</p>
+            </div>
+            <div>
+                <h3 className="mb-2 font-semibold">Social Links</h3>
+                <div className="flex gap-4">
+                    {teacher?.socialLinks && Object.entries(teacher?.socialLinks)?.map(([platform, url]) => (
+                        <a
+                            key={platform}
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline"
+                        >
+                            {platform}
+                        </a>
+                    ))}
+                </div>
+            </div>
+            <Button
+                variant="outline"
+                className="text-xs"
+                onClick={() => setIsEditing(true)}
+            >
+                Edit Profile
+            </Button>
         </div>
-        <Button
-            variant="outline"
-            className="text-xs"
-            onClick={() => setIsEditing(true)}
-        >
-            Edit Profile
-        </Button>
-    </div>
-);
+    )
+};
 
 export default ProfileTab;

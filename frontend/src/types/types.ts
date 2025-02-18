@@ -1,9 +1,9 @@
 export interface ICourse {
-    _id?: string;
+    _id: string;
     title: string;
     description: string;
     thumbnail: string;
-    category: string[];
+    category: string;
     createdBy: string;
     studentsEnrolled: string[];
     published: boolean;
@@ -19,18 +19,13 @@ export interface ICourse {
 }
 
 export interface ILesson {
+    _id: string;
     title: string;
     videoName: string;
-    videoUrl: string;
-    content: string;
     duration: number;
-    resources: Resource[];
 }
 
-export interface Resource {
-    type: string;
-    url: string;
-}
+
 
 export interface ITeacher {
     _id: string;
