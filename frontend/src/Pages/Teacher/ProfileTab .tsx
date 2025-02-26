@@ -25,11 +25,11 @@ const ProfileTab = ({ teacher, isEditing, setIsEditing }: IProfileTab) => {
         <>
             {isEditing && <button
                 onClick={() => setIsEditing(false)}
-                className="flex gap-2 mb-2 w-full font-bold text-black"
+                className="flex w-full gap-2 mb-2 font-bold text-black"
             >
                 <ArrowLeftIcon /> Go Back
             </button>}
-            <Card className="p-6 relative">
+            <Card className="relative p-6">
                 {isEditing ? (
                     <EditProfileForm
                         teacher={teacher}
@@ -54,7 +54,7 @@ interface IFormInput {
     bio: string;
     qualifications: string;
     linkedIn?: string;
-    twitter?: string;
+    gitHub?: string;
     website?: string;
 }
 
@@ -67,7 +67,7 @@ const EditProfileForm = ({ teacher, setIsEditing }: IEditProfileForm) => {
             bio: teacher?.bio,
             qualifications: teacher?.qualifications.join(','),
             linkedIn: teacher?.socialLinks?.linkedin,
-            twitter: teacher?.socialLinks?.twitter,
+            gitHub: teacher?.socialLinks?.github,
             website: teacher?.socialLinks?.website,
         },
         resolver: yupResolver(editTeacherSchema),
@@ -96,9 +96,8 @@ const EditProfileForm = ({ teacher, setIsEditing }: IEditProfileForm) => {
         isSuccess && setIsEditing(false);
     }, [isError, isSuccess])
 
-
     return (
-        <form className="space-y-4 flex flex-col" onSubmit={handleSubmit(onSubmit)}>
+        <form className="flex flex-col space-y-4" onSubmit={handleSubmit(onSubmit)}>
             {isLoading && <div className='absolute bottom-0 left-0 z-10 flex items-center justify-center w-full h-full bg-slate-200/70'><Loader className='w-20 h-20' /></div>}
             <Input
                 label="username"
@@ -128,8 +127,8 @@ const EditProfileForm = ({ teacher, setIsEditing }: IEditProfileForm) => {
                 <label className="block mb-1 text-sm font-medium">Social Links</label>
                 <div className="space-y-2">
                     <Input
-                        placeholder="Twitter URL"
-                        label="twitter"
+                        placeholder="gitHub URL"
+                        label="gitHub"
                         register={register}
                         showLabel={false}
                     />
@@ -147,7 +146,7 @@ const EditProfileForm = ({ teacher, setIsEditing }: IEditProfileForm) => {
                 register={register}
                 showLabel={true}
             />
-            <Button className="text-sm mx-auto" type="submit">
+            <Button className="mx-auto text-sm" type="submit">
                 Save Changes
             </Button>
         </form>

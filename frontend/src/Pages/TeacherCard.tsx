@@ -9,10 +9,12 @@ interface ITeacherCard {
 }
 
 export const TeacherCard = ({ teacher, className }: ITeacherCard) => {
+    if (!teacher?.coursesCount) return null;
     return (
         <Link to={`/teachers/${teacher._id}`} className={`bg-white shadow-sm p-6 rounded-lg border transition-shadow hover:shadow-lg ${className} flex flex-col justify-between space-y-3`}>
             <div className="flex flex-row items-center gap-4">
-                <ImageChecker className="w-16 h-16 rounded-full text-xl font-extrabold" imageUrl={teacher.profilePicture} username={teacher.username} />
+                <ImageChecker imageClass="w-16 h-16 rounded-full"
+                    pClass="text-xl font-extrabold bg-blue-800 text-white flex items-center justify-center" imageUrl={teacher.profilePicture} errValue={`${teacher.username.charAt(0)}${teacher.username.split(" ")[1]?.charAt(0)}`} />
                 <div>
                     <h3 className="text-lg font-semibold">{teacher.username}</h3>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -29,7 +31,7 @@ export const TeacherCard = ({ teacher, className }: ITeacherCard) => {
                 ))}
             </div>
             <p className="text-sm text-muted-foreground line-clamp-3 ">{teacher.bio}</p>
-            <div className="flex items-center gap-4 text-sm text-muted-foreground mt-auto">
+            <div className="flex items-center gap-4 mt-auto text-sm text-muted-foreground">
                 <div className="flex items-center gap-1">
                     <GraduationCap className="w-4 h-4" />
                     <span>{teacher?.coursesCount} courses</span>

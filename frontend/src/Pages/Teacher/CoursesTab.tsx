@@ -29,7 +29,7 @@ const CoursesTab = ({ teacher, setExtraData }: ICoursesTab) => {
     const { data: coursesData, isError, isLoading, refetch } = useGetCoursesOfTeacherQuery(teacher._id!);
 
     const handleSaveNewCourse = (course: ICourse) => {
-        createCourse({ ...course, teacherId: teacher._id, name: teacher.username });
+        createCourse({ ...course, teacher: teacher._id, name: teacher.username });
     };
 
     const handleSaveChangesCourse = (course: ICourse) => {
@@ -139,7 +139,7 @@ const CoursesList = ({
 
 
     return (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {coursesData?.map((course) => (
                 <SpecificUiCourse
                     key={course._id}

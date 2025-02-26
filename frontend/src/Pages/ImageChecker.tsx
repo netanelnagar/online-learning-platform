@@ -1,55 +1,43 @@
-import { Loader } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
+import { Loader } from "lucide-react";
+import { useState } from "react";
 
 interface ImageCheckerProps {
     imageUrl?: string;
-    className: string;
-    username: string;
+    imageClass: string;
+    pClass: string;
+    errValue: string;
 }
 
-function ImageChecker({ imageUrl, className, username }: ImageCheckerProps): JSX.Element {
-    const [isImage, setIsImage] = useState<boolean>(false);
+function ImageChecker({ imageUrl, imageClass, pClass, errValue }: ImageCheckerProps): JSX.Element {
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    const imgRef = useRef<HTMLImageElement>(new Image());
+    const [isError, setIsError] = useState<boolean>(false);
 
-    const p = <p className={`${className} bg-blue-800 text-white flex items-center justify-center `} >{`${username.charAt(0)}${username.split(" ")[1]?.charAt(0)}`}</p>
+    const handleLoad = () => setIsLoading(false);
+    const handleError = () => {
+        setIsLoading(false);
+        setIsError(true);
+    };
 
-
-    useEffect(() => {
-        if (imageUrl) {
-            imgRef.current.src = imageUrl;
-
-            imgRef.current.onload = () => {
-                setIsImage(true);
-                setIsLoading(false);
-                if (imgRef.current) {
-                    imgRef.current.src = imageUrl;
-                }
-            };
-
-            imgRef.current.onerror = () => {
-                setIsImage(false);
-                setIsLoading(false);
-            };
-        }
-
-        return () => {
-            imgRef.current.onload = null;
-            imgRef.current.onerror = null;
-        };
-    }, [imageUrl]);
-
-    if (!imageUrl) return p;
-
-    if (isLoading) {
-        return <p className={`${className} bg-blue-800 text-white flex items-center justify-center text-5xl font-extrabold`} ><Loader className='animate-spin' /></p>;
+    if (!imageUrl || isError) {
+        return <p className={`${imageClass} ${pClass}`}>{errValue}</p>;
     }
 
-    if (isImage) {
-        return <img className={className} ref={imgRef} alt="Image" />;
-    } else {
-        return p;
-    }
+    return (
+        <div className="relative">
+            {isLoading && (
+                <p className={`${imageClass} ${pClass}`}>
+                    <Loader className="animate-spin" />
+                </p>
+            )}
+            <img
+                src={imageUrl}
+                className={`${imageClass} ${isLoading ? "hidden" : ""}`}
+                alt="Image"
+                onLoad={handleLoad}
+                onError={handleError}
+            />
+        </div>
+    );
 }
 
 export default ImageChecker;

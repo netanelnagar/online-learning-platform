@@ -1,37 +1,38 @@
 import { Router } from "express";
-import teacherController from "../controllers/teacher-controller";
-import authController from "../controllers/auth-controller";
+import { signup, login, getTeachers, getTeacher,  deleteMe, updateMe } from "../controllers/teacher-controller";
+import { protect, forgotPassword, resetPassword, updatePassword } from "../controllers/auth-controller";
 import { Teachers } from "../models/teacher-model";
-import multerController from "../controllers/multer-controller";
+import { userPhoto, resizeUserPhoto } from "../controllers/multer-controller";
+import { validate } from "../controllers/factory";
 
 const teacherRouter = Router();
 
 
 // teacherRouter.get('/me', authController.getMe, teacherController.getMeData);
-teacherRouter.get('/:id', teacherController.getTeacher);
-teacherRouter.get('/', teacherController.getTeachers);
+teacherRouter.get('/:id', getTeacher);
+teacherRouter.get('/', getTeachers);
 // teacherRouter.get('/:id/courses', teacherController.getCoursesByTeacher);
 
-teacherRouter.route("/signup").post(teacherController.signup);
-teacherRouter.route("/login").post(teacherController.login);
+teacherRouter.route("/signup").post(signup);
+teacherRouter.route("/login").post(login);
 // teacherRouter.route("/logout").post(teacherController.logout);
 
 
-teacherRouter.post('/forgotPassword', authController.forgotPassword(Teachers));
-teacherRouter.patch('/resetPassword/:token', authController.resetPassword(Teachers));
+teacherRouter.post('/forgotPassword', forgotPassword(Teachers));
+teacherRouter.patch('/resetPassword/:token', resetPassword(Teachers));
 
 
-teacherRouter.use(authController.protect(Teachers));
+teacherRouter.use(protect(Teachers));
 
 teacherRouter.route("/updateMe").patch(
-    teacherController.validate,
-    multerController.userPhoto,
-    multerController.resizeUserPhoto,
-    teacherController.updateMe
+    validate,
+    userPhoto,
+    resizeUserPhoto,
+    updateMe
 );
 
-teacherRouter.patch('/updateMyPassword', authController.updatePassword(Teachers));
-teacherRouter.route("/deleteMe").delete(teacherController.deleteMe);
+teacherRouter.patch('/updateMyPassword', updatePassword(Teachers));
+teacherRouter.route("/deleteMe").delete(deleteMe);
 
 
 

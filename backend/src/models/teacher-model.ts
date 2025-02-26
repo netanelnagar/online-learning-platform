@@ -2,8 +2,8 @@ import { model, Query, Schema } from "mongoose";
 import validator from "validator";
 import { ITeacher } from "../types/teacher-types";
 import { hash } from "bcryptjs";
-import { checkSamePassword, changedPasswordAfter, correctPassword, createPasswordResetToken } from "../utils/general-functions";
-import aws from "../utils/aws";
+import { checkSamePassword, changedPasswordAfter, correctPassword, createPasswordResetToken, getCourseCount } from "../utils/general-functions";
+import { getImageUrl } from "../utils/aws";
 
 const teacherSchema = new Schema<ITeacher>(
      {
@@ -54,6 +54,9 @@ teacherSchema.virtual('courses', {
      localField: '_id'
 });
 
+teacherSchema.virtual("coursesCount");
+teacherSchema.virtual("totalStudents");
+
 teacherSchema.pre<Query<any, ITeacher>>(/^find/, function (next) {
      if (!this.getOptions().overridePublishedFilter) {
           this.find({ active: true });
@@ -65,11 +68,11 @@ teacherSchema.post<Query<any, ITeacher>>(/^find/, async function (docs, next) {
      if (this.getOptions().withUrlMedia) {
           if (Array.isArray(docs)) {
                for (const doc of docs) {
-                    doc.profilePicture = doc.imageName ? await aws.getImageUrl(doc.imageName) : "";
+                    doc.profilePicture = doc.imageName ? await getImageUrl(doc.imageName) : "";
                     doc.password = undefined;
                }
           } else if (docs) {
-               docs.profilePicture = docs.imageName ? await aws.getImageUrl(docs.imageName) : "";
+               docs.profilePicture = docs.imageName ? await getImageUrl(docs.imageName) : "";
                docs.password = undefined;
           }
      }
@@ -86,6 +89,19 @@ teacherSchema.post<Query<any, ITeacher>>(/^find/, async function (docs, next) {
                docs.password = undefined;
           }
      }
+     if (this.getOptions().forHomePage) {
+          if (Array.isArray(docs)) {
+               for (const doc of docs) {
+                    const extraData = await getCourseCount(doc._id);
+                    doc.coursesCount = extraData.count;
+                    doc.totalStudents = extraData.totalStudents;
+               }
+          } else if (docs) {
+               const extraData = await getCourseCount(docs._id);
+               docs.coursesCount = extraData.count;
+               docs.totalStudents = extraData.totalStudents;
+          }
+     }
      next();
 });
 teacherSchema.pre<ITeacher>("save", async function (next) {
@@ -95,7 +111,7 @@ teacherSchema.pre<ITeacher>("save", async function (next) {
      if (!this.isModified("password")) return next();
 
 
-     this.password = await hash(this.password!, 8);
+     this.password = await hash(this.password!, 8); 
 
      this.passwordConfirm = undefined;
 
@@ -115,4 +131,3 @@ teacherSchema.methods.createPasswordResetToken = createPasswordResetToken;
 
 
 export const Teachers = model('Teachers', teacherSchema, 'Teachers');
-

@@ -1,36 +1,55 @@
-// import { Card } from "./ui/card";
-// import { Badge } from "@/components/ui/badge";
-// import { Button } from "@/components/ui/button";
 import { PlayCircle } from "lucide-react";
-import { useState } from "react";
-// import { useToast } from "@/components/ui/use-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "../Components/Ui/Button";
 import { ICourse } from "../types/types";
 import { useToast } from "../Context/Toast";
 import { useGetCourseByIdQuery } from "../redux/api/courseApi";
+import { loadStripe } from '@stripe/stripe-js';
 import Loader from "../Components/Ui/Loader";
+import ImageChecker from "./ImageChecker";
 
 
-interface CourseProps extends ICourse {
+interface CourseProps {
   isTeacher?: boolean;
 }
 
 export default function Course({ isTeacher = false }: CourseProps) {
 
   const toast = useToast();
-  const [isEnrolled, setIsEnrolled] = useState(false);
   const navigate = useNavigate();
   const { id } = useParams();
   const { data, isError, isLoading } = useGetCourseByIdQuery(id!);
 
-  const handleEnroll = () => {
-    // TODO: Implement actual enrollment logic with Stripe integration
-    setIsEnrolled(true);
-    // toast({
-    //   title: "Successfully enrolled!",
-    //   description: `You have been enrolled in ${title}`,
-    // });
+  const handleEnroll = async () => {
+    try {
+      // @ts-ignore
+      const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY!);
+      // @ts-ignore
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/courses/stripe/${id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ course: id }),
+        credentials: "include",
+      });
+      if (!response.ok) {
+        toast.current?.show({});
+        return;
+      }
+      const { data: { sessionId } } = await response.json();
+
+      const session = await stripe?.redirectToCheckout({
+        sessionId,
+      });
+
+      if (session?.error) {
+        console.error(session.error.message);
+      }
+
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleBack = () => {
@@ -41,23 +60,18 @@ export default function Course({ isTeacher = false }: CourseProps) {
 
   if (isError) return <div className="m-auto">Error :(</div>;
 
-  const { title, description, category, price, studentsEnrolled, rating, lessons, thumbnail } = data.data;
-
+  const { title, description, category, price, studentsEnrolled, rating, lessons, thumbnail } = data.data as ICourse;
 
   return (
-    <div className="md:py-8 overflow-y-auto">
+    <div className="overflow-y-auto md:py-8">
       <button onClick={handleBack} className="my-4 ml-3">← Back</button>
-      <div className="flex md:flex-row flex-col-reverse md:gap-x-9 mx-auto p-6 container">
+      <div className="container flex flex-col-reverse p-6 mx-auto md:flex-row md:gap-x-9">
         <div className="py-6 md:w-1/2">
-          <div className="flex justify-between items-start mb-4">
+          <div className="flex items-start justify-between mb-4">
             <div>
-              <h3 className="mb-2 line-clamp-2 font-bold text-2xl">{title}</h3>
+              <h3 className="mb-2 text-2xl font-bold line-clamp-2">{title}</h3>
               <div className="flex gap-2 mb-2 w-[250px] overflow-x-auto">
-                {category.map((cat) => (
-                  <><div key={cat} className="bg-primary px-2 py-1 rounded-full">{cat}</div>
-                    <div key={cat} className="bg-primary px-2 py-1 rounded-full">{cat}</div>
-                    <div key={cat} className="bg-primary px-2 py-1 rounded-full">{cat}</div></>
-                ))}
+                {category && <div className="px-2 py-1 rounded-full bg-primary">{category}</div>}
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-yellow-500">★</span>
@@ -65,23 +79,23 @@ export default function Course({ isTeacher = false }: CourseProps) {
               </div>
             </div>
             <div className="text-right">
-              <p className="font-bold text-2xl">${price}</p>
-              <p className="text-gray-500 text-sm">{studentsEnrolled} students</p>
+              <p className="text-2xl font-bold">${price}</p>
+              <p className="text-sm text-gray-500">{studentsEnrolled} students</p>
             </div>
           </div>
 
-          <p className="mb-4 line-clamp-3 text-gray-600">{description}</p>
+          <p className="mb-4 text-gray-600 line-clamp-3">{description}</p>
 
           <div className="pt-4 border-t">
             <h4 className="mb-2 font-semibold">Course Content</h4>
             <div className="space-y-2">
               {lessons.map((lesson, index) => (
-                <div key={index} className="flex justify-between items-center hover:bg-gray-50 p-2 rounded">
+                <div key={index} className="flex items-center justify-between p-2 rounded hover:bg-gray-50">
                   <div className="flex items-center gap-2">
                     <PlayCircle className="w-4 h-4 text-primary" />
                     <span>{lesson.title}</span>
                   </div>
-                  <span className="text-gray-500 text-sm">{lesson.duration}min</span>
+                  <span className="text-sm text-gray-500">{lesson.duration}min</span>
                 </div>
               ))}
             </div>
@@ -94,14 +108,13 @@ export default function Course({ isTeacher = false }: CourseProps) {
               <Button
                 className="w-full md:w-auto"
                 onClick={handleEnroll}
-                disabled={isEnrolled}
               >
-                {isEnrolled ? "Enrolled" : "Enroll Now"}
+                Enroll Now
               </Button>
             )}
           </div>
         </div>
-        <img src={thumbnail || "https://plus.unsplash.com/premium_photo-1682787494977-d013bb5a8773?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"} alt={title} className="rounded-lg md:w-1/2 -[600px] object-cover" />
+        <ImageChecker imageClass="rounded-lg md:min-w-1/2 max-w-[600px] object-cover mx-auto" pClass="text-3xl font-extrabold bg-primary text-white flex items-center justify-center h-[300px] md:h-auto w-full md:w-1/2" imageUrl={thumbnail + "99898"} errValue={title} />
       </div>
     </div>
   );

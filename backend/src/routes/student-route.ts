@@ -1,32 +1,30 @@
 import { Router } from "express";
-import studentController from "../controllers/student-controller";
-import authController from "../controllers/auth-controller";
+import { signup, login,  deleteMe, updateMe, me } from "../controllers/student-controller";
+import { protect, forgotPassword, resetPassword, updatePassword } from "../controllers/auth-controller";
 import { Students } from "../models/student-model";
-import multerController from "../controllers/multer-controller";
+import { userPhoto, resizeUserPhoto } from "../controllers/multer-controller";
+import { validate } from "../controllers/factory";
 
 const studentRouter = Router();
 
-studentRouter.post("/signup", studentController.signup);
-studentRouter.post("/login", studentController.login);
+studentRouter.post("/signup", signup);
+studentRouter.post("/login", login);
 // studentRouter.route("/logout").post(studentController.logout);
 
-studentRouter.post('/forgotPassword', authController.forgotPassword(Students));
-studentRouter.patch('/resetPassword/:token', authController.resetPassword(Students));
+studentRouter.post('/forgotPassword', forgotPassword(Students));
+studentRouter.patch('/resetPassword/:token', resetPassword(Students));
 
-studentRouter.use(authController.protect(Students));
+studentRouter.use(protect(Students));
 
-studentRouter.get("/me", studentController.me);
+studentRouter.get("/me", me);
 studentRouter.route("/updateMe").patch(
-    studentController.validate,
-    multerController.userPhoto,
-    multerController.resizeUserPhoto,
-    studentController.updateMe
+    validate,
+    userPhoto,
+    resizeUserPhoto,
+    updateMe
 );
-studentRouter.patch('/updateMyPassword', authController.updatePassword(Students));
-studentRouter.delete("/deleteMe", studentController.deleteMe);
-
-
-
+studentRouter.patch('/updateMyPassword', updatePassword(Students));
+studentRouter.delete("/deleteMe", deleteMe);
 
 
 

@@ -13,14 +13,13 @@ export interface IStudent extends Document {
      imageName?: string; // Optional
      profilePicture?: string; // Optional
      enrolledCourses: {
-          courseId: Types.ObjectId;
+          course: Types.ObjectId;
           progress?: number; // Optional because it has a default value
           completedLessons?: Types.ObjectId[]; // Optional
           enrollmentDate?: Date; // Optional because it has a default value
      }[];
      certificates?: {
-          courseId: Types.ObjectId;
-          certificateUrl?: string; // Optional
+          course: Types.ObjectId;
           completionDate?: Date; // Optional
      }[];
      active?: boolean;

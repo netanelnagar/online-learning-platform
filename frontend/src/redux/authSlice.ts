@@ -17,9 +17,9 @@ export const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
-        userLoggedIn: (state, action: PayloadAction<{ token: string; data: IAdmin | IStudent | ITeacher }>) => {
+        userLoggedIn: (state, action: PayloadAction<{ token?: string; data: IAdmin | IStudent | ITeacher }>) => {
             state.user = action.payload.data;
-            state.token = action.payload.token;
+            state.token = action.payload?.token;
             state.isAuthenticated = true;
         },
         userLoggedOut: (state) => {
@@ -33,12 +33,20 @@ export const authSlice = createSlice({
             state.token = action.payload.token;
             state.isAuthenticated = true;
         },
+        updateEnrollCourses: (state, action: PayloadAction<{ data: IStudent }>) => {
+            state.user = action.payload.data;
+            state.isAuthenticated = true;
+        },
+        updateCertificate: (state, action: PayloadAction<{ course: string; completionDate: string }>) => {
+            (state.user as IStudent)?.certificates.push(action.payload);
+            state.isAuthenticated = true;
+        },
     },
 })
 
-export const { userLoggedIn, userLoggedOut, register } = authSlice.actions
+export const { userLoggedIn, userLoggedOut, register, updateEnrollCourses, updateCertificate } = authSlice.actions
 
 // Other code such as selectors can use the imported `RootState` type
-export const selectAuth = (state: RootState) => state;
+export const selectAuth = (state: RootState) => state.auth;
 
-export default authSlice.reducer
+export default authSlice.reducer;

@@ -12,7 +12,7 @@ let s3 = new S3Client({
 
 
 
-const uploadToS3 = async function (file: Express.Multer.File): Promise<void> {
+export const uploadToS3 = async function (file: Express.Multer.File): Promise<void> {
 
     const command = new PutObjectCommand({
         Bucket: process.env.AWS_S3_BUCKET_NAME!,
@@ -24,7 +24,7 @@ const uploadToS3 = async function (file: Express.Multer.File): Promise<void> {
     await s3.send(command)
 }
 
-const getImageUrl = async function (filename: string): Promise<string> {
+export const getImageUrl = async function (filename: string): Promise<string> {
     const command = new GetObjectCommand({
         Bucket: process.env.AWS_S3_BUCKET_NAME!,
         Key: filename,
@@ -34,7 +34,7 @@ const getImageUrl = async function (filename: string): Promise<string> {
 }
 
 
-const deleteFileFromS3 = async function (filename: string): Promise<void> {
+export const deleteFileFromS3 = async function (filename: string): Promise<void> {
     const command = new DeleteObjectCommand({
         Bucket: process.env.AWS_S3_BUCKET_NAME!,
         Key: filename,
@@ -42,7 +42,7 @@ const deleteFileFromS3 = async function (filename: string): Promise<void> {
     await s3.send(command);
 }
 
-const deleteFilesFromS3 = async function (lessons: ILesson[]): Promise<void> {
+export const deleteFilesFromS3 = async function (lessons: ILesson[]): Promise<void> {
     const command = new DeleteObjectsCommand({
         Bucket: process.env.AWS_S3_BUCKET_NAME!,
         Delete: { Objects: lessons.map(lesson => ({ Key: lesson.videoName })) },
@@ -51,9 +51,3 @@ const deleteFilesFromS3 = async function (lessons: ILesson[]): Promise<void> {
 }
 
 
-export default {
-    uploadToS3,
-    getImageUrl,
-    deleteFileFromS3,
-    deleteFilesFromS3
-}

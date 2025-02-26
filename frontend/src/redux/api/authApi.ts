@@ -1,7 +1,9 @@
+import { IStudent, ITeacher } from './../../types/types';
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { register, userLoggedIn, userLoggedOut } from "../authSlice";
+import { IAdmin } from "../../types/types";
 
-const USER_API = "http://localhost:3002/api"
+const USER_API = `${import.meta.env.VITE_API_URL}/api`
 
 export const authApi = createApi({
     reducerPath: "authApi",
@@ -49,9 +51,9 @@ export const authApi = createApi({
                 }
             }
         }),
-        logoutUser: builder.mutation({
+        logoutUser: builder.mutation<void, void>({
             query: () => ({
-                url: "logout",
+                url: "/logout",
                 method: "GET"
             }),
             async onQueryStarted(_, { dispatch }) {
@@ -62,11 +64,19 @@ export const authApi = createApi({
                 }
             }
         }),
-        loadUser: builder.mutation({
-            query: (url) => ({
-                url: url,
+        loadUser: builder.mutation<IAdmin | IStudent | ITeacher, void>({
+            query: () => ({
+                url: "/auto-login",
                 method: "GET",
-            })
+            }),
+            async onQueryStarted(_, { queryFulfilled, dispatch }) {
+                try {
+                    const result = await queryFulfilled;
+                    dispatch(userLoggedIn({ data: (result?.data as IAdmin | IStudent | ITeacher) }));
+                } catch (error) {
+                    console.log(error);
+                }
+            }
         }),
         updateUser: builder.mutation<any, { role: string; data: any }>({
             query: ({ role, data }) => ({
@@ -74,6 +84,26 @@ export const authApi = createApi({
                 method: "PATCH",
                 body: data,
             }),
+            async onQueryStarted(_, { queryFulfilled, dispatch }) {
+                try {
+                    const result = await queryFulfilled;
+                    dispatch(userLoggedIn(result?.data));
+                } catch (error) {
+                    console.log(error)
+                }
+            }
+        }),
+        updatePhotoUser: builder.mutation<{ status: string, data: any }, { role: string; photo: File }>({
+            query: ({ role, photo }) => {
+                const formData = new FormData();
+                formData.append("photo", photo);
+                return {
+                    url: `${role}/updateMe`,
+                    method: "PATCH",
+                    body: formData,
+
+                }
+            },
             async onQueryStarted(_, { queryFulfilled, dispatch }) {
                 try {
                     const result = await queryFulfilled;
@@ -90,5 +120,6 @@ export const {
     useLoginUserMutation,
     useLogoutUserMutation,
     useLoadUserMutation,
-    useUpdateUserMutation
+    useUpdateUserMutation,
+    useUpdatePhotoUserMutation
 } = authApi;

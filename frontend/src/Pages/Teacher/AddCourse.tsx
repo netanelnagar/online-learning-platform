@@ -1,4 +1,4 @@
-import { MouseEventHandler, useEffect } from "react";
+import { MouseEventHandler } from "react";
 import { Plus } from "lucide-react";
 import Card from "../../Components/Ui/Card";
 import Input, { inputClasses } from "../../Components/Ui/Input";
@@ -8,17 +8,24 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { createCourseSchema } from "../../utils/yupSchemas";
 import Loader from "../../Components/Ui/Loader";
 import { useToast } from "../../Context/Toast";
-import { FloatLabel } from "primereact/floatlabel";
 import { Dropdown } from "primereact/dropdown";
 
 
 
-const classesP = "w-full my-1 text-red-600"
+const classesP = "w-full my-1 text-red-600";
+
+
+const categories = [
+    { name: 'Computer', code: 'NY' },
+    { name: 'Full Stack', code: 'RM' },
+    { name: 'Backend', code: 'LDN' },
+    { name: 'FrontEnd', code: 'IST' },
+];
 
 interface IFormInput {
     title: string;
     description: string;
-    category: {name:string; code:string;};
+    category: { name: string; code: string; };
     price: number;
     thumbnail: File;
     lessons: { title: string; video: File | string }[];
@@ -53,20 +60,9 @@ export function AddCourse({ handleBack, handleSave, isLoading }: IAddCourse) {
                 return;
             }
         }
-        handleSave({...data, category: data.category.name});
+        handleSave({ ...data, category: data.category.name });
     };
 
-
-    
-
-    const cities = [
-        { name: 'Computer', code: 'NY' },
-        { name: 'Full Stack', code: 'RM' },
-        { name: 'Backend', code: 'LDN' },
-        { name: 'FrontEnd', code: 'IST' },
-    ];
-
-    console.log(errors)
     return (
         <>
             <button onClick={handleBack} className="my-4 ml-3">← Back</button>
@@ -91,15 +87,7 @@ export function AddCourse({ handleBack, handleSave, isLoading }: IAddCourse) {
 
                     />
 
-                    <Dropdown placeholder="Select Category" inputId="dd-city" value={category} onChange={(e) =>  setValue("category", e.value) } options={cities} optionLabel="name" className="w-full border !mt-7" />
-                    {/* <Input
-                        label="category"
-                        register={register}
-                        showLabel={true}
-                        showErr={true}
-                        err={errors.category}
-
-                    /> */}
+                    <Dropdown placeholder="Select Category" inputId="dd-city" value={category} onChange={(e) => setValue("category", e.value)} options={categories} optionLabel="name" className="w-full border !mt-7" />
 
                     <Input
                         label="price"

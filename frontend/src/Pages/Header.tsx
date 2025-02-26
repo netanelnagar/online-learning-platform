@@ -1,9 +1,10 @@
-import { NavLink } from "react-router-dom";
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
+import { Dispatch, MouseEventHandler, SetStateAction, useEffect, useRef, useState } from "react";
 import { stopBubbling } from "../utils/utils";
 import { Link } from "react-router-dom";
 import { ArrowRight, Menu } from "lucide-react";
 import { useAppSelector } from "../redux/app/store";
+import ImageChecker from "./ImageChecker";
 
 const links = ["Home", "Courses", "Teachers", "Contact"];
 
@@ -15,10 +16,16 @@ export default function Header({ search, setSearch }: IHeader): JSX.Element {
   const [open, setOpen] = useState(false);
   const input = useRef<HTMLInputElement | null>(null);
   const user = useAppSelector(state => state.auth.user);
-
+  const location = useLocation()
+  const userPageInScreen = location.pathname.split('/')[1] === 'user';
 
   const loginClasses = 'bg-white text-black text-center border-2 border-black px-4 py-2 rounded';
   const signupClasses = 'bg-black text-white text-center px-4 py-2 rounded';
+
+  const handleClose: MouseEventHandler = (e) => {
+    e.stopPropagation();
+    setOpen(false);
+  };
 
   useEffect(() => {
     input.current?.focus();
@@ -38,15 +45,20 @@ export default function Header({ search, setSearch }: IHeader): JSX.Element {
           </NavLink>
         ))}
       </nav>
-      <div className="flex space-x-2">
+      {/*  */}
+      <div className="hidden lg:flex space-x-2">
         {user ?
-          <Link to={`/user/${user?.role}`}>
-            <img className="h-16 w-16 rounded-full" src="https://images.unsplash.com/photo-1557804483-ef3ae78eca57?q=80&w=1944&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="" />
-          </Link>
+          <>
+            {!userPageInScreen && <Link to={`/user/${user?.role}`}>
+              <ImageChecker imageClass="object-cover w-16 h-16 rounded-full "
+                pClass="text-3xl font-extrabold bg-blue-800 text-white flex items-center justify-center"
+                imageUrl="" errValue={`${user.username.charAt(0)}${user.username.split(" ")[1]?.charAt(0)}`} />
+            </Link>}
+          </>
           :
           <>
-            <Link to={"/login"} className={`hidden lg:block ${loginClasses}`}>Log In</Link>
-            <Link to={"/signup"} className={`hidden lg:block ${signupClasses}`}>Sign Up</Link>
+            <Link to={"/login"} className={loginClasses}>Log In</Link>
+            <Link to={"/signup"} className={signupClasses}>Sign Up</Link>
           </>
         }
       </div>
@@ -60,20 +72,22 @@ export default function Header({ search, setSearch }: IHeader): JSX.Element {
           </div>
           <div className="flex flex-col p-2 space-y-2 md:flex-row md:space-x-2 md:space-y-0">
             {user ?
-              <Link to={`/user/${user?.role}`} className="flex w-full bg-slate-300/50 py-2 px-1 items-center gap-2">
-                <img className="h-16 w-16 rounded-full" src="https://images.unsplash.com/photo-1557804483-ef3ae78eca57?q=80&w=1944&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="" />
+              <Link to={`/user/${user?.role}`} className="flex w-full bg-slate-300/50 py-2 px-1 items-center gap-2" onClick={handleClose}>
+                <ImageChecker imageClass="object-cover w-16 h-16 rounded-full "
+                  pClass="text-2xl font-extrabold bg-blue-800 text-white flex items-center justify-center"
+                  imageUrl="" errValue={`${user.username.charAt(0)}${user.username.split(" ")[1]?.charAt(0)}`} />
                 <span className="w-20 font-bold">{user?.username}</span>
 
                 <ArrowRight className="h-6 w-6 font-semibold ml-auto" />
               </Link>
               :
               <>
-                <Link to={"/login"} onClick={() => setOpen(false)} className={`md:w-1/2 ${loginClasses}`}>Log In</Link>
-                <Link to={"/signup"} onClick={() => setOpen(false)} className={`md:w-1/2 ${signupClasses}`}>Sign Up</Link>
+                <Link to={"/login"} onClick={handleClose} className={`md:w-1/2 ${loginClasses}`}>Log In</Link>
+                <Link to={"/signup"} onClick={handleClose} className={`md:w-1/2 ${signupClasses}`}>Sign Up</Link>
               </>}
           </div>
           {links.map((link) => (
-            <NavLink to={`/${link.toLowerCase()}`} key={link} className="mx-3 text-lg font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-100 link" onClick={() => setOpen(false)}>
+            <NavLink to={`/${link.toLowerCase()}`} key={link} className="mx-3 text-lg font-medium text-gray-600 transition-colors duration-200 hover:bg-gray-100 link" onClick={handleClose}>
               {link}
             </NavLink>
           ))}

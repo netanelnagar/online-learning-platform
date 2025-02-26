@@ -1,11 +1,12 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { ICourse, IEnrolledCorses } from "../../types/types";
+import { ICourse, IEnrolledCorses, IStudent } from "../../types/types";
+import { updateCertificate, updateEnrollCourses } from "../authSlice";
 
-const COURSE_API = "http://localhost:3002/api/courses";
+const COURSE_API = `${import.meta.env.VITE_API_URL}/api/courses`;
 
 export const courseApi = createApi({
     reducerPath: "courseApi",
-    tagTypes: ["Refetch_Courses", "Refetch_Lecture"],
+    tagTypes: ["Refetch_Courses", "Refetch_Lecture", "Refetch_Courses_For_Teacher"],
     baseQuery: fetchBaseQuery({
         baseUrl: COURSE_API,
         credentials: "include",
@@ -27,23 +28,24 @@ export const courseApi = createApi({
             providesTags: ["Refetch_Courses"],
         }),
         getCoursesOfTeacher: builder.query<{ status: string; data: ICourse[] }, string>({
-            query: (teacherId: string) => ({
-                url: `/teacher/${teacherId}`,
+            query: (teacher: string) => ({
+                url: `/teacher/${teacher}`,
                 method: "GET",
             }),
             providesTags: ["Refetch_Courses"],
         }),
         getEnrolledCourses: builder.query<{ status: string; data: IEnrolledCorses[] }, string>({
-            query: (studentId: string) => ({
-                url: `/student/${studentId}`,
+            query: (student: string) => ({
+                url: `/student/${student}`,
                 method: "GET",
             }),
         }),
         getCourseById: builder.query<any, string>({
-            query: (courseId) => ({
-                url: `/${courseId}`,
+            query: (course) => ({
+                url: `/${course}`,
                 method: "GET",
             }),
+            providesTags: ["Refetch_Courses_For_Teacher"],
         }),
         createCourse: builder.mutation({
             query: (data) => {
@@ -53,7 +55,8 @@ export const courseApi = createApi({
                 formData.append("description", data.description);
                 formData.append("price", data.price);
                 formData.append("name", data.name);
-                formData.append("teacherId", data.teacherId);
+                formData.append("category", data.category);
+                formData.append("teacher", data.teacher);
                 formData.append("thumbnail", data.thumbnail);
                 data.lessons.forEach((lesson: { title: string; video: File; }) => {
                     formData.append("titles", lesson.title);
@@ -77,7 +80,6 @@ export const courseApi = createApi({
                 }
             },
             invalidatesTags: ["Refetch_Courses"],
-            extraOptions: { maxRetries: 0 },
         }),
         getSearchCourse: builder.query({
             query: ({ searchQuery, categories, sortByPrice }) => {
@@ -101,18 +103,34 @@ export const courseApi = createApi({
                 }
             }
         }),
-        getPublishedCourse: builder.query({
-            query: () => ({
-                url: "/published-courses",
-                method: "GET",
+        updateWatchedLesson: builder.mutation<{ status: string; data: any }, { course: string; lessonId: string }>({
+            query: ({ course, lessonId }) => ({
+                url: `/update-watched-lesson`,
+                method: "POST",
+                body: { course, lessonId },
             }),
+            onQueryStarted: async (_, { queryFulfilled, dispatch }) => {
+                try {
+                    const result = await queryFulfilled;
+                    dispatch(updateEnrollCourses({ data: result.data.data }));
+                } catch (error) {
+                    console.log(error);
+                }
+            },
         }),
-        getCreatorCourse: builder.query({
-            query: () => ({
-                url: "",
-                method: "GET",
+        completionCourse: builder.mutation<{ status: string; data: any }, string>({
+            query: (course) => ({
+                url: `/completion-course/${course}`,
+                method: "POST",
             }),
-            // providesTags: ["Refetch_Courses"],
+            onQueryStarted: async (_, { queryFulfilled, dispatch }) => {
+                try {
+                    const result = await queryFulfilled;
+                    dispatch(updateCertificate(result.data.data));
+                } catch (error) {
+                    console.log(error);
+                }
+            },
         }),
         editCourse: builder.mutation<{ status: string; data: ICourse[] }, any>({
             query: (data) => {
@@ -122,8 +140,11 @@ export const courseApi = createApi({
                 formData.append("description", data.description);
                 formData.append("price", String(data.price));
                 formData.append("name", data.name);
-                formData.append("teacherId", data.teacherId);
+                formData.append("teacher", data.teacher);
+                formData.append("category", data.category);
                 data.thumbnail && formData.append("thumbnail", data.thumbnail);
+
+                console.log(data);
 
                 return {
                     url: `/${data._id}`,
@@ -141,7 +162,7 @@ export const courseApi = createApi({
                     console.log(error);
                 }
             },
-            // invalidatesTags: ["Refetch_Courses"],
+            invalidatesTags: ["Refetch_Courses_For_Teacher"],
         }),
 
         addLesson: builder.mutation({
@@ -171,8 +192,8 @@ export const courseApi = createApi({
             },
         }),
         getCourseLecture: builder.query({
-            query: (courseId) => ({
-                url: `/${courseId}/lecture`,
+            query: (course) => ({
+                url: `/${course}/lecture`,
                 method: "GET",
             }),
             providesTags: ["Refetch_Lecture"],
@@ -182,17 +203,17 @@ export const courseApi = createApi({
                 lectureTitle,
                 videoInfo,
                 isPreviewFree,
-                courseId,
+                course,
                 lectureId,
             }) => ({
-                url: `/${courseId}/lecture/${lectureId}`,
+                url: `/${course}/lecture/${lectureId}`,
                 method: "POST",
                 body: { lectureTitle, videoInfo, isPreviewFree },
             }),
         }),
         removeLesson: builder.mutation({
-            query: ({ courseId, lessonId }) => ({
-                url: `/remove-lesson?course=${String(courseId)}&lesson=${String(lessonId)}`,
+            query: ({ course, lessonId }) => ({
+                url: `/remove-lesson?course=${String(course)}&lesson=${String(lessonId)}`,
                 method: "DELETE",
             }),
             invalidatesTags: ["Refetch_Lecture"],
@@ -204,14 +225,52 @@ export const courseApi = createApi({
             }),
         }),
         publishCourse: builder.mutation({
-            query: ({ courseId, query }) => ({
-                url: `/${courseId}?publish=${query}`,
+            query: ({ course, query }) => ({
+                url: `/${course}?publish=${query}`,
                 method: "PATCH",
             }),
             invalidatesTags: ["Refetch_Courses"],
         }),
+        enrollCourse: builder.query<{ data: IStudent }, string>({
+            query: (course) => ({
+                url: `/enroll-to-course/${course}`,
+                method: 'POST',
+            }),
+            onQueryStarted: async (_, { queryFulfilled, dispatch }) => {
+                try {
+                    const result = await queryFulfilled;
+                    dispatch(updateEnrollCourses({ data: result.data.data }));
+                } catch (error) {
+                    console.log(error);
+                }
+            },
+        }),
+        addReview: builder.mutation({
+            query: (data) => ({
+                url: `/add-review`,
+                method: 'POST',
+                body: data,
+            }),
+            onQueryStarted: async (_, { queryFulfilled, dispatch }) => {
+                try {
+                    const result = await queryFulfilled;
+                    dispatch(updateEnrollCourses({ data: result.data.data }));
+                } catch (error) {
+                    console.log(error);
+                }
+            },
+        }),
+        getReviews: builder.query({
+            query: (course) => ({
+                url: `/reviews/${course}`,
+                method: "GET",
+            }),
+        }),
     }),
 });
+
+
+
 export const {
     useCreateCourseMutation,
     useGetCoursesQuery,
@@ -219,8 +278,8 @@ export const {
     useGetEnrolledCoursesQuery,
     useGetCourseByIdQuery,
     useGetSearchCourseQuery,
-    useGetPublishedCourseQuery,
-    useGetCreatorCourseQuery,
+    useUpdateWatchedLessonMutation,
+    useCompletionCourseMutation,
     useEditCourseMutation,
     useAddLessonMutation,
     useGetCourseLectureQuery,
@@ -228,4 +287,5 @@ export const {
     useRemoveLessonMutation,
     useGetLectureByIdQuery,
     usePublishCourseMutation,
+    useEnrollCourseQuery,
 } = courseApi;

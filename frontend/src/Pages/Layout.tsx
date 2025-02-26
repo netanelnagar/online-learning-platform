@@ -1,13 +1,15 @@
 // import { ErrorBoundary } from "react-error-boundary";
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Toast } from "primereact/toast";
-import { Navigate, Route, Routes, useRouteError } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation, useRouteError } from "react-router-dom";
 import { useToast } from "../Context/Toast";
 import Header from "./Header";
 import Home from "./Home";
 import Loader from "../Components/Ui/Loader";
 import { Contact } from "./Contact";
 import { AuthenticatedUser, ProtectedRoute } from "../Components/ProtectedRoutes";
+import { useLoadUserMutation } from "../redux/api/authApi";
+import Success from "./Success";
 // import { ErrorBoundary } from "./ErrorBoundary";
 // import {ErrorFallback} from "./ErrorBoundary";
 // import { ErrorBoundary } from "react-error-boundary";
@@ -26,6 +28,14 @@ const ShowTeacher = lazy(() => import("./Teacher"));
 export function Layout(): JSX.Element {
   const toast = useToast();
   const [search, setSearch] = useState("");
+  const location = useLocation();
+  const [loadUser] = useLoadUserMutation();
+
+
+  useEffect(() => {
+    location.pathname != "/courses/success" && loadUser()
+  }, [])
+  
 
   return (
     <div className="grid grid-rows-[auto,1fr] w-full h-dvh">
@@ -40,6 +50,7 @@ export function Layout(): JSX.Element {
           <Route path="/contact" element={<Contact />} />
           <Route path="/courses" element={<Courses />} />
           <Route path="/courses/:id" element={<Course  />} />
+          <Route path="/courses/success" element={<Success  />} />
           <Route path="/teachers" element={<Teachers />} />
           <Route path="/teachers/:id" element={<ShowTeacher />} />
           <Route path="/teacher" ErrorBoundary={ErrorBoundary} element={<ProtectedRoute> <Teacher /></ProtectedRoute>} />

@@ -1,101 +1,117 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import ImageChecker from './ImageChecker';
 
-interface Testimonial {
-    id: number;
-    name: string;
-    role: string;
-    content: string;
-    image: string;
+
+
+
+const windowWidth = window.innerWidth;
+let reviewCount: number;
+
+if (windowWidth < 768) {
+    reviewCount = 1;
+} else if (windowWidth < 1024) {
+    reviewCount = 2;
+} else {
+    reviewCount = 3;
+}
+interface ReviewProps {
+    reviews?: any[];
+    isLoading: boolean;
+    isError: boolean;
 }
 
-const testimonials: Testimonial[] = [
-    {
-        id: 1,
-        name: "Sarah Johnson",
-        role: "Web Development Student",
-        content: "The courses here transformed my career. I went from knowing nothing about coding to landing my dream job in just 6 months!",
-        image: "/placeholder.svg"
-    },
-    {
-        id: 2,
-        name: "Michael Chen",
-        role: "UX Design Student",
-        content: "The instructors are world-class and the community support is amazing. Best learning investment I've ever made.",
-        image: "/placeholder.svg"
-    },
-    {
-        id: 3,
-        name: "Emma Davis",
-        role: "Data Science Student",
-        content: "The practical projects and hands-on approach made complex concepts easy to understand. Highly recommended!",
-        image: "/placeholder.svg"
-    }
-];
-export default function Review() {
-    const [currentIndex, setCurrentIndex] = useState(0);
+export default function Review({ reviews, isLoading, isError }: ReviewProps) {
+    const currentIndex = useRef(0);
+    const [currentReview, setCurrentReview] = useState(reviews);
 
     const nextTestimonial = () => {
-        setCurrentIndex((prevIndex) =>
-            prevIndex === testimonials.length - 1 ? 0 : prevIndex + 1
-        );
+        if (!reviews?.length) return;
+
+        if (currentIndex.current >= reviews.length - 1) {
+            currentIndex.current = 0;
+        }
+
+        setCurrentReview(() => {
+            const data = [...reviews.slice(currentIndex.current, currentIndex.current + reviewCount)]
+            if (data.length < reviewCount) {
+                data.push(...reviews.slice(0, reviewCount - data.length))
+            }
+            return data;
+        });
+        currentIndex.current += reviewCount;
     };
 
     const prevTestimonial = () => {
-        setCurrentIndex((prevIndex) =>
-            prevIndex === 0 ? testimonials.length - 1 : prevIndex - 1
-        );
+        if (!reviews?.length) return;
+
+        if (currentIndex.current <= 0) {
+            currentIndex.current = reviews.length - 1;
+        }
+
+        currentIndex.current -= reviewCount;
+        setCurrentReview(() => {
+            const data = [...reviews.slice(currentIndex.current <= 0 ? 0 : currentIndex.current, currentIndex.current + reviewCount)];
+            if (data.length < reviewCount) {
+                data.push(...reviews.slice((reviews.length) - (reviewCount - data.length), reviews.length));
+            }
+            return data;
+        });
     };
 
     useEffect(() => {
-        const timer = setInterval(nextTestimonial, 5000);
-        return () => clearInterval(timer);
-    }, []);
+        let timer: number;
+        reviews && reviews.length > reviewCount && (timer = setInterval(nextTestimonial, 5000));
+        nextTestimonial();
+        return () => { timer && clearInterval(timer) };
+    }, [reviews]);
+
+    if (isLoading) return <div>Loading...</div>
+
+    if (isError) return <div>Error...</div>
+
+    console.log(currentReview);
 
     return (
-        <div className="w-full max-w-4xl px-4 py-12 mx-auto">
-            <h2 className="mb-12 text-3xl font-bold text-center text-primary">
+        <div className="w-full">
+            <h2 className="text-3xl font-bold text-center text-primary">
                 What Our Students Say
             </h2>
-            <div className="relative">
-                <div className="overflow-hidden bg-white shadow-lg rounded-xl">
-                    <div className="relative h-full p-8">
-                        <div className="flex flex-col items-center gap-8 md:flex-row">
-                            <img
-                                src={testimonials[currentIndex].image}
-                                alt={testimonials[currentIndex].name}
-                                className="object-cover w-24 h-24 rounded-full"
-                            />
-                            <div className="flex-1">
-                                <p className="mb-4 text-lg italic text-gray-700">
-                                    "{testimonials[currentIndex].content}"
+            <div className="relative grid w-full grid-cols-1 gap-4 px-4 py-12 overflow-hidden bg-white md:grid-cols-2 lg:grid-cols-3">
+                {currentReview?.length ? currentReview.map((review) => (
+                    <div key={review._id} className="flex flex-col items-center gap-8 md:flex-row p-8 shadow-lg rounded-xl min-h-[250px]">
+                        <ImageChecker errValue={`${review.name?.charAt(0) || "N"}${review.name?.split(" ")[1]?.charAt(0) || "N"}`} imageClass='object-cover w-24 h-24 rounded-full' pClass='flex items-center justify-center text-xl font-extrabold bg-blue-800 text-white' />
+                        <div className="flex-1">
+                            <p className="mb-4 text-lg italic text-gray-700">
+                                "{review.content}" {review.id}
+                            </p>
+                            <div className="text-right">
+                                <p className="font-semibold text-primary">
+                                    {review.name}
                                 </p>
-                                <div className="text-right">
-                                    <p className="font-semibold text-primary">
-                                        {testimonials[currentIndex].name}
-                                    </p>
-                                    <p className="text-sm text-gray-500">
-                                        {testimonials[currentIndex].role}
-                                    </p>
-                                </div>
+                                <p className="text-sm text-gray-500">
+                                    {review.role}
+                                </p>
                             </div>
                         </div>
                     </div>
-                </div>
+                )) : <div className='col-span-1 text-center text-gray-500 md:col-span-2 lg:col-span-3'>No reviews found</div>}
+                {currentReview?.length &&
+                    <>
+                        <button
+                            onClick={prevTestimonial}
+                            className="absolute p-2 transition-colors -translate-x-4 -translate-y-1/2 bg-white rounded-full shadow-lg left-4 top-1/2 hover:bg-gray-50"
+                        >
+                            <ChevronLeft className="w-6 h-6 text-primary" />
+                        </button>
 
-                <button
-                    onClick={prevTestimonial}
-                    className="absolute left-0 p-2 transition-colors -translate-x-4 -translate-y-1/2 bg-white rounded-full shadow-lg top-1/2 hover:bg-gray-50"
-                >
-                    <ChevronLeft className="w-6 h-6 text-primary" />
-                </button>
-
-                <button
-                    onClick={nextTestimonial}
-                    className="absolute right-0 p-2 transition-colors translate-x-4 -translate-y-1/2 bg-white rounded-full shadow-lg top-1/2 hover:bg-gray-50"
-                >
-                    <ChevronRight className="w-6 h-6 text-primary" />
-                </button>
+                        <button
+                            onClick={nextTestimonial}
+                            className="absolute p-2 transition-colors translate-x-4 -translate-y-1/2 bg-white rounded-full shadow-lg right-4 top-1/2 hover:bg-gray-50"
+                        >
+                            <ChevronRight className="w-6 h-6 text-primary" />
+                        </button>
+                    </>}
             </div>
         </div>
     );

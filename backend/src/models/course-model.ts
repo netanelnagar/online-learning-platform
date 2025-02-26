@@ -1,13 +1,18 @@
 import { model, Query, Schema } from "mongoose";
 import { ICourse, ILesson } from "../types/course-types";
-import aws from "../utils/aws";
+import { getImageUrl } from "../utils/aws";
 
 
 const lessonSchema = new Schema<ILesson>({
      title: { type: String, required: true },
      videoName: { type: String, required: true },
      duration: { type: Number, required: true },
+}, {
+     toObject: { virtuals: true },
+     toJSON: { virtuals: true }
 });
+
+lessonSchema.virtual('videoUrl');
 
 const courseSchema = new Schema<ICourse>(
      {
@@ -16,7 +21,7 @@ const courseSchema = new Schema<ICourse>(
           thumbnail: { type: String },
           category: { type: String },
           createdBy: {
-               teacherId: { type: Schema.Types.ObjectId, ref: 'Teachers', required: true },
+               teacher: { type: Schema.Types.ObjectId, ref: 'Teachers', required: true },
                name: { type: String, required: true }
 
           },
@@ -25,7 +30,7 @@ const courseSchema = new Schema<ICourse>(
                type: [
                     {
                          _id: false,
-                         studentId: { type: Schema.Types.ObjectId, ref: 'Students' },
+                         student: { type: Schema.Types.ObjectId, ref: 'Students' },
                          enrollmentDate: { type: Date, default: Date.now }
                     }
                ], default: []
@@ -46,7 +51,7 @@ const courseSchema = new Schema<ICourse>(
 
 courseSchema.virtual('reviews', {
      ref: 'Reviews',
-     foreignField: 'courseId',
+     foreignField: 'course',
      localField: '_id'
 });
 
@@ -59,15 +64,15 @@ courseSchema.pre<Query<any, ICourse>>(/^find/, function (next) {
           this.find({ $where: 'this.lessons.length>0' });
      }
      next();
-})
+});
 
 courseSchema.post<Query<any, ICourse>>("find", async function (result, next) {
      if (Array.isArray(result)) {
           for (const doc of result) {
-               doc.thumbnail = doc.thumbnail ? await aws.getImageUrl(doc.thumbnail) : "";
+               doc.thumbnail = doc.thumbnail ? await getImageUrl(doc.thumbnail) : "";
           }
      } else if (result) {
-          result.thumbnail = result.thumbnail ? await aws.getImageUrl(result.thumbnail) : "";
+          result.thumbnail = result.thumbnail ? await getImageUrl(result.thumbnail) : "";
      }
 
      next();
@@ -78,12 +83,12 @@ courseSchema.post<Query<any, ICourse>>("find", async function (result, next) {
           if (Array.isArray(result)) {
                for (const doc of result) {
                     for (const lesson of doc.lessons) {
-                         lesson.videoUrl = await aws.getImageUrl(lesson.videoName);
+                         lesson.videoUrl = await getImageUrl(lesson.videoName);
                     }
                }
           } else if (result) {
                for (const lesson of result.lessons) {
-                    lesson.videoUrl = await aws.getImageUrl(lesson.videoName);
+                    lesson.videoUrl = await getImageUrl(lesson.videoName);
                }
           }
      }

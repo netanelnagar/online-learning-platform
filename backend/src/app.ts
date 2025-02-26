@@ -15,6 +15,7 @@ import teacherRouter from "./routes/teacher-route";
 import cookieParser from "cookie-parser";
 import adminRouter from "./routes/admin-route";
 import { sendRes } from "./utils/general-functions";
+import { logout, autoLogin } from "./controllers/auth-controller";
 
 
 const log = getLogger("app");
@@ -61,6 +62,8 @@ app.use('/api/courses', courseRouter);
 app.use('/api/students', studentRouter);
 app.use('/api/teachers', teacherRouter);
 app.use('/api/admin', adminRouter);
+app.get("/api/logout", logout);
+app.get('/api/auto-login', autoLogin);
 
 
 app.use('*', (req, res, next) => {

@@ -37,12 +37,12 @@ function SignIn() {
 
     useEffect(() => {
         if (error) {
-            msgs.current?.show({ severity: 'error', summary: 'Error', detail: `some error please refresh and try again`, sticky: true, closable: false })
+            msgs.current?.show({ severity: 'error', summary: 'Error', detail: `some error please refresh and try again`, life: 5000 });
         } else {
             msgs.current?.clear();
         }
         if (isSuccess) {
-            toast.current?.show({ severity: 'success', summary: 'Success', detail: 'Logged in successfully', sticky: true, closable: false });
+            toast.current?.show({ severity: 'success', summary: 'Success', detail: 'Logged in successfully', life: 5000 });;
             setTimeout(() => {
                 navigate("/")
             }, 1000);
@@ -56,8 +56,8 @@ function SignIn() {
 
     return (
         <div className="flex flex-col min-h-full overflow-y-auto">
-            <div className='px-2 py-4 flex-grow place-content-center'>
-                <div className="md:space-x-8 space-y-8 md:space-y-0 md:grid md:grid-cols-2 bg-white/70 shadow-xl m-auto p-8 border border-black/20 rounded-2xl md:w-[700px] max-w-md md:max-w-screen-md">
+            <div className='flex-grow px-2 py-4 place-content-center'>
+                <div className="md:space-x-8 space-y-8 md:space-y-0 md:grid md:grid-cols-2 bg-white/70 m-auto p-8 md:border md:border-black/20 md:rounded-2xl md:w-[700px] max-w-md md:max-w-screen-md">
                     {isLoading && <div className='absolute bottom-0 left-0 z-10 flex items-center justify-center w-full h-full bg-slate-200/70'><Loader className='w-28 h-28' /></div>}
                     <div className="text-center md:flex md:flex-col md:justify-center md:col-span-1">
                         <h2 className="text-4xl font-bold">
@@ -103,7 +103,7 @@ function SignIn() {
                                     register={register}
                                     showLabel={false}
                                     label='email'
-                                    className="bg-gray-50 pl-10 text-gray-900 placeholder-gray-400 "
+                                    className="pl-10 text-gray-900 placeholder-gray-400 bg-gray-50 "
                                     placeholder="Enter your email"
 
                                 />
@@ -120,7 +120,7 @@ function SignIn() {
                                     register={register}
                                     showLabel={false}
                                     label='password'
-                                    className="bg-gray-50 pl-10 text-gray-900 placeholder-gray-400 "
+                                    className="pl-10 text-gray-900 placeholder-gray-400 bg-gray-50 "
                                     placeholder="Enter your password"
                                 />
                             </div>

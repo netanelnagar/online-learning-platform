@@ -10,7 +10,7 @@ interface IButton {
     type?: "button" | "submit" | "reset";
     variant?: 'primary' | 'secondary' | "outline";
 }
-function Button({ children, className, to, onClick, disabled, variant, type = "button"}: IButton) {
+function Button({ children, className, to, onClick, disabled, variant, type = "button" }: IButton) {
     let classes;
 
     switch (variant) {

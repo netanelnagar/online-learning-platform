@@ -3,6 +3,7 @@ import { Response } from "express";
 import { IStudent } from "../types/student-types";
 import { ITeacher } from "../types/teacher-types";
 import { createHash, randomBytes } from "crypto";
+import { Courses } from "../models/course-model";
 
 // @ts-ignore
 export const checkSamePassword = function (el) {
@@ -54,3 +55,12 @@ export const createPasswordResetToken = function (this: IStudent | ITeacher) {
 
     return resetToken;
 };
+
+
+export async function getCourseCount(teacher: string): Promise<{ count: number, totalStudents: number }> {
+    const courses = await Courses.find({ "createdBy.teacher": teacher });
+    return {
+        count: courses.length,
+        totalStudents: courses.reduce((acc, curr) => acc + (curr.studentsEnrolled?.length || 5), 0)
+    };
+}

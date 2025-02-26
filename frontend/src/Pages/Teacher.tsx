@@ -45,7 +45,9 @@ export default function Teacher() {
             <div className="container p-8 mx-auto space-y-4 lg:px-12">
                 <div className="flex flex-col items-center gap-8 md:flex-row md:items-start">
                     <div className="relative">
-                    <ImageChecker className="object-cover w-32 h-32 rounded-full text-5xl font-extrabold" imageUrl="" username={profile.username} />
+                        <ImageChecker imageClass="object-cover w-32 h-32 rounded-full"
+                            pClass="bg-blue-800 text-white flex items-center justify-center text-5xl font-extrabold rounded-full w-32 h-32"
+                            imageUrl="" errValue={`${profile.username.charAt(0)}${profile.username.split(" ")[1]?.charAt(0)}`} />
                     </div>
                     <div className="flex flex-col items-start">
                         <h2 className="mb-2 text-2xl font-bold">{profile?.username}</h2>

@@ -9,7 +9,7 @@ export interface ILessonsProgress {
 export interface ICourseProgressSchema {
     _id: Types.ObjectId;
     userId: Types.ObjectId;
-    courseId: Types.ObjectId;
+    course: Types.ObjectId;
     completed: boolean;
     lessonsProgress: ILessonsProgress[];
 }

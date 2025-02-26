@@ -15,10 +15,10 @@ export interface ICourse extends Document {
     description: string; // Course description
     thumbnail?: string; // Optional thumbnail image URL
     category?: string; // Optional course category
-    createdBy: { teacherId: Types.ObjectId; name: string; }; // Reference to the teacher who created the course
+    createdBy: { teacher: Types.ObjectId; name: string; }; // Reference to the teacher who created the course
     lessons: ILesson[]; // Array of lessons in the course
     studentsEnrolled?: { // Optional array of students enrolled in the course
-        studentId: Types.ObjectId; // Reference to the student
+        student: Types.ObjectId; // Reference to the student
         enrollmentDate?: Date; // Optional enrollment date
     }[];
     rating: { // Rating information for the course

@@ -1,33 +1,22 @@
 import { Teachers } from "../models/teacher-model";
-import authController from "./auth-controller";
-import factory from "./factory";
+import { signup as signupAuth, login as loginAuth } from "./auth-controller";
+import { getAll, getOne, updateOne, deleteOne, deleteMe as deleteMeFactory, updateMe as updateMeFactory, me as meFactory } from "./factory";
 
 
 
-const signup = authController.signup(Teachers);
-const login = authController.login(Teachers);
-const getTeachers = factory.getAll(Teachers);
-const getTeacher = factory.getOne(Teachers);
-const deleteTeacher = factory.deleteOne(Teachers);
+export const signup = signupAuth(Teachers);
+export const login = loginAuth(Teachers);
+export const getTeachers = getAll(Teachers);
+export const getTeacher = getOne(Teachers);
+export const deleteTeacher = deleteOne(Teachers);
 
 //need to verify if he want to update password
-const updateTeacher = factory.updateOne(Teachers);
-const deleteMe = factory.deleteMe(Teachers);
-const updateMe = factory.updateMe(Teachers);
-const me = factory.me(Teachers);
-const validate = factory.validate;
+export const updateTeacher = updateOne(Teachers);
+export const deleteMe = deleteMeFactory(Teachers);
+export const updateMe = updateMeFactory(Teachers);
+export const me = meFactory(Teachers);
 
 
 
 
-export default {
-    signup,
-    login,
-    getTeachers,
-    getTeacher,
-    updateTeacher,
-    deleteTeacher,
-    deleteMe,
-    updateMe,
-    validate
-}
+

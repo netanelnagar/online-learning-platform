@@ -22,9 +22,25 @@ export interface ILesson {
     _id: string;
     title: string;
     videoName: string;
+    videoUrl: string;
     duration: number;
 }
 
+export interface IReview {
+    student: {
+        _id: string;
+        name: string;
+        imageName: string;
+    };
+    course: {
+        _id: string;
+        title: string;
+    };
+    rating: number;
+    comment: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
 
 
 export interface ITeacher {
@@ -35,7 +51,7 @@ export interface ITeacher {
     bio: string;
     qualifications: string[];
     socialLinks: {
-        twitter?: string;
+        github?: string;
         linkedin?: string;
         website?: string;
     };
@@ -50,20 +66,27 @@ export interface IStudent {
     username: string;
     email: string;
     profilePicture: string;
-    enrolledCourses: string[];
-    certificates: string[];
+    enrolledCourses: {
+        course: string;
+        progress?: number;
+        completedLessons?: string[];
+        enrollmentDate?: Date;
+    }[];
+    certificates: {
+        course: string;
+        completionDate: string;
+    }[];
     role: string;
 }
 
 export interface IAdmin {
-    _id: string; // Unique identifier for the course
+    _id: string;
     username: string;
     email: string;
-    role?: string; // Optional because it has a default value
-    createdAt?: Date; // Optional because it's automatically managed by timestamps
-    updatedAt?: Date; // Optional because it's automatically managed by timestamps
+    role?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
 }
-
 
 
 export interface ILessonsProgress {
@@ -75,14 +98,15 @@ export interface ILessonsProgress {
 export interface ICourseProgressSchema {
     _id: string;
     userId: string;
-    courseId: string;
+    course: string;
     completed: boolean;
     lessonsProgress: ILessonsProgress[];
 }
 
 export interface IEnrolledCorses {
+    _id: string;
     title: string;
     teacherName: string;
     lessons: ILesson[];
-    courseProgress?: ICourseProgressSchema;
 }
+

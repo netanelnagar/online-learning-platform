@@ -1,17 +1,18 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import { Document, Model } from "mongoose";
 import catchAsync from "../utils/catch-async";
 import { getLogger } from "../utils/winston-logger";
 import { AppError } from "../utils/app-error";
 import { sendRes } from "../utils/general-functions";
-import aws from "../utils/aws";
+import {  deleteFileFromS3 } from "../utils/aws";
+import { CustomRequest } from "../types/express";
 
 
 const log = getLogger("factory")
 
-const getAll = (model: Model<any>) => catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+export const getAll = (Model: Model<any>) => catchAsync(async (req: CustomRequest, res: Response, next: NextFunction) => {
 
-    const query = model.find();
+    const query = Model.modelName === "Teachers" ? Model.find().setOptions({ forHomePage: true }) : Model.find();
 
     const data = await query;
 
@@ -20,7 +21,7 @@ const getAll = (model: Model<any>) => catchAsync(async (req: Request, res: Respo
 
 
 
-const createOne = (Model: Model<any>, isLastMiddleware = true) => catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+export const createOne = (Model: Model<any>, isLastMiddleware = true) => catchAsync(async (req: CustomRequest, res: Response, next: NextFunction) => {
     let doc = new Model(req.body) as Document;
 
     const err = doc.validateSync();
@@ -34,15 +35,13 @@ const createOne = (Model: Model<any>, isLastMiddleware = true) => catchAsync(asy
     if (isLastMiddleware) {
         return sendRes(res, 201, "success", doc)
     } else {
-        // @ts-ignore
         req.doc = doc;
         next();
     }
 
 })
 
-const updateOne = (Model: Model<any>) => catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-
+export const updateOne = (Model: Model<any>) => catchAsync(async (req: CustomRequest, res: Response, next: NextFunction) => {
 
     const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
         new: true,
@@ -59,7 +58,7 @@ const updateOne = (Model: Model<any>) => catchAsync(async (req: Request, res: Re
 
 })
 
-const deleteOne = (Model: Model<any>, isLastMiddleware = true) => catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+export const deleteOne = (Model: Model<any>, isLastMiddleware = true) => catchAsync(async (req: CustomRequest, res: Response, next: NextFunction) => {
 
     const doc = await Model.findByIdAndDelete(req.params.id);
 
@@ -76,7 +75,7 @@ const deleteOne = (Model: Model<any>, isLastMiddleware = true) => catchAsync(asy
 
 })
 
-const getOne = (Model: Model<any>) => catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+export const getOne = (Model: Model<any>) => catchAsync(async (req: CustomRequest, res: Response, next: NextFunction) => {
     const doc = await Model.findById(req.params.id);
 
     if (!doc) {
@@ -87,24 +86,24 @@ const getOne = (Model: Model<any>) => catchAsync(async (req: Request, res: Respo
 
 })
 
-const deleteMe = (Model: Model<any>) => catchAsync(async (req, res, next) => {
-    //@ts-ignore
+export const deleteMe = (Model: Model<any>) => catchAsync(async (req: CustomRequest, res: Response, next: NextFunction) => {
     const doc = await Model.findByIdAndUpdate(req.user?.id, { active: false, imageName: undefined });
 
-    if (doc.imageName) await aws.deleteFileFromS3(doc.imageName);
+    if (doc.imageName) await deleteFileFromS3(doc.imageName);
 
     log.info(`Deleted doc in ${Model.modelName} ID: ${doc._id} collection`);
 
     sendRes(res, 204, "success", null);
 
 });
-const updateMe = (Model: Model<any>) => catchAsync(async (req, res, next) => {
+export const updateMe = (Model: Model<any>) => catchAsync(async (req: CustomRequest, res: Response, next: NextFunction) => {
 
+    if (req.file) req.body.imageName = req.file.filename;
 
-    if (req.file) req.body.profilePicture = req.file.filename;
-
-    //@ts-ignore
-    const doc = await Model.findByIdAndUpdate(req.user?.id, req.body, { new: true, runValidators: true });
+    const doc = Model.modelName === "Teachers" ?
+        await Model.findByIdAndUpdate(req.user?.id, { ...req.body, "socialLinks.linkedin": req.body.linkedIn, "socialLinks.github": req.body.github, "socialLinks.website": req.body.website }, { new: true, runValidators: true }).setOptions({ withUrlMedia: true })
+        :
+        await Model.findByIdAndUpdate(req.user?.id, req.body, { new: true, runValidators: true }).setOptions({ withUrlMedia: true });
 
     log.info(`Updated doc in ${Model.modelName} ID: ${doc._id} collection`);
 
@@ -112,7 +111,7 @@ const updateMe = (Model: Model<any>) => catchAsync(async (req, res, next) => {
 
 });
 
-const validate = catchAsync(async (req, res, next) => {
+export const validate = catchAsync(async (req: CustomRequest, res: Response, next: NextFunction) => {
     const { email, password, passwordConfirm } = req.body;
     if (email) throw new AppError("Can't update email.", 400);
     if (password || passwordConfirm)
@@ -120,20 +119,8 @@ const validate = catchAsync(async (req, res, next) => {
     next();
 });
 
-const me = (Model: Model<any>) => catchAsync(async (req, res, next) => {
-    // @ts-ignore
+export const me = (Model: Model<any>) => catchAsync(async (req: CustomRequest, res: Response, next: NextFunction) => {
     const doc = await Model.findById(req.user?.id).setOptions({ withUrlMedia: true });
     sendRes(res, 200, "success", doc);
 });
 
-export default {
-    getAll,
-    createOne,
-    updateOne,
-    deleteOne,
-    getOne,
-    deleteMe,
-    updateMe,
-    validate,
-    me
-}  

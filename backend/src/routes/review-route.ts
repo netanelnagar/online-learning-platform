@@ -1,18 +1,21 @@
 import { Router } from "express";
-import reviewController from "../controllers/review-controller";
-import authController from "../controllers/auth-controller";
+import { getStudentReview, getReviews, deleteReview, createReview, getCourseReview } from "../controllers/review-controller";
 import { Students } from "../models/student-model";
+import { protect } from "../controllers/auth-controller";
+
 
 const reviewRouter = Router();
 
 
 reviewRouter.route("/")
-    .get(reviewController.getReviews);
+    .get(getReviews);
 
+reviewRouter.get("/course/:id", getCourseReview);
 
-reviewRouter.use(authController.protect(Students));
+reviewRouter.use(protect(Students));
 
-reviewRouter.post("/", reviewController.createReview);
-reviewRouter.delete("/:id", reviewController.deleteReview)
+reviewRouter.post("/", createReview);
+reviewRouter.route("/:id").delete(deleteReview)
+reviewRouter.get("/me", getStudentReview);
 
 export default reviewRouter;

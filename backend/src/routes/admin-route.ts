@@ -1,35 +1,35 @@
 import { Router } from "express";
-import adminController from "../controllers/admin-controller";
-import authController from "../controllers/auth-controller";
+import { signupAdmin, loginAdmin } from "../controllers/admin-controller";
+import { protect } from "../controllers/auth-controller";
 import { Admin } from "../models/admin-model";
-import studentController from "../controllers/student-controller";
-import teacherController from "../controllers/teacher-controller";
+import { getStudents, getStudent, updateStudent, deleteStudent } from "../controllers/student-controller";
+import { getTeachers, getTeacher, updateTeacher, deleteTeacher } from "../controllers/teacher-controller";
 
 const adminRouter = Router();
 
 
-adminRouter.post('/signup', adminController.signupAdmin);
-adminRouter.post('/login', adminController.loginAdmin);
+adminRouter.post('/signup', signupAdmin);
+adminRouter.post('/login', loginAdmin);
 // adminRouter.get('/logout', .....);
 // adminRouter.delete('/deleteMe', ....);
 
-adminRouter.use(authController.protect(Admin));
+adminRouter.use(protect(Admin));
 
 
 adminRouter.route('/students')
-    .get(studentController.getStudents);
+    .get(getStudents);
 adminRouter.route("/students/:id")
-    .get(studentController.getStudent)
-    .patch(studentController.updateStudent)
-    .delete(studentController.deleteStudent);
+    .get(getStudent)
+    .patch(updateStudent)
+    .delete(deleteStudent);
 
 
 adminRouter.route("/teachers")
-    .get(teacherController.getTeachers);
+    .get(getTeachers);
 adminRouter.route("/teachers/:id")
-    .get(teacherController.getTeacher)
-    .patch(teacherController.updateTeacher)
-    .delete(teacherController.deleteTeacher);
+    .get(getTeacher)
+    .patch(updateTeacher)
+    .delete(deleteTeacher);
 
 
 

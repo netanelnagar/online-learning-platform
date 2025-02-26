@@ -3,7 +3,7 @@ import { IStudent } from "../types/student-types";
 import validator from "validator";
 import { checkSamePassword, changedPasswordAfter, correctPassword, createPasswordResetToken } from "../utils/general-functions";
 import { hash } from "bcryptjs";
-import aws from "../utils/aws";
+import { getImageUrl } from "../utils/aws";
 
 
 const studentSchema = new Schema<IStudent>(
@@ -31,7 +31,7 @@ const studentSchema = new Schema<IStudent>(
         enrolledCourses: [
             {
                 _id: false,
-                courseId: { type: Schema.Types.ObjectId, ref: "Courses" },
+                course: { type: Schema.Types.ObjectId, ref: "Courses" },
                 progress: { type: Number, default: 0 },
                 completedLessons: [{ type: Schema.Types.ObjectId }],
                 enrollmentDate: { type: Date, default: Date.now }
@@ -40,9 +40,8 @@ const studentSchema = new Schema<IStudent>(
         certificates: [
             {
                 _id: false,
-                courseId: { type: Schema.Types.ObjectId, ref: "Courses" },
-                certificateUrl: String,
-                completionDate: Date
+                course: { type: Schema.Types.ObjectId, ref: "Courses" },
+                completionDate: { type: Date, default: Date.now }
             }
         ],
         active: {
@@ -58,32 +57,35 @@ const studentSchema = new Schema<IStudent>(
 
 
 studentSchema.pre<Query<any, IStudent>>(/^find/, function (next) {
-    console.log("first student")
 
     if (!this.getOptions().overridePublishedFilter) {
         this.find({ active: true });
     }
 
-    this.populate({
-        path: 'certificates.courseId',
-        select: 'title description -_id'
-    }).populate({
-        path: 'enrolledCourses.courseId',
-        match: { published: true },
-        select: 'title description -_id'
-    });
+    if (this.getOptions().populate) {
+        this.populate({
+            path: 'certificates.course',
+            select: 'title description -_id'
+        }).populate({
+            path: 'enrolledCourses.course',
+            match: { published: true },
+            select: 'title description -_id'
+        });
+    }
 
     next();
 });
+
+
 studentSchema.post<Query<any, IStudent>>(/^find/, async function (docs, next) {
     if (this.getOptions().withUrlMedia) {
         if (Array.isArray(docs)) {
             for (const doc of docs) {
-                doc.profilePicture = doc.imageName ? await aws.getImageUrl(doc.imageName) : "";
+                doc.profilePicture = doc.imageName ? await getImageUrl(doc.imageName) : "";
                 doc.password = undefined;
             }
         } else if (docs) {
-            docs.profilePicture = docs.imageName ? await aws.getImageUrl(docs.imageName) : "";
+            docs.profilePicture = docs.imageName ? await getImageUrl(docs.imageName) : "";
             docs.password = undefined;
         }
     }

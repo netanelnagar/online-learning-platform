@@ -10,7 +10,7 @@ const lessonsProgressSchema = new Schema<ILessonsProgress>({
 
 const courseProgressSchema = new Schema<ICourseProgressSchema>({
     userId: { type: Schema.Types.ObjectId, ref: 'Students' },
-    courseId: { type: Schema.Types.ObjectId, ref: 'Courses' },
+    course: { type: Schema.Types.ObjectId, ref: 'Courses' },
     completed: { type: Boolean },
     lessonsProgress: [lessonsProgressSchema]
 });

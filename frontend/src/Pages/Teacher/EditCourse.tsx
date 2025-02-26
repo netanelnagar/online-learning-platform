@@ -10,15 +10,23 @@ import { editCourseSchema, editLessonsCourseSchema } from "../../utils/yupSchema
 import Loader from "../../Components/Ui/Loader";
 import { useAddLessonMutation, useRemoveLessonMutation } from "../../redux/api/courseApi";
 import { useToast } from "../../Context/Toast";
+import { Dropdown } from "primereact/dropdown";
 
 
 
-const classesP = "w-full my-1 text-red-600"
+const classesP = "w-full my-1 text-red-600";
+
+const categories = [
+    { name: 'Computer', code: 'NY' },
+    { name: 'Full Stack', code: 'RM' },
+    { name: 'Backend', code: 'LDN' },
+    { name: 'FrontEnd', code: 'IST' },
+];
 
 interface IFormInput {
     title: string;
     description: string;
-    category: string;
+    category: { name: string; code: string; };
     price: number;
     thumbnail: File;
 }
@@ -38,7 +46,7 @@ export function EditCourse({ course, handleBack, handleSave, isLoading }: IEditC
     const [currentRemoveLess, setCurrentRemoveLess] = useState("")
     const [removeLesson, { isLoading: isLoadingRemoveLess, isError, error, isSuccess }] = useRemoveLessonMutation();
     const [addLessons, { isLoading: isLoadingAddLess, isError: isErrorAdd, error: errorAdd }] = useAddLessonMutation();
-    const { register: lessonRegister, handleSubmit: lessonsSubmit, setValue: lessonsSetValue, control: lessonsControl, reset:resetLesson, formState: { errors: lessonErrors } } = useForm<ILessonForm>({
+    const { register: lessonRegister, handleSubmit: lessonsSubmit, setValue: lessonsSetValue, control: lessonsControl, reset: resetLesson, formState: { errors: lessonErrors } } = useForm<ILessonForm>({
         defaultValues: {
             lessons: [{ title: "", video: "" }]
         },
@@ -51,11 +59,11 @@ export function EditCourse({ course, handleBack, handleSave, isLoading }: IEditC
         name: "lessons", // Register the array
     });
 
-    const { register, handleSubmit, setValue, formState: { errors } } = useForm<IFormInput>({
+    const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<IFormInput>({
         defaultValues: {
             title: course?.title || "",
             description: course?.description || "",
-            category: course?.category.join(" , ") || "",
+            category: categories.find(cat => cat.name === course?.category)!,
             price: course?.price || 0,
         },
         // @ts-ignore
@@ -66,7 +74,7 @@ export function EditCourse({ course, handleBack, handleSave, isLoading }: IEditC
 
 
     const onSubmit: SubmitHandler<IFormInput> = (data) => {
-        handleSave({ ...data, _id: course?._id })
+        handleSave({ ...data, _id: course?._id, category: data.category.name })
     };
 
 
@@ -77,14 +85,13 @@ export function EditCourse({ course, handleBack, handleSave, isLoading }: IEditC
                 return;
             }
         }
-        console.log(data)
         addLessons({ _id: course?._id, lessons: data.lessons })
     };
 
     const deletedLesson = (id: string) => {
         setCurrentRemoveLess(id)
-        removeLesson({ courseId: course?._id, lessonId: id })
-    } 
+        removeLesson({ course: course?._id, lessonId: id })
+    }
 
     useEffect(() => {
         // @ts-ignore
@@ -97,10 +104,14 @@ export function EditCourse({ course, handleBack, handleSave, isLoading }: IEditC
         }
     }, [isError, isErrorAdd, isSuccess])
 
+    const category = watch("category");
+
+
+
     return (
         <div className="grid grid-cols-4 md:space-x-6">
-            <button onClick={handleBack} className="my-4 ml-3 col-span-4 text-start">← Back</button>
-            <Card className="p-6 relative col-span-4 xl:col-span-2">
+            <button onClick={handleBack} className="col-span-4 my-4 ml-3 text-start">← Back</button>
+            <Card className="relative col-span-4 p-6 xl:col-span-2">
 
                 <form className="space-y-4 " onSubmit={handleSubmit(onSubmit)}>
                     {isLoading && <div className='absolute bottom-0 left-0 z-10 flex items-center justify-center w-full h-full bg-slate-200/20'><Loader className='w-28 h-28' /></div>}
@@ -121,14 +132,7 @@ export function EditCourse({ course, handleBack, handleSave, isLoading }: IEditC
 
                     />
 
-                    <Input
-                        label="category"
-                        register={register}
-                        showLabel={true}
-                        showErr={true}
-                        err={errors.category}
-
-                    />
+                    <Dropdown placeholder="Select Category" inputId="dd-city" value={category} onChange={(e) => setValue("category", e.value)} options={categories} optionLabel="name" className="w-full border !mt-7" />
 
                     <Input
                         label="price"
@@ -139,7 +143,7 @@ export function EditCourse({ course, handleBack, handleSave, isLoading }: IEditC
 
                     />
                     <div>
-                        <label htmlFor="fileInput" className="inline-block mb-1 py-2 px-4 text-sm text-white rounded-md font-medium bg-primary">Add Thumbnail</label>
+                        <label htmlFor="fileInput" className="inline-block px-4 py-2 mb-1 text-sm font-medium text-white rounded-md bg-primary">Add Thumbnail</label>
                         <input
                             className="hidden"
                             id="fileInput"
@@ -154,7 +158,7 @@ export function EditCourse({ course, handleBack, handleSave, isLoading }: IEditC
                     <Button type="submit" className="w-full text-sm" >Save</Button>
                 </form>
             </Card>
-            <Card className="col-span-4 xl:col-span-2 mt-4 xl:mt-0">
+            <Card className="col-span-4 mt-4 xl:col-span-2 xl:mt-0">
                 <form onSubmit={lessonsSubmit(onSubmitLesson)}>
                     <h3 className="mb-2 font-semibold">Lessons</h3>
                     <div className="space-y-4">
@@ -162,7 +166,7 @@ export function EditCourse({ course, handleBack, handleSave, isLoading }: IEditC
                             <Card key={index} className="p-4">
                                 <div className={`flex items-start justify-${currentRemoveLess === lesson._id && isLoadingRemoveLess ? 'center' : 'between'}`}>
                                     {currentRemoveLess === lesson._id && isLoadingRemoveLess ?
-                                        <Loader className="h-6 w-6" />
+                                        <Loader className="w-6 h-6" />
                                         :
                                         <>
                                             <div>
@@ -181,14 +185,14 @@ export function EditCourse({ course, handleBack, handleSave, isLoading }: IEditC
                             </Card>
                         ))}
 
-                        <Card className="p-4 relative">
+                        <Card className="relative p-4">
                             {isLoadingAddLess && <div className='absolute bottom-0 left-0 z-10 flex items-center justify-center w-full h-full bg-slate-200/70'><Loader className='w-28 h-28' /></div>}
                             <div className="space-y-2">
                                 {fields.map((field, index) => (
                                     <div key={field.id}>
                                         <div className="flex justify-between ">
                                             <input {...lessonRegister(`lessons.${index}.title`)} placeholder="Enter the Title" className={`${inputClasses} !w-2/4 md:!max-w-3/4`} />
-                                            <label htmlFor={`videoInput${index}`} className="inline-block mb-1 py-3 px-4 text-sm text-white rounded-md font-medium bg-primary">Add Lesson</label>
+                                            <label htmlFor={`videoInput${index}`} className="inline-block px-4 py-3 mb-1 text-sm font-medium text-white rounded-md bg-primary">Add Lesson</label>
                                             <input
                                                 className="hidden"
                                                 id={`videoInput${index}`}
