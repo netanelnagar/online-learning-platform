@@ -71,12 +71,11 @@ export const deleteCourse = catchAsync(async (req: CustomRequest, res: Response,
 
 
 export const deleteLesson = catchAsync(async (req: CustomRequest, res: Response, next: NextFunction) => {
-    const { course: course, lesson: lessonId } = req.query;
+    const { course: courseId, lesson: lessonId } = req.query;
 
-    if (!course || !lessonId) { throw new AppError('Course and lesson IDs are required', 400) }
+    if (!courseId || !lessonId) { throw new AppError('Course and lesson IDs are required', 400) }
 
-
-    const course = await Courses.findById(course);
+    const course = await Courses.findById(courseId);
 
     if (!course) { throw new AppError('No document found with that ID', 404) };
 

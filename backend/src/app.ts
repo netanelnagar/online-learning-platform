@@ -50,7 +50,7 @@ app.use(express.json());
 
 const corsOptions = {
     origin: process.env.FRONTEND_URL, 
-    credentials: true, // Allow cookies to be sent
+    credentials: true, 
 };
 
 app.use(cors(corsOptions));
